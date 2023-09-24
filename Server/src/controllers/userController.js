@@ -115,7 +115,7 @@ const resetPassword = async (req, res, next) => {
         const thisUser = await User.findOne({ passwordResetToken: hashToken })
 
         // if token is not expire + this user is exist, set the new password for this user
-        if (!thisUser || thisUser.resetTokenExpire < Date.now()){
+        if (!thisUser || thisUser.resetTokenExpire < Date.now()) {
             return next(new CustomError('This reset token is invalid or expired', 400))
         }
 
@@ -139,11 +139,69 @@ const resetPassword = async (req, res, next) => {
     }
 }
 
+const updatePassword = async (req, res, next) => {
+    try {
+        // get user
+        const thisUser = req.user
+
+        // check typed password is correct
+        const { oldPassword, newPassword } = req.body
+        if (!oldPassword || !newPassword) return next(new CustomError('Please enter your password and new password', 400))
+        if (!thisUser.comparePassword(oldPassword, thisUser.password)) {
+            return next(new CustomError('Your password you enter is incorrect', 401))
+        }
+
+        // change password
+        thisUser.password = newPassword
+        await thisUser.save({ validateBeforeSave: false })
+
+        res.status(200).send({
+            status: 'ok',
+            message: 'change password successfully'
+        })
+
+        // 
+    } catch (error) {
+        return next(error)
+    }
+}
+
+const filterObject = (obj, ...allowField) => {
+    const newObject = {}
+    Object.keys(obj).forEach(ele => {
+        if (allowField.includes(ele)) newObject[ele] = obj[ele]
+    })
+    return newObject
+}
+
+const updateInfo = async (req, res, next) => {
+    try {
+        if (req.body.password) return next(new CustomError('You can not update password here', 400))
+
+        const filterBody = filterObject(req.body, 'name', 'email')
+
+        const updateUser = await User.findByIdAndUpdate(req.user._id, filterBody, {
+            new: true,
+            runValidators: true
+        })
+
+        res.status(200).send({
+            status: 'ok',
+            data: updateUser
+        })
+
+    } catch (error) {
+        return next(error)
+    }
+}
+
 // 
 module.exports = {
     register,
     login,
     forgetPassoword,
     resetPassword,
+    updatePassword,
+    updateInfo,
     getAllUser
 }

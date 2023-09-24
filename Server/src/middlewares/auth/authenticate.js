@@ -17,7 +17,7 @@ const authentication = async (req, res, next) => {
         decode = jwt.verify(token, process.env.JWT_SECRET)
         // console.log(decode)
     } catch (error) {
-        return next(new CustomError('Invalid or Expired token', 401))
+        return next(new CustomError('Invalid or Expired token, please login again', 401))
     }
 
     // check if this user still exist

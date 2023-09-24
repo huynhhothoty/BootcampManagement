@@ -11,6 +11,8 @@ userRouter.post('/register', userController.register)
 userRouter.post('/login', userController.login)
 userRouter.post('/forgetpassword', userController.forgetPassoword)
 
+userRouter.patch('/changepassword', authentication, userController.updatePassword)
+userRouter.patch('/changeinfo', authentication, userController.updateInfo)
 userRouter.patch('/resetpassword/:token', userController.resetPassword)
 
 // 
