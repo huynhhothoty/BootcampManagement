@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer')
-const { google } = require('googleapis');
+const { google } = require('googleapis')
+const fs = require('fs')
 
 
 const CLIENT_ID = '451183807457-4397eb2ns23opm6a3rigk7hueasndc8m.apps.googleusercontent.com';
@@ -38,16 +39,27 @@ const sendEmail = async options => {
             }
         });
 
-        // define mail options
+        // const htmlContent = fs.readFileSync('emailContent.html', 'utf-8')
+        const htmlContent = ''
+        
         const mailOption = {
             from: 'Bootcamp Admin',
             to: options.email,
             subject: options.subject,
-            text: options.message,
-            // html: 
+            // text: options.message,
+            html: `
+                <div style="width: 100%; height: 200px; background-color: aqua; padding: 20px; border-radius: 10px;">
+                    <h2>Here's your reset code</h2>
+                    <p style="font-weight: bold; color: red; font-style: italic; margin-bottom: 30px;">
+                        !!!Note: Please don't share this code to anyone or they can take your account
+                    </p>
+                    <span style="border: 3px solid black; text-align: center; padding: 14px 17px;">
+                        ${options.message}
+                    </span>
+                </div>
+            `
         }
 
-        // send mail
         await transporter.sendMail(mailOption)
     } catch (error) {
         return next(error)

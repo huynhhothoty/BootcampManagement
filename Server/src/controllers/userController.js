@@ -84,11 +84,12 @@ const forgetPassoword = async (req, res, next) => {
 
         const resetURL = `${req.protocol}://${req.get('host')}/api/user/resetpassword/${resetToken}`
         let message = `send PATCH request with body is your new passoword to this link\n${resetURL}`
+        
         try {
             await sendEmail({
                 email: thisUser.email,
                 subject: 'Reset password token (only valid for 5 mins)',
-                message
+                message: resetToken
             })
 
             res.status(200).send({
