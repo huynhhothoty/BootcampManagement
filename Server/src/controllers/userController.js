@@ -111,7 +111,7 @@ const forgetPassoword = async (req, res, next) => {
             thisUser.passwordResetToken = undefined;
             thisUser.resetTokenExpire = undefined;
             await thisUser.save({ validateBeforeSave: false });
-
+            console.log(error);
             return next(
                 new CustomError(
                     'Error occurs when sending email, please try again',

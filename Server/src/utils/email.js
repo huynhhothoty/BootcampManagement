@@ -1,17 +1,23 @@
-const nodemailer = require('nodemailer')
-const { google } = require('googleapis')
-const fs = require('fs')
+const nodemailer = require('nodemailer');
+const CustomError = require('./CustomError');
+const { google } = require('googleapis');
+const fs = require('fs');
 
-
-const CLIENT_ID = '451183807457-4397eb2ns23opm6a3rigk7hueasndc8m.apps.googleusercontent.com';
+const CLIENT_ID =
+    '451183807457-4397eb2ns23opm6a3rigk7hueasndc8m.apps.googleusercontent.com';
 const CLIENT_SECRET = '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';
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-const REFRESH_TOKEN = '1//04c8mfPnneQgtCgYIARAAGAQSNwF-L9IrXfjyJtkDG94h-TkMUPqYiN7Tp2BnxnM9wuON78qgOZCD4CFqtSUvwoJuNT4bUENN_MQ';
+const REFRESH_TOKEN =
+    '1//04rIgNPtaiZAaCgYIARAAGAQSNwF-L9Ir5_nsdt4S6KWgFwkKeamsmDvQ4wTEDbMasWC8UZXCVUoipXGIlIItheCQ9ph9suyw3pg';
 
-const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+const oAuth2Client = new google.auth.OAuth2(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+);
 oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-const sendEmail = async options => {
+const sendEmail = async (options) => {
     // create transport -> mailtrap - in dev
     // const transporter = nodemailer.createTransport({
     //     host: 'sandbox.smtp.mailtrap.io',
@@ -22,11 +28,9 @@ const sendEmail = async options => {
     //     }
     // })
 
-
-
     // create transport -> gmail - prod
     try {
-        const MyAccessToken = await oAuth2Client.getAccessToken()
+        const MyAccessToken = await oAuth2Client.getAccessToken();
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -35,13 +39,13 @@ const sendEmail = async options => {
                 clientId: CLIENT_ID,
                 clientSecret: CLIENT_SECRET,
                 refreshToken: REFRESH_TOKEN,
-                accessToken: MyAccessToken
-            }
+                accessToken: MyAccessToken,
+            },
         });
 
         // const htmlContent = fs.readFileSync('emailContent.html', 'utf-8')
-        const htmlContent = ''
-        
+        const htmlContent = '';
+
         const mailOption = {
             from: 'Bootcamp Admin',
             to: options.email,
@@ -57,13 +61,13 @@ const sendEmail = async options => {
                         ${options.message}
                     </span>
                 </div>
-            `
-        }
+            `,
+        };
 
-        await transporter.sendMail(mailOption)
+        await transporter.sendMail(mailOption);
     } catch (error) {
-        return next(error)
+        return new CustomError(error);
     }
-}
+};
 
-module.exports = sendEmail
+module.exports = sendEmail;
