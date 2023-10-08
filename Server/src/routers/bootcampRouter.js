@@ -13,7 +13,13 @@ BCRouter.route('/')
         BCController.beforeCrud,
         BCController.createBC
     )
-    .get(authorize('admin'), BCController.beforeCrud, BCController.getAllBC);
+    .get(authorize('admin'), BCController.getAllBC);
+
+BCRouter.route('/stats').get(authorize('admin'), BCController.getBootcampStats);
+BCRouter.route('/stats/:id').get(
+    authorize('admin'),
+    BCController.getBootcampStats
+);
 
 BCRouter.route('/:id')
     .get(
