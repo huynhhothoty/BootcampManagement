@@ -67,6 +67,8 @@ const getBootcampStats = async (req, res, next) => {
             let SemesterQuantity = data.length;
             let SubjectQuantity = 0;
             let CompulsorySubject = 0;
+            let currentCredit = 0;
+            let compulsoryCredit = 0;
             let typeSubject = {
                 general: 0,
                 foundation: 0,
@@ -77,8 +79,10 @@ const getBootcampStats = async (req, res, next) => {
                 ele2.subjectList.forEach((ele3) => {
                     if (ele3.isCompulsory) {
                         CompulsorySubject++;
+                        compulsoryCredit += ele3.credit;
                     }
                     typeSubject[`${ele3.type}`]++;
+                    currentCredit += ele3.credit;
                 });
             });
             const tempResult = {
@@ -89,6 +93,9 @@ const getBootcampStats = async (req, res, next) => {
                 GeneralSubject: typeSubject.general,
                 FoundationSubject: typeSubject.foundation,
                 MajorSubject: typeSubject.major,
+                currentCredit,
+                compulsoryCredit,
+                optionalCredit: currentCredit - compulsoryCredit,
             };
             result.push(tempResult);
         });
