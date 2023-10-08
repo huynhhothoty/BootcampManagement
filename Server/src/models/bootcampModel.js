@@ -10,6 +10,10 @@ const semesterSchema = new mongoose.Schema({
 });
 const bootcampSchema = new mongoose.Schema(
     {
+        name: {
+            type: String,
+            default: 'My new bootcamp',
+        },
         major: {
             type: mongoose.Schema.ObjectId,
             ref: 'Major',
