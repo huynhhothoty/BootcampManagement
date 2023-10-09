@@ -1,0 +1,21 @@
+.bootcamp-progress_card_info{
+    .card-header{
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .progress-container{
+        display: flex;
+        justify-content: space-between;
+
+        .progress{
+            display: flex;
+            flex-direction:column;
+            align-items: center;
+            p{
+                margin-top: 10px;
+            }
+        }
+    }
+   
+}
