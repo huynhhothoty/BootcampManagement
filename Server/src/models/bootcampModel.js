@@ -31,6 +31,14 @@ const bootcampSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'User',
         },
+        draft: {
+            type: Boolean,
+            default: true,
+        },
+        allocation: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Allocation',
+        },
         detail: [semesterSchema],
     },
     {
@@ -45,6 +53,7 @@ bootcampSchema.pre(/^find/, async function () {
 bootcampSchema.pre('save', function () {
     this.populate('major');
     this.populate('author');
+    this.populate('allocation');
     this.populate({
         path: 'detail',
         populate: { path: 'subjectList', model: 'Subject' },
