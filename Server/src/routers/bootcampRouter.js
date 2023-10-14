@@ -38,5 +38,9 @@ BCRouter.route('/:id')
         BCController.deleteBC
     );
 
+BCRouter.route('/user/:id').get(
+    authorize('leader', 'admin'),
+    BCController.findAllBCOfUser
+);
 //
 module.exports = BCRouter;

@@ -110,6 +110,20 @@ const getBootcampStats = async (req, res, next) => {
     }
 };
 
+const findAllBCOfUser = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const bcList = await Bootcamp.find({ author: id });
+        res.status(200).send({
+            total: bcList.length,
+            status: 'ok',
+            data: bcList,
+        });
+    } catch (error) {
+        return next(new CustomError(error));
+    }
+};
+
 //
 module.exports = {
     createBC,
@@ -119,4 +133,5 @@ module.exports = {
     deleteBC,
     beforeCrud,
     getBootcampStats,
+    findAllBCOfUser,
 };
