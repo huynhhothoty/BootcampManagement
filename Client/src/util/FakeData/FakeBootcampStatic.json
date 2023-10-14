@@ -1,0 +1,49 @@
+[{
+    "id":1,
+    "bootcampName": "Bootcamp 1",
+    "createrName": "Nguyen Vo",
+    "createrId": 1,
+    "totalSemester": 8,
+    "currentSemester": 1,
+    "totalSpecializedSubjectcredits":"120",
+    "totalGeneralSubjectcredits":"10",
+    "completedSpecializedSubjectcredits": "10",
+    "completedGeneralSubjectcredits": "2"
+},
+{
+    "id":2,
+    "bootcampName": "Bootcamp 2",
+    "createrName": "Nguyen Vo",
+    "createrId": 1,
+    "totalSemester": 8,
+    "currentSemester": 5,
+    "totalSpecializedSubjectcredits":"130",
+    "totalGeneralSubjectcredits":"10",
+    "completedSpecializedSubjectcredits": "80",
+    "completedGeneralSubjectcredits": "10"
+},
+{
+    "id":3,
+    "bootcampName": "Bootcamp 3",
+    "createrName": "Nguyen Vo",
+    "createrId": 1,
+    "totalSemester": 8,
+    "currentSemester": 2,
+    "totalSpecializedSubjectcredits":"110",
+    "totalGeneralSubjectcredits":"10",
+    "completedSpecializedSubjectcredits": "30",
+    "completedGeneralSubjectcredits": "4"
+},
+{
+    "id":4,
+    "bootcampName": "Bootcamp 4",
+    "createrName": "Nguyen Vo",
+    "createrId": 1,
+    "totalSemester": 8,
+    "currentSemester": 3,
+    "totalSpecializedSubjectcredits":"130",
+    "totalGeneralSubjectcredits":"10",
+    "completedSpecializedSubjectcredits": "50",
+    "completedGeneralSubjectcredits": "6"
+}]
+

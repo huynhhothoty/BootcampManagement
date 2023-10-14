@@ -1,0 +1,7 @@
+@import './baseSetup/base/reset';
+
+@import './../template/Main/mainContainer';
+@import './../page/Home/home';
+@import './../components/Home/BootcampProgressCard/bootcampProgressCard';
+@import './../page/CreateBootcamp/createBootcamp';
+@import './../page/Login/login'
