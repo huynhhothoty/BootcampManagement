@@ -1,8 +1,11 @@
 import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select } from 'antd'
 import ImportSubjectModal from '../ImportSubjectModal/ImportSubjectModal';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addSubject } from '../../../redux/CreateBootcamp/createBootCamp';
 const { Option } = Select;
-const SubjectModal = ({ isModalOpen, setIsModalOpen }) => {
+const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData }) => {
+    const dispatch = useDispatch()
     const [form] = Form.useForm()
     const [isImportSubjectModalOpen, setIsImportSubjectModalOpen] = useState(false)
 
@@ -11,21 +14,36 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen }) => {
         setIsModalOpen(false);
     };
 
+
     const handleOpenImportModal = () => {
         setIsImportSubjectModalOpen(true)
+    }
+
+    const handleSubmit = (a) => {
+        const newSubject = {
+            ...a,
+            isCompulsory: subjectModalData.sujectType === "Compulsory" ? true : false
+        }
+        dispatch(addSubject({
+            fieldIndex: subjectModalData.fieldIndex,
+            subject: newSubject
+        }))
+        form.resetFields()
+        setIsModalOpen(false)
+   
     }
    
     return (
         <>
-            <Modal footer={false} title="Add Subject for Semester 1" open={isModalOpen} onCancel={handleCancel}>
+            <Modal footer={false} title={subjectModalData.modalName} open={isModalOpen} onCancel={handleCancel}>
                 <ImportSubjectModal isModalOpen={isImportSubjectModalOpen} setIsModalOpen={setIsImportSubjectModalOpen}/>
                 <Button onClick={handleOpenImportModal} style={{marginBottom: 16,marginTop:5}} type='dashed'>Import Subject</Button>
-                <Form form={form} layout="vertical" onFinish={() => { console.log(123) }}>
+                <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
-                                name="subjectId"
-                                label="Subject ID"
+                                name="subjectCode"
+                                label="Subject Code"
                                 rules={[
                                     {
                                         required: true,
@@ -50,7 +68,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen }) => {
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
-                                name="subjectName"
+                                name="name"
                                 label="Subject Name"
                                 rules={[
                                     {
@@ -78,23 +96,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen }) => {
                                 <InputNumber min={0} max={20} style={{ width: "100%" }} placeholder='Number of credits'/>
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="type"
-                                label="Type"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please choose the type',
-                                    },
-                                ]}
-                            >
-                                <Select placeholder="Please choose the type">
-                                    <Option value="compulsory">Compulsory</Option>
-                                    <Option value="optional">Optional</Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
+                        
                     </Row>
                    
                     <Row gutter={16}>

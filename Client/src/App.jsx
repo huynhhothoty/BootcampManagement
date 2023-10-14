@@ -4,10 +4,13 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from './template/Main/Main'
 import Home from './page/Home/Home'
 import CreateBootcamp from './page/CreateBootcamp/CreateBootcamp'
+import ConfirmModal from './util/ConfirmModal/ConfirmModal'
 function App() {
 
 
   return (
+    <>
+    {/* <ConfirmModal/> */}
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -17,6 +20,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </>
   )
 }
 

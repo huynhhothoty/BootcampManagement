@@ -4,31 +4,69 @@ import { CaculatePercent } from '../../util/CaculatePercent/caculatePercent';
 import Semester from '../../components/CreateBootcamp/Semester/Semester';
 import SubjectModal from '../../components/CreateBootcamp/SubjectModal/SubjectModal';
 import ImportBootcampModal from '../../components/CreateBootcamp/ImportBootcampModal/ImportBootcampModal';
+import { Collapse } from 'antd';
+import AllocateField from '../../components/CreateBootcamp/AllocateField/AllocateField';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateTotalCredits } from '../../redux/CreateBootcamp/createBootCamp';
+import ContentOfProgram from './../../components/CreateBootcamp/ContentOfProgram/ContentOfProgram';
+import SemesterList from '../../components/CreateBootcamp/Semester/SemesterList';
+
+const text = `
+  A dog is a type of domesticated animal.
+  Known for its loyalty and faithfulness,
+  it can be found as a welcome guest in many households across the world.
+`;
 
 
 const CreateBootcamp = () => {
+  const dispatch = useDispatch()
   const [specialistCredits, setSpecialistCredits] = useState({ total: 0, complete: 0 })
   const [generalCredits, setGeneralCredits] = useState({ total: 0, complete: 0 })
-  const [totalCredits,setTotalCredit] = useState(generalCredits.total + specialistCredits.total)
-  const a = 10
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [subjectModalData, setSubjestModalData] = useState({
+    type:"",
+    fieldIndex: "",
+    modalName: "",
+    sujectType: ""
+  })
 
   const [isImportBootcampModalOpen, setIsImportBootcampModalOpen] = useState(false)
+  const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
 
-
+  const items = [
+    {
+      key: '1',
+      label: 'Allocate of Credits',
+      children: <AllocateField/>,
+    },
+    {
+      key: '2',
+      label: 'Add Composory Subjects',
+      children: <ContentOfProgram type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>,
+    },
+    {
+      key: '3',
+      label: 'Add Elective Subjects',
+      children: <ContentOfProgram type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>,
+    },
+    {
+      key: '4',
+      label: 'Semester Planning',
+      children: <SemesterList/>
+    },
+  ];
 
   const handleTotalCreditChange = (a) => {
-    if (a.specialistSubject) {
-      setSpecialistCredits({ total: a.specialistSubject, complete: specialistCredits.complete })
-    } else if (a.generalSubject) {
-      setGeneralCredits({ total: a.generalSubject, complete: generalCredits.complete })
-    }
-    setTotalCredit(generalCredits.total + specialistCredits.total)
+    dispatch(updateTotalCredits(a.totalCredits))
   }
-
+  const onChange = (key) => {
+    console.log(key);
+  };
   return (
     <div>
-      <SubjectModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen}/>
+
+      <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen}/>
       <ImportBootcampModal isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen}/>
       <Button onClick={() => setIsImportBootcampModalOpen(true)} type='dashed'>Import Bootcamp</Button>
       <div className='createFormContainer'>
@@ -48,67 +86,32 @@ const CreateBootcamp = () => {
                 <Input placeholder="Please enter user name" />
               </Form.Item>
             </Col>
-
-          </Row>
-          <Row gutter={45}>
-            <Col span={8} className='staticColum'>
-              <Form.Item
-                name="specialistSubject"
-                label="Total Specialist Subject Credits"
-                style={{ justifyContent: "center" }}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter total Specialist Subject Credits',
-                  },
-                ]}
-              >
-
-                <InputNumber min={1} max={300} style={{ width: "100%" }} placeholder="Please enter total credits" />
-
-
-              </Form.Item>
-              <Progress status={specialistCredits.complete > specialistCredits.total ? "exception" : ""} percent={CaculatePercent(specialistCredits.complete, specialistCredits.total)} format={() => `${specialistCredits.complete}/${specialistCredits.total}`} />
-            </Col>
-            <Col span={8} className='staticColum'>
-              <Form.Item
-                name="generalSubject"
-                label="Total General Subject Credits"
-                style={{ justifyContent: "center" }}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter total general subject credits',
-                  },
-                ]}
-              >
-
-                <InputNumber min={1} max={300} style={{ width: "100%" }} placeholder="Please enter total credits" />
-
-
-              </Form.Item>
-              <Progress status={generalCredits.complete > generalCredits.total ? "exception" : ""} percent={CaculatePercent(generalCredits.complete, generalCredits.total)} format={() => `${generalCredits.complete}/${generalCredits.total}`} />
-            </Col>
             <Col span={8} className='staticColum'>
               <Form.Item
                 name="totalCredits"
-                label="Total Credits"
+                label="Total Program Credits"
                 style={{ justifyContent: "center" }}
-
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter total Program Credits',
+                  },
+                ]}
               >
 
-                <InputNumber value={10} min={1} max={300} style={{ width: "100%" }}  disabled/>
+                <InputNumber min={1} max={300} style={{ width: "100%" }} placeholder="Please enter total credits" />
 
 
               </Form.Item>
-              <Progress percent={CaculatePercent(generalCredits.complete + specialistCredits.complete, generalCredits.total + specialistCredits.total)} format={() => `${generalCredits.complete + specialistCredits.complete}/${generalCredits.total + specialistCredits.total}`} />
+              <Progress status={completeTotalCredits > totalCredits ? "exception" : ""} percent={CaculatePercent(completeTotalCredits, totalCredits)} format={() => `${completeTotalCredits}/${totalCredits}`} />
             </Col>
           </Row>
+    
           <Row style={{marginTop:30}}>
       
             <Col span={24}>
             <Form.Item>
-              <Semester setIsModalOpen={setIsModalOpen}/>
+            <Collapse items={items} defaultActiveKey={['1']} onChange={onChange} />
               </Form.Item>
             </Col>
             

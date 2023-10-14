@@ -1,16 +1,16 @@
-import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Modal, Divider, Radio, Table, Input, Space, Button, Row, Col } from 'antd';
 import Highlighter from 'react-highlight-words';
-import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col } from 'antd';
+import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteSemester, removeSubjectFromSemester } from '../../../redux/CreateBootcamp/createBootCamp';
+import { addSubjectsToSemester } from '../../../redux/CreateBootcamp/createBootCamp';
 
-const Semester = ({setIsModalOpen, subjectList, semesterIndex, setSelectedSemester}) => {
-   
-    const dispatch = useDispatch()
+
+ 
+const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [data,setData] = useState([])
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const searchInput = useRef(null);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -115,7 +115,20 @@ const Semester = ({setIsModalOpen, subjectList, semesterIndex, setSelectedSemest
                 text
             ),
     });
-    const columns = [
+
+    const rowSelection = {
+        selectedRowKeys: selectedRowKeys,
+        onSelectAll: (selected, selectedRows, changeRows) => {
+          if (selectedRowKeys.length !== 0) {
+            setSelectedRowKeys([]);
+          }
+        },
+        onChange: (selectedRowKeys, selectedRows) => {
+          setSelectedRowKeys(selectedRowKeys);
+        }
+      };
+
+      const columns = [
         {
             title: 'Subject Code',
             dataIndex: 'subjectCode',
@@ -144,79 +157,65 @@ const Semester = ({setIsModalOpen, subjectList, semesterIndex, setSelectedSemest
             key: 'description'
         },
 
-        {
-            title: 'Action',
-            width: '8%',
-            render: (_,data) => (
-                <Row>
-                    <Col span={12}>
-                    <Button type='default' danger 
-                    onClick={() => {
-                        dispatch(removeSubjectFromSemester({subjestIndex: data.key,semesterIndex, semesterSubjectListIndex: data.semesterSubjectListIndex}))
-                    }}
-                    >
-                        <DeleteOutlined />
-                    </Button>
-                    </Col>
-                    <Col span={12}>
-                    
-                    </Col>
-                </Row>
-            ),
-        },
+        
     ];
 
-    const handleSemesterClick = () => {
-        setSelectedSemester(semesterIndex)
-        setIsModalOpen(true)
-    }
+    const dispatch = useDispatch()
+    const {semesterSubjectList,allowcateFields} = useSelector(store => store.createBootCamp)
+    const [data,setData] = useState([])
 
-    const {allowcateFields} = useSelector(store => store.createBootCamp)
-
-    const getSemesterData = () => {
-        let newSubjectArray = [];
-
-        subjectList.forEach((subject,index) => {
-            newSubjectArray.push({
-                ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
-                semesterSubjectListIndex:subject.semesterSubjectListIndex,
-                key:index
-            })
+    const getData = () => {
+        const tempSubjectList = []
+        semesterSubjectList.forEach((subject,index) => {
+            if(subject.semester === null){
+                tempSubjectList.push({
+                    ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
+                    key:index
+                })
+            }
         })
-        setData(newSubjectArray)
+     
+        return tempSubjectList
+    }
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setSelectedRowKeys([])
+    };
+
+    const handleOk = () => {
+        dispatch(addSubjectsToSemester({
+            subjectIndexArr: selectedRowKeys,
+            semester: selectedSemester
+        }))
+        setIsModalOpen(false);
+        setSelectedRowKeys([])
     }
 
     useEffect(() => {
-        getSemesterData()
-    },[subjectList])
+        setData(getData())
+    },[semesterSubjectList])
 
-    return (
-        <Card
-            hoverable
-            style={{
-                width: "100%",
+      return (
+        <>
+          <Modal width={1000} title={`Add Subject to Semester ${selectedSemester}`} open={isModalOpen} onCancel={handleCancel} onOk={handleOk}>
+          <div>
+         
+    
+          <Divider />
+    
+          <Table
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
             }}
-        >
-            <div style={{display:"flex", justifyContent:"space-between"}}>
-                <h2>Semester {semesterIndex + 1}</h2>
-                <div>
-                <Button type="primary" onClick={handleSemesterClick}>
-                    Add Subject
-                </Button>
-                <Button style={{marginLeft:16}} type='default' danger 
-                    onClick={() => {
-
-                        dispatch(deleteSemester(semesterIndex))
-                    }}
-                    >
-                        Delete Semester
-                </Button>
-                </div>
-            </div>
-            <Divider />
-            <Table columns={columns} dataSource={data} />;
-        </Card>
-    )
+            columns={columns}
+            dataSource={data}
+          />
+        </div>
+    
+          </Modal>
+        </>
+      )
 }
 
-export default Semester
+export default AddSubjectToSemesterModal
