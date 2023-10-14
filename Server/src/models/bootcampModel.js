@@ -33,7 +33,7 @@ const bootcampSchema = new mongoose.Schema(
         },
         draft: {
             type: Boolean,
-            default: true,
+            default: false,
         },
         allocation: {
             type: mongoose.Schema.ObjectId,
