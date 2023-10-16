@@ -173,6 +173,7 @@ const CreateBootcamp = ({ openNotification,confirmModal }) => {
                   "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
                   "credit": allowcateFields[i].subjectList[j].credits,
                   "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+                  "description": allowcateFields[i].subjectList[j].description,
                   "type": "major"
                 }
                 const a = await dispatch(createSubject(subjectData))
@@ -181,17 +182,18 @@ const CreateBootcamp = ({ openNotification,confirmModal }) => {
               else {
                 const a = importedSubjectsList[subjectIndex]
                 const b = allowcateFields[i].subjectList[j]
-                if((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory)){
+                if((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)){
                   let subjectData = {
                     "name": allowcateFields[i].subjectList[j].name,
                     "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
                     "credit": allowcateFields[i].subjectList[j].credits,
                     "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+                    "description": allowcateFields[i].subjectList[j].description,
                     "type": "major"
                   }
                   const a = await dispatch(createSubject(subjectData))
                   newSubjectList.push(a.payload.data._id)
-                }else if((a.name === b.name) && (a.credit === b.credits) && (a.subjectCode === b.subjectCode) && (a.isCompulsory === b.isCompulsory)){
+                }else if((a.name === b.name) && (a.credit === b.credits) && (a.subjectCode === b.subjectCode) && (a.isCompulsory === b.isCompulsory) && (a.description === b.description)){
                   newSubjectList.push(a._id)
                 }
               }

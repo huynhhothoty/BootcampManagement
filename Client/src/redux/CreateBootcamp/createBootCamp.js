@@ -157,7 +157,9 @@ export const createBootcampSlice = createSlice({
       })
     },
     editSubject: (state, action) => {
+      state.completeTotalCredits -= state.allowcateFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex].credits
       state.allowcateFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex] = action.payload.subject
+      state.completeTotalCredits += state.allowcateFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex].credits
     },
     updateCompleteTotalCredits: (state,action) => {
       state.completeTotalCredits = action.payload
