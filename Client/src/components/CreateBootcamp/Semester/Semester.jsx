@@ -187,12 +187,10 @@ const Semester = ({error,totalSemester,setIsModalOpen, subjectList, semesterInde
                 key:index
             })
         })
-        setData(newSubjectArray)
+        return newSubjectArray
     }
 
-    useEffect(() => {
-        getSemesterData()
-    },[subjectList])
+  
 
     return (
         <Card
@@ -226,7 +224,7 @@ const Semester = ({error,totalSemester,setIsModalOpen, subjectList, semesterInde
             </div>
             {(error && subjectList.length ===0) ? <div style={{ color: "red", marginTop: 10}}>**{MISSING_SUBJECT_IN_SEMESTER}</div> : ""}
             <Divider />
-            <Table columns={columns} dataSource={data} />;
+            <Table columns={columns} dataSource={getSemesterData()} />;
         </Card>
     )
 }
