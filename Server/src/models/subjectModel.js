@@ -20,6 +20,10 @@ const subjectSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        description: {
+            type: String,
+            default: 'This is a sample description of subject',
+        },
         type: {
             type: String,
             enum: {
