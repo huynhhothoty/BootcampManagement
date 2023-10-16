@@ -4,6 +4,7 @@ const draftSchema = new mongoose.Schema(
     {
         author: {
             type: mongoose.Schema.ObjectId,
+            ref: 'User',
             required: [true, 'Who is owner of this draft?'],
         },
         data: {
@@ -19,6 +20,7 @@ const draftSchema = new mongoose.Schema(
 //
 draftSchema.pre(/^find/, function () {
     this.select('-__v -createdAt -updatedAt');
+    this.populate('author');
 });
 //
 const Draft = mongoose.model('Draft', draftSchema);

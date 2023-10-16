@@ -6,6 +6,7 @@ const authorize = require('../middlewares/auth/authorize');
 const draftRouter = express.Router();
 draftRouter.use(authenticate);
 draftRouter.use(authorize('leader', 'admin'));
+draftRouter.use(draftController.getUserInfo);
 
 draftRouter
     .route('/')
