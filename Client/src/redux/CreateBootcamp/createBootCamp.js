@@ -1,104 +1,93 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createBootcampAPI } from "../../util/api/bootcamp/bootcampApi";
+import { tempJWTToken } from "../../util/api/host";
+import axios from "axios"
+import { createFieldAPI } from "../../util/api/allowcate/allowcateApi";
+import { createSubjectAPI } from "../../util/api/subjects/subjectsApi";
 
 const initialState = {
+  bootcampName: '',
   totalCredits: 0,
-  completeTotalCredits: 12,
-  allowcateFields: [
-    {
-      fieldName: "Big Field 2",
-      compulsoryCredits: 32,
-      electiveCredits: 10,
-      smallField: [
-        {
-          fieldName: "Small Field 1",
-          compulsoryTotalCredits: 10,
-          electiveCredits: 3,
-        },
-        {
-          fieldName: "Small Field 2",
-          compulsoryTotalCredits: 10,
-          electiveCredits: 3,
-        },
-        {
-          fieldName: "Small Field 3",
-          compulsoryTotalCredits: 12,
-          electiveCredits: 4,
-        },
-      ],
-      subjectList: [
-        {
-          name:"Toan 1",
-          subjectCode: "MATH123123",
-          credits: 3,
-          isCompulsory: true,
-          description: ""
-        },
-        {
-          name:"Toan 2",
-          subjectCode: "MATH123123",
-          credits: 3,
-          isCompulsory: false,
-          description: ""
-        },
-        {
-          name:"Toan 3",
-          subjectCode: "MATH123123",
-          credits: 3,
-          isCompulsory: true,
-          description: ""
-        },
-        {
-          name:"Toan 4",
-          subjectCode: "MATH123123",
-          credits: 3,
-          isCompulsory: false,
-          description: ""
-        },
-      ]
-
-    },
-  ],
-  semesterSubjectList: [
-    {
-      fieldIndex: 0,
-      subjectIndex: 0,
-      semester: null,
-    },
-    {
-      fieldIndex: 0,
-      subjectIndex: 1,
-      semester: null,
-    },
-    {
-      fieldIndex: 0,
-      subjectIndex: 2,
-      semester: null,
-    },
-    {
-      fieldIndex: 0,
-      subjectIndex: 3,
-      semester: null,
-    }
-  ],
+  completeTotalCredits: 0,
+  allowcateFields: [],
+  semesterSubjectList: [],
   semesterList: [[]]
 };
+
+export const createSubject = createAsyncThunk(
+  'createBootcamp/createSubject',
+  async (subjectData) => {
+    try {
+      let res = await axios.post(createSubjectAPI,subjectData,{
+        headers:{
+          'Authorization': `Bearer ${tempJWTToken}`,
+          'Content-Type': 'application/json',
+        },
+      }) 
+      return res.data
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  }
+)
+
+export const createFirstBootcamp = createAsyncThunk(
+  'createBootcamp/createFirstBootcamp',
+  async (bootcampData) => {
+    try {
+      let res = await axios.post(createBootcampAPI,bootcampData,{
+        headers:{
+          'Authorization': `Bearer ${tempJWTToken}`,
+          'Content-Type': 'application/json',
+        },
+      }) 
+      return res.data
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  }
+)
+
+export const createField = createAsyncThunk(
+  'createBootcamp/createField',
+  async (fieldData) => {
+    try {
+      let res = await axios.post(createFieldAPI,fieldData,{
+        headers:{
+          'Authorization': `Bearer ${tempJWTToken}`,
+          'Content-Type': 'application/json',
+        },
+      }) 
+      return res.data
+    } catch (error) {
+      console.log(error)
+      return error
+    }
+  }
+)
 
 export const createBootcampSlice = createSlice({
   name: "creatBootcamp",
   initialState,
   reducers: {
+
     updateTotalCredits: (state, action) => {
       state.totalCredits = action.payload;
+    },
+    updateBootcampName: (state, action) => {
+      state.bootcampName = action.payload;
     },
     updateCompulsoryCredit: (state, action) => {
       state.allowcateFields[action.payload.bigFieldIndex].smallField[
         action.payload.smallFieldIndex
-      ].compulsoryTotalCredits = action.payload.credits;
+      ].compulsoryCredits = action.payload.credits;
 
       let tempCredits = 0;
       state.allowcateFields[action.payload.bigFieldIndex].smallField.forEach(
         (field) => {
-          tempCredits += field.compulsoryTotalCredits;
+          tempCredits += field.compulsoryCredits;
         }
       );
       state.allowcateFields[action.payload.bigFieldIndex].compulsoryCredits =
@@ -137,7 +126,7 @@ export const createBootcampSlice = createSlice({
     addSmallField: (state, action) => {
       const newChildField = {
         fieldName: "",
-        compulsoryTotalCredits: 0,
+        compulsoryCredits: 0,
         electiveCredits: 0,
       };
       state.allowcateFields[action.payload].smallField.push(newChildField);
@@ -146,7 +135,7 @@ export const createBootcampSlice = createSlice({
       state.allowcateFields[action.payload.bigFieldIndex].compulsoryCredits -=
         state.allowcateFields[action.payload.bigFieldIndex].smallField[
           action.payload.smallFieldIndex
-        ].compulsoryTotalCredits;
+        ].compulsoryCredits;
       state.allowcateFields[action.payload.bigFieldIndex].electiveCredits -=
         state.allowcateFields[action.payload.bigFieldIndex].smallField[
           action.payload.smallFieldIndex
@@ -166,6 +155,9 @@ export const createBootcampSlice = createSlice({
         subjectIndex:  state.allowcateFields[action.payload.fieldIndex].subjectList.length - 1,
         semester: null,
       })
+    },
+    editSubject: (state, action) => {
+      state.allowcateFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex] = action.payload.subject
     },
     updateCompleteTotalCredits: (state,action) => {
       state.completeTotalCredits = action.payload
@@ -213,6 +205,22 @@ export const createBootcampSlice = createSlice({
       })
       state.semesterList.splice(action.payload,1)
 
+    },
+    resetAll: (state) => {
+      state.totalCredits= 0
+      state.completeTotalCredits= 0,
+      state.allowcateFields= [],
+      state.semesterSubjectList= [],
+      state.semesterList= [[]]
+      state.bootcampName=""
+    },
+    importBootcamp: (state,action) => {
+      state.totalCredits = action.payload.totalCredits
+      state.completeTotalCredits = action.payload.completeTotalCredits
+      state.allowcateFields = action.payload.allowcateFields
+      state.semesterSubjectList = action.payload.semesterSubjectList
+      state.semesterList = action.payload.semesterList
+      state.bootcampName = action.payload.bootcampName
     }
   },
 });
@@ -234,7 +242,11 @@ export const {
   addSubjectsToSemester,
   removeSubjectFromSemester,
   addSemester,
-  deleteSemester
+  deleteSemester,
+  updateBootcampName,
+  editSubject,
+  resetAll,
+  importBootcamp
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

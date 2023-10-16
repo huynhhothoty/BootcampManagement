@@ -22,7 +22,7 @@ const subjectSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            default: 'This is a sample description of subject',
+            default: '',
         },
         type: {
             type: String,

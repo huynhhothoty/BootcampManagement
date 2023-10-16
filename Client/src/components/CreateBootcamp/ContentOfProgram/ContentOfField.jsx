@@ -4,10 +4,13 @@ import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col } from 'antd';
 import { useDispatch } from 'react-redux';
 import { removeSubject } from '../../../redux/CreateBootcamp/createBootCamp';
+import { NOT_EQUAL_CREDITS } from '../../../util/constants/errorMessage';
+import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig';
+import { removeImportedSubject } from '../../../redux/subject/subject';
 
 
 
-const ContentOfField = ({field, type, setIsSubjectModalOpen, setSubjestModalData, index}) => {
+const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestModalData, index, confirmModal}) => {
     const dispath = useDispatch()
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -164,17 +167,33 @@ const ContentOfField = ({field, type, setIsSubjectModalOpen, setSubjestModalData
             render: (_,data) => (
                 <Row>
                     <Col span={12}>
-                    <Button type='default' danger onClick={() => {
-                        dispath(removeSubject({
-                            fieldIndex: index,
-                            subjectIndex: data.index
-                        }))
+                    <Button type='default' danger onClick={async () => {
+                        const confirmed = await confirmModal.confirm(deleteConfirmConfig)
+                        if(confirmed){
+                            if(data._id){
+                                dispath(removeImportedSubject(data._id))
+                            }
+                            dispath(removeSubject({
+                                fieldIndex: index,
+                                subjectIndex: data.index
+                            }))
+                        }
+                        
                     }}>
                         <DeleteOutlined />
                     </Button>
                     </Col>
                     <Col span={12}>
-                    <Button type='default' >
+                    <Button type='default' onClick={() => {
+                          setSubjestModalData({
+                            type:"edit",
+                            fieldIndex: index,
+                            modalName: `Edit Subject`,
+                            sujectType: type,
+                            subjectData: data
+                        })
+                        setIsSubjectModalOpen(true)
+                    }}>
                     <EditOutlined />
                     </Button>
                     </Col>
@@ -207,7 +226,8 @@ const ContentOfField = ({field, type, setIsSubjectModalOpen, setSubjestModalData
             type:"add",
             fieldIndex: index,
             modalName: `Add Subject to "${field.fieldName}" field`,
-            sujectType: type
+            sujectType: type,
+            subjectData: null
         })
         setIsSubjectModalOpen(true)
         
@@ -226,6 +246,10 @@ const ContentOfField = ({field, type, setIsSubjectModalOpen, setSubjestModalData
                     Add Subject
                 </Button>
             </div>
+            {
+                error ?  <div style={{ color: "red", marginTop: 10}}>**{NOT_EQUAL_CREDITS}</div> : ""
+            }
+           
             <Divider />
             <Table columns={columns} dataSource={data} />;
         </Card>

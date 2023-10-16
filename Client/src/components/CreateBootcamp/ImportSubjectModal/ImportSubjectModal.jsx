@@ -2,56 +2,18 @@ import { useState, useRef } from 'react';
 import { Modal, Divider, Table, Tag, Button, Space, Input } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 
-  const data = [
-    {
-        id: 123456,
-        key: '1',
-        subjectName: 'Đại số tuyến tính',
-        credits: 3,
-        description: 'New York No. 1 Lake Park',
-        isCompusory: true
-    },
-    {
-        id: 123456,
-        key: '2',
-        subjectName: 'Toán 1',
-        credits: 2,
-        description: 'London No. 1 Lake Park',
-        isCompusory: false
-    },
-    {
-        id: 123456,
-        key: '3',
-        subjectName: 'Lý 1',
-        credits: 3,
-        description: 'Sydney No. 1 Lake Park',
-        isCompusory: true
-    },
-    {
-        id: 123456,
-        key: '4',
-        subjectName: 'Lý 2',
-        credits: 3,
-        description: 'London No. 2 Lake Park',
-        isCompusory: false
-    },
-];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === 'Disabled User',
-      // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
+  
 
-const ImportSubjectModal = ({ isModalOpen, setIsModalOpen }) => {
+const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
+    const [selectedSubject, setSelectedSubject] = useState(null)
+    const [selectedRowKeys, setSelectedRowKeys] = useState("")
+    const [error,setError] = useState(false)
+    const { allSubjectList } = useSelector(store => store.subject)
     const searchInput = useRef(null);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -158,23 +120,23 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen }) => {
     });
     const columns = [
         {
-            title: 'Subject ID',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'Subject Code',
+            dataIndex: 'subjectCode',
+            key: 'subjectCode',
             width: '15%',
-            ...getColumnSearchProps('id'),
+            ...getColumnSearchProps('subjectCode'),
         },
         {
             title: 'Subject Name',
-            dataIndex: 'subjectName',
-            key: 'subjectName',
+            dataIndex: 'name',
+            key: 'name',
             width: '20%',
-            ...getColumnSearchProps('subjectName'),
+            ...getColumnSearchProps('name'),
         },
         {
             title: 'Credits',
-            dataIndex: 'credits',
-            key: 'credits',
+            dataIndex: 'credit',
+            key: 'credit',
             width: '5%',
 
         },
@@ -183,12 +145,12 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen }) => {
             key: 'tags',
             dataIndex: 'tags',
             width: '10%',
-            render: (_, { isCompusory }) => (
+            render: (_, { isCompulsory }) => (
                 <>
-                    {isCompusory ? (<Tag color={"green"} >
+                    {isCompulsory ? (<Tag color={"volcano"} >
                                 Compusory
-                            </Tag>):(<Tag color={"volcano"}>
-                            Optional
+                            </Tag>):(<Tag color={"green"}>
+                            Elective
                             </Tag>)}
                     
                 </>
@@ -200,15 +162,38 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen }) => {
             key: 'description'
         },
     ]
+
+    const rowSelection = {
+        selectedRowKeys: selectedRowKeys,
+        onChange: (selectedRowKeys, selectedRows) => {
+            setSelectedRowKeys(selectedRowKeys);
+            setSelectedSubject(selectedRows)
+            setError(false)
+        },
+      };
+
     const handleCancel = () => {
         setIsModalOpen(false);
+        setSelectedRowKeys('')
+        setSelectedSubject(null)
+        setError(false)
       };
+
+    const handleImportSubject = () => {
+        if(selectedSubject) {
+            setImportedSubject(selectedSubject[0])
+        }setError(true)
+        setIsModalOpen(false);
+        setSelectedRowKeys('')
+        setSelectedSubject(null)
+
+    }
       return (
         <>
-          <Modal width={1000} title="Import a Subject" open={isModalOpen} onCancel={handleCancel}>
+          <Modal width={1000} onOk={handleImportSubject} title="Import a Subject" open={isModalOpen} onCancel={handleCancel}>
           <div>
          
-    
+            {error ? <div style={{color:"red"}}>** You need to choose a subject</div> : ""}
           <Divider />
     
           <Table
@@ -217,7 +202,7 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen }) => {
               ...rowSelection,
             }}
             columns={columns}
-            dataSource={data}
+            dataSource={allSubjectList}
           />
         </div>
     

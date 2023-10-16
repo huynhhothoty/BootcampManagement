@@ -4,12 +4,16 @@ import { useDispatch, useSelector } from "react-redux"
 import { CaculatePercent } from "../../../util/CaculatePercent/caculatePercent"
 import { updateCompleteTotalCredits } from "../../../redux/CreateBootcamp/createBootCamp"
 
-const ContentOfProgram = ({type,setIsSubjectModalOpen, setSubjestModalData}) => {
+const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestModalData, confirmModal}) => {
     const dispatch = useDispatch()
     const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
     const renderFields = () => {
         return allowcateFields.map((field,index) => {
-            return <ContentOfField key={index} field={field} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+            if(errorMessage.length > 0){
+                if(errorMessage.includes(index))
+                return <ContentOfField confirmModal={confirmModal} error={true} key={index} field={field} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+            }
+            return <ContentOfField  confirmModal={confirmModal} error={false} key={index} field={field} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
         })
     }
     const totalActureCredits = () => {

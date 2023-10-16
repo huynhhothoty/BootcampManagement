@@ -1,4 +1,4 @@
-import {  Button, Col, Form, Input, InputNumber, Progress, Radio, Row, } from 'antd';
+import { Button, Col, Form, Input, InputNumber, Progress, Radio, Row, } from 'antd';
 import { useState } from 'react';
 import { CaculatePercent } from '../../util/CaculatePercent/caculatePercent';
 import Semester from '../../components/CreateBootcamp/Semester/Semester';
@@ -7,9 +7,14 @@ import ImportBootcampModal from '../../components/CreateBootcamp/ImportBootcampM
 import { Collapse } from 'antd';
 import AllocateField from '../../components/CreateBootcamp/AllocateField/AllocateField';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateTotalCredits } from '../../redux/CreateBootcamp/createBootCamp';
+import { createField, createFirstBootcamp, createSubject, resetAll, updateBootcampName, updateTotalCredits } from '../../redux/CreateBootcamp/createBootCamp';
 import ContentOfProgram from './../../components/CreateBootcamp/ContentOfProgram/ContentOfProgram';
 import SemesterList from '../../components/CreateBootcamp/Semester/SemesterList';
+import { MISSING_FIELD_INFO, NO_ALLOWCATION_CREDITS_DATA, NO_BOOTCAMP_NAME, NO_BOOTCAMP_TOTAL_CREDITS } from '../../util/constants/errorMessage';
+import { updateLoading } from '../../redux/loading/Loading';
+import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_TITLE } from '../../util/constants/notificationMessage';
+import { getAllBootcamp } from '../../redux/bootcamp/bootcamp';
+
 
 const text = `
   A dog is a type of domesticated animal.
@@ -18,108 +23,345 @@ const text = `
 `;
 
 
-const CreateBootcamp = () => {
+const CreateBootcamp = ({ openNotification,confirmModal }) => {
   const dispatch = useDispatch()
   const [specialistCredits, setSpecialistCredits] = useState({ total: 0, complete: 0 })
   const [generalCredits, setGeneralCredits] = useState({ total: 0, complete: 0 })
-
+  const [errorMessage, setErrorMessage] = useState({
+    allowcate: [],
+    compulsory: [],
+    elective: [],
+    planning: [],
+    remainning: false
+  })
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [subjectModalData, setSubjestModalData] = useState({
-    type:"",
+    type: "",
     fieldIndex: "",
     modalName: "",
-    sujectType: ""
+    sujectType: "",
+    subjectData: null
   })
 
   const [isImportBootcampModalOpen, setIsImportBootcampModalOpen] = useState(false)
-  const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
-
+  const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList } = useSelector(store => store.createBootCamp)
+  const {importedSubjectsList} = useSelector(store => store.subject)
+  const [bootcampNameError, setBootcampNameError] = useState(false)
+  const [bootcampCreditError, setBootcampCreditError] = useState(false)
   const items = [
     {
       key: '1',
       label: 'Allocate of Credits',
-      children: <AllocateField/>,
+      children: <AllocateField errorMessage={errorMessage.allowcate} confirmModal={confirmModal}/>,
     },
     {
       key: '2',
       label: 'Add Composory Subjects',
-      children: <ContentOfProgram type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>,
+      children: <ContentOfProgram confirmModal={confirmModal} errorMessage={errorMessage.compulsory} type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
       key: '3',
       label: 'Add Elective Subjects',
-      children: <ContentOfProgram type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>,
+      children: <ContentOfProgram confirmModal={confirmModal} errorMessage={errorMessage.elective} type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
       key: '4',
       label: 'Semester Planning',
-      children: <SemesterList/>
+      children: <SemesterList confirmModal={confirmModal} planningError={errorMessage.planning} remainning={errorMessage.remainning} />
     },
   ];
 
-  const handleTotalCreditChange = (a) => {
-    dispatch(updateTotalCredits(a.totalCredits))
+  const handleChangeBootcampName = (e) => {
+    dispatch(updateBootcampName(e.target.value))
   }
-  const onChange = (key) => {
-    console.log(key);
-  };
+  const handleChangeBootcampTotalCredits = (value) => {
+    dispatch(updateTotalCredits(value ? value : 0))
+  }
+
+  const handleCreatebootcamp = async () => {
+    //Check Total credits and bootcamp name
+    // if(bootcampName === "" || totalCredits === 0){
+    //   return
+    // }
+    if(bootcampName === "") setBootcampNameError(true)
+    if(totalCredits <= 0) setBootcampCreditError(true)
+    const tempErrorMessage = {
+      allowcate: [],
+      compulsory: [],
+      elective: [],
+      planning: [],
+      remainning: false
+    }
+    if (allowcateFields.length === 0) {
+      tempErrorMessage.allowcate.push({
+        message: NO_ALLOWCATION_CREDITS_DATA,
+        data: null
+      })
+    } else {
+      let errorFieldIndex = []
+      let errorField = []
+      let allowcateTotalCredits = 0
+      errorField = allowcateFields.map((field, index) => {
+        const error = {
+          missFieldName: false,
+          missSmallField: false,
+          smallFieldError: []
+        }
+
+        if (field.fieldName === "") {
+          error.missFieldName = true
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+        }
+        if (field.smallField.length === 0) {
+          error.missSmallField = true
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+        } else {
+          field.smallField.forEach((smallField, smallIndex) => {
+            if (smallField.fieldName === "") {
+              error.smallFieldError.push(smallIndex)
+              !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+            }
+          })
+        }
+        allowcateTotalCredits += field.compulsoryCredits
+        allowcateTotalCredits += field.electiveCredits
+
+        let totalCompulsorySubjectCredits = 0
+        let totalElectiveSubjectCredits = 0
+        field.subjectList.forEach((subject) => {
+          if (subject.isCompulsory) {
+            totalCompulsorySubjectCredits += subject.credits
+          } else totalElectiveSubjectCredits += subject.credits
+        })
+        if (totalCompulsorySubjectCredits !== field.compulsoryCredits) tempErrorMessage.compulsory.push(index)
+        if (totalElectiveSubjectCredits !== field.electiveCredits) tempErrorMessage.elective.push(index)
+
+        return error
+      })
+      if (errorFieldIndex.length > 0 || allowcateTotalCredits !== totalCredits) {
+        tempErrorMessage.allowcate.push({
+          message: MISSING_FIELD_INFO,
+          data: {
+            errorFieldIndex,
+            errorField,
+            isEqualTotalCredits: allowcateTotalCredits === totalCredits ? true : false
+          }
+        })
+      }
+    }
+
+
+    semesterList.forEach((semester, index) => {
+      if (semester.length === 0) tempErrorMessage.planning.push(index)
+    })
+    tempErrorMessage.remainning = semesterSubjectList.some((subject) => subject.semester === null)
+   
+    if (bootcampName !== "" && totalCredits > 0 && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false) {
+    
+      try{
+          dispatch(updateLoading(true))
+          let newFieldList = []
+     
+          for (let i = 0; i < allowcateFields.length; i++) {
+            const newSubjectList = []
+            for (let j = 0; j < allowcateFields[i].subjectList.length; j++) {
+
+              const subjectIndex = importedSubjectsList.findIndex(subject => subject._id === allowcateFields[i].subjectList[j]._id)
+              if(subjectIndex === -1){
+                let subjectData = {
+                  "name": allowcateFields[i].subjectList[j].name,
+                  "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
+                  "credit": allowcateFields[i].subjectList[j].credits,
+                  "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+                  "type": "major"
+                }
+                const a = await dispatch(createSubject(subjectData))
+                newSubjectList.push(a.payload.data._id)
+              }
+              else {
+                const a = importedSubjectsList[subjectIndex]
+                const b = allowcateFields[i].subjectList[j]
+                if((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory)){
+                  let subjectData = {
+                    "name": allowcateFields[i].subjectList[j].name,
+                    "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
+                    "credit": allowcateFields[i].subjectList[j].credits,
+                    "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+                    "type": "major"
+                  }
+                  const a = await dispatch(createSubject(subjectData))
+                  newSubjectList.push(a.payload.data._id)
+                }else if((a.name === b.name) && (a.credit === b.credits) && (a.subjectCode === b.subjectCode) && (a.isCompulsory === b.isCompulsory)){
+                  newSubjectList.push(a._id)
+                }
+              }
+            }
+            newFieldList.push({
+              ...allowcateFields[i],
+              subjectList: newSubjectList
+            })
+          }
+  
+          const fieldData = {
+            "detail": newFieldList.map((field) => {
+              return {
+                "name": field.fieldName,
+                "detail": field.smallField.map((sfield) => {
+                  return {
+                    "name": sfield.fieldName,
+                    "compulsoryCredit": sfield.compulsoryCredits,
+                    "OptionalCredit": sfield.electiveCredits
+                  }
+                }),
+                "subjectList": field.subjectList
+              }
+            })
+          }
+          const created_field_container = await dispatch(createField(fieldData))
+          const bootcampData = {
+            "major": "651ea5a591fd7742d88ae608",
+            "author": "650fa406a36d4f335dde2231",
+            "name": bootcampName,
+            "year": 2023,
+            "totalCredit": totalCredits,
+            "draft": false,
+            "allocation": created_field_container.payload.data._id,
+            "detail": semesterList.map((semester, index) => {
+              return {
+                semester: `Semester ${index + 1}`,
+                subjectList: semester.map((subject) => {
+                  return newFieldList[subject.fieldIndex].subjectList[subject.subjectIndex]
+                })
+              }
+            })
+          }
+  
+          let newBootcampData = await dispatch(createFirstBootcamp(bootcampData))
+          openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_CREATE_BOOTCAMP_SUCCESS)
+          
+          dispatch(updateLoading(false))
+          dispatch(resetAll())
+
+        }catch (e) {  
+          dispatch(updateLoading(false))
+        }
+      
+   
+    } else {
+      setErrorMessage(tempErrorMessage)
+      openNotification(NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_CREATE_BOOTCAMP_MISS_INFO)
+    }
+
+  }
+
+  const handleSaveAsDraft = async () => {
+    // if (bootcampName !== "" && totalCredits > 0) {
+    //   dispatch(updateLoading(true))
+    //   let newFieldList = []
+    //   let created_field_container = null
+    //   let newBootcampData = null
+    //   if (allowcateFields.length > 0) {
+    //     for (let i = 0; i < allowcateFields.length; i++) {
+    //       if (allowcateFields[i].subjectList.length > 0) {
+    //         const newSubjectList = []
+    //         for (let j = 0; j < allowcateFields[i].subjectList.length; j++) {
+    //           let subjectData = {
+    //             "name": allowcateFields[i].subjectList[j].name,
+    //             "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
+    //             "credit": allowcateFields[i].subjectList[j].credits,
+    //             "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+    //             "type": "major"
+    //           }
+    //           const a = await dispatch(createSubject(subjectData))
+    //           newSubjectList.push(a.payload.data._id)
+    //         }
+    //         newFieldList.push({
+    //           ...allowcateFields[i],
+    //           subjectList: newSubjectList
+    //         })
+    //       }
+    //     }
+
+    //     const fieldData = {
+    //       "detail": newFieldList.map((field) => {
+    //         return {
+    //           "name": field.fieldName,
+    //           "detail": field.smallField.map((sfield) => {
+    //             return {
+    //               "name": sfield.fieldName,
+    //               "compulsoryCredit": sfield.compulsoryCredits,
+    //               "OptionalCredit": sfield.electiveCredits
+    //             }
+    //           }),
+    //           "subjectList": field.subjectList
+    //         }
+    //       })
+    //     }
+    //     created_field_container = await dispatch(createField(fieldData))
+
+        
+    //   }else {
+    //     const bootcampData = {
+    //       "major": "651ea5a591fd7742d88ae608",
+    //       "author": "650fa406a36d4f335dde2231",
+    //       "name": bootcampName,
+    //       "year": 2023,
+    //       "totalCredit": totalCredits,
+    //       "draft": true,
+    //       "detail": []
+    //     }
+    //     newBootcampData = await dispatch(createFirstBootcamp(bootcampData))
+    //   }
+
+
+      
+
+     
+    //   newBootcampData = newBootcampData.payload.data
+    //   if (newBootcampData.payload._id) {
+    //     openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_CREATE_BOOTCAMP_SUCCESS)
+    //   }
+
+    // }
+  }
   return (
     <div>
 
-      <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen}/>
-      <ImportBootcampModal isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen}/>
-      <Button onClick={() => setIsImportBootcampModalOpen(true)} type='dashed'>Import Bootcamp</Button>
+      <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen} />
+      <ImportBootcampModal setErrorMessage={setErrorMessage} isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen} />
+      <Button onClick={() => {
+          dispatch(getAllBootcamp())
+         setIsImportBootcampModalOpen(true)
+      }} type='dashed'>Import Bootcamp</Button>
       <div className='createFormContainer'>
-        <Form onFinish={(a) => {console.log(a)}} layout="vertical" onValuesChange={handleTotalCreditChange}>
+        <Form layout="vertical">
           <Row gutter={16}>
             <Col span={8}>
-              <Form.Item
-                name="bootCampName"
-                label="Bootcamp Name"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter user name',
-                  },
-                ]}
-              >
-                <Input placeholder="Please enter user name" />
-              </Form.Item>
+                <div><span style={{color:"red"}}>* </span>Bootcamp Name</div>
+                <Input style={{marginBlock:8}} status={(bootcampNameError && bootcampName === "") ? "error" :""} value={bootcampName} placeholder="Please enter user name" onChange={handleChangeBootcampName}/>
+                {(bootcampNameError && bootcampName === "") ? <div style={{color:"red"}}>{NO_BOOTCAMP_NAME}</div> :""}
             </Col>
             <Col span={8} className='staticColum'>
-              <Form.Item
-                name="totalCredits"
-                label="Total Program Credits"
-                style={{ justifyContent: "center" }}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter total Program Credits',
-                  },
-                ]}
-              >
-
-                <InputNumber min={1} max={300} style={{ width: "100%" }} placeholder="Please enter total credits" />
-
-
-              </Form.Item>
+                <div><span style={{color:"red"}}>* </span>Total Program Credits</div>
+                <InputNumber status={(bootcampCreditError && totalCredits <= 0) ? "error" :""} onChange={handleChangeBootcampTotalCredits} value={totalCredits} min={1} max={300} style={{ width: "100%", marginBlock: 8 }} placeholder="Please enter total credits" />
+                {(bootcampCreditError && totalCredits <= 0) ? <div style={{color:"red"}}>{NO_BOOTCAMP_TOTAL_CREDITS}</div> :""}
               <Progress status={completeTotalCredits > totalCredits ? "exception" : ""} percent={CaculatePercent(completeTotalCredits, totalCredits)} format={() => `${completeTotalCredits}/${totalCredits}`} />
             </Col>
           </Row>
-    
-          <Row style={{marginTop:30}}>
-      
+
+          <Row style={{ marginTop: 30 }}>
+
             <Col span={24}>
-            <Form.Item>
-            <Collapse items={items} defaultActiveKey={['1']} onChange={onChange} />
+              <Form.Item>
+                <Collapse items={items} defaultActiveKey={['1']} />
               </Form.Item>
             </Col>
-            
+
           </Row>
           <Row gutter={16}>
             <Col span={24}>
-              <Form.Item style={{display:"flex", justifyContent:"flex-end"}}>
-                <Button type='primary' htmlType='submit'>Create</Button>
+              <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button type='primary' onClick={handleCreatebootcamp} htmlType='submit'>Create</Button>
               </Form.Item>
             </Col>
           </Row>
