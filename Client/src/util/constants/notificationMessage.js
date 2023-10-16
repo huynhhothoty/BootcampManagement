@@ -6,3 +6,5 @@ export const NOTI_CREATE_BOOTCAMP_MISS_INFO = "There was an error while creating
 
 export const NOTI_SUCCESS_TITLE = "Success!!!"
 export const NOTI_ERROR_TITLE = "Error"
+
+export const NOTI_SUCCESS_SAVE_DRAFT ="Your draft has been saved successfully"
