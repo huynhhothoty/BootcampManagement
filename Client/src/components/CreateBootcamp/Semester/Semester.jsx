@@ -179,7 +179,7 @@ const Semester = ({error,totalSemester,setIsModalOpen, subjectList, semesterInde
 
     const getSemesterData = () => {
         let newSubjectArray = [];
-        console.log(subjectList)
+
         subjectList.forEach((subject,index) => {
             newSubjectArray.push({
                 ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],

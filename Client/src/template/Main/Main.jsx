@@ -143,7 +143,7 @@ const Main = () => {
           >
             <div style={{ marginRight: 20, cursor:"pointer" }}>
               <Avatar size="large" icon={<UserOutlined />} />
-              <span style={{ marginInline: 10 }}>{userData.name}</span>
+              <span style={{ marginInline: 10 }}>{userData?.name}</span>
               <DownOutlined />
             </div>
           </Dropdown>
