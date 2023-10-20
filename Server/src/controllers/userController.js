@@ -73,6 +73,7 @@ const login = async (req, res, next) => {
                 name: loginUser.name,
                 role: loginUser.role,
                 email: loginUser.email,
+                major: loginUser.major,
             },
         });
     } catch (error) {
@@ -238,7 +239,26 @@ const updateInfo = async (req, res, next) => {
     }
 };
 
-const getOneUser = crudFactory.getOne(User, 'major');
+const getOneUser = async (req, res, next) => {
+    try {
+        const loginUser = await User.findById(req.params.id).populate('major');
+        if (!loginUser) {
+            return next(new CustomError('No document with this Id', 404));
+        }
+        res.status(200).send({
+            status: 'ok',
+            data: {
+                id: loginUser.id,
+                name: loginUser.name,
+                role: loginUser.role,
+                major: loginUser.major,
+                email: loginUser.email,
+            },
+        });
+    } catch (error) {
+        return next(new CustomError(error));
+    }
+};
 
 //
 module.exports = {
