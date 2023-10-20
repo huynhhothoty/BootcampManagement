@@ -44,7 +44,7 @@ const UserSchema = new Schema({
 });
 //
 UserSchema.pre(/^find/, function () {
-    this.select('name email role');
+    // this.select('name email role');
     this.populate('major');
 });
 // hash password before save to db
