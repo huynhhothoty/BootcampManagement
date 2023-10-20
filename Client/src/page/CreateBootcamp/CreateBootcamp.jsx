@@ -46,6 +46,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const [isImportBootcampModalOpen, setIsImportBootcampModalOpen] = useState(false)
   const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList, draftID } = useSelector(store => store.createBootCamp)
   const { importedSubjectsList } = useSelector(store => store.subject)
+  const { userData } = useSelector(store => store.authentication)
   const [bootcampNameError, setBootcampNameError] = useState(false)
   const [bootcampCreditError, setBootcampCreditError] = useState(false)
   const items = [
@@ -261,7 +262,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     dispatch(updateLoading(true))
     if(draftID === ""){
       const draftData = {
-        author: "651011d3270f4bdc63db3409",
+        author: userData.id,
         data: {
           totalCredits, 
           completeTotalCredits, 

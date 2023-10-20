@@ -10,6 +10,7 @@ import {
   getDraftByUserAPI,
   updateDraftAPI,
 } from "../../util/api/draft/draftApi";
+import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
   bootcampName: "",
@@ -25,9 +26,10 @@ export const createSubject = createAsyncThunk(
   "createBootcamp/createSubject",
   async (subjectData) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.post(createSubjectAPI, subjectData, {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -43,9 +45,10 @@ export const createFirstBootcamp = createAsyncThunk(
   "createBootcamp/createFirstBootcamp",
   async (bootcampData) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.post(createBootcampAPI, bootcampData, {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -61,9 +64,10 @@ export const createField = createAsyncThunk(
   "createBootcamp/createField",
   async (fieldData) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.post(createFieldAPI, fieldData, {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -79,9 +83,10 @@ export const createDraft = createAsyncThunk(
   "createBootcamp/createDraft",
   async (data) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.post(createDraftAPI, data, {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -97,9 +102,10 @@ export const updateDraft = createAsyncThunk(
   "createBootcamp/updateDraft",
   async (data) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.patch(updateDraftAPI(data.draftID), data.data, {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -115,9 +121,10 @@ export const getUserDraft = createAsyncThunk(
   "createBootcamp/getUserDraft",
   async (userID) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.get(getDraftByUserAPI(userID), {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -133,9 +140,10 @@ export const deleteDraft = createAsyncThunk(
   "createBootcamp/deleteDraft",
   async (draftID) => {
     try {
+      const userToken = sessionStorage.getItem(USER_TOKEN)
       let res = await axios.delete(deleteDraftAPI(draftID), {
         headers: {
-          Authorization: `Bearer ${tempJWTToken}`,
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
         },
       });

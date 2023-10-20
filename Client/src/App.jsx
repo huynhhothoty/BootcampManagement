@@ -5,17 +5,16 @@ import Main from './template/Main/Main'
 import Home from './page/Home/Home'
 import CreateBootcamp from './page/CreateBootcamp/CreateBootcamp'
 
-import { Button, Modal, Spin, notification } from 'antd'
-import { useDispatch, useSelector } from 'react-redux'
-import { createContext, useEffect } from 'react'
-import { getUserDraft } from './redux/CreateBootcamp/createBootCamp'
+import { Modal, Spin, notification } from 'antd'
+import {useSelector } from 'react-redux'
+import { createContext } from 'react'
+
 
 const ReachableContext = createContext(null);
 
 
 
 function App() {
-  const dispatch = useDispatch()
   const {loading} = useSelector(store => store.Loading)
   const [api, contextHolder] = notification.useNotification();
   const [modal, modalContextHolder] = Modal.useModal();
@@ -26,9 +25,7 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    dispatch(getUserDraft('651011d3270f4bdc63db3409'))
-  },[])
+
 
   return (
     <>

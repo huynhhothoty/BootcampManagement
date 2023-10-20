@@ -3,6 +3,7 @@ import axios from "axios"
 import { tempJWTToken } from "../../util/api/host";
 import { getAllowcateByIdAPI } from "../../util/api/allowcate/allowcateApi";
 import { getAllSubjectAPI } from "../../util/api/subjects/subjectsApi";
+import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
     loading: false,
@@ -13,9 +14,10 @@ export const getAllSubject = createAsyncThunk(
     'subject/getAllSubject',
     async (data) => {
       try {
+        const userToken = sessionStorage.getItem(USER_TOKEN)
         let res = await axios.get(getAllSubjectAPI("isCompulsory",data),{
           headers:{
-            'Authorization': `Bearer ${tempJWTToken}`,
+            'Authorization': `Bearer ${userToken}`,
             'Content-Type': 'application/json',
           },
         }) 

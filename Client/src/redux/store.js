@@ -4,14 +4,16 @@ import Loading from './loading/Loading'
 import bootcamp from './bootcamp/bootcamp'
 import allowcate from './allocate/allowcate'
 import subject from './subject/subject'
+import authentication from './authentication/authentication'
 
-subject
+
 export const store = configureStore({
   reducer: {
     createBootCamp,
     Loading,
     bootcamp,
     allowcate,
-    subject
+    subject,
+    authentication
   },
 })

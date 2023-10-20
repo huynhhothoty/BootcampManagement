@@ -1,8 +1,28 @@
 import { Button, Checkbox, Form, Input } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../../redux/authentication/authentication';
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom"
 
 const Login = () => {
-  const onFinish = (values) => {
-    console.log('Success:', values);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [error, setError] = useState('')
+  const {loading} = useSelector(store => store.authentication)
+
+  const onFinish = async (values) => {
+
+    const a = await dispatch(login({
+      "email": values.email,
+      "password": values.password,
+    }))
+   
+    if(a.payload.status === 401){
+      setError(a.payload.message)
+    }
+    if(a.payload.status === "ok") {
+      navigate("/")
+    }
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
@@ -14,6 +34,7 @@ const Login = () => {
         <div className="login-form-header">
           <h1>Welcom back</h1>
           <p>Login to the Dashboard</p>
+        
         </div>
         <Form
           name="basic"
@@ -29,13 +50,14 @@ const Login = () => {
           autoComplete="off"
           layout="vertical"
         >
+            <p>{error}</p>
           <Form.Item
-            label="Username"
-            name="username"
+            label="Email"
+            name="email"
             rules={[
               {
                 required: true,
-                message: 'Please input your username!',
+                message: 'Please input your email!',
               },
             ]}
           >
@@ -58,17 +80,17 @@ const Login = () => {
           <Form.Item
             name="remember"
             valuePropName="checked"
-           
+
           >
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
           <Form.Item>
-            
-            <Button style={{width:"100%"}} type="primary" htmlType="submit">
+
+            <Button loading={loading} style={{ width: "100%" }} type="primary" htmlType="submit">
               Login
             </Button>
-         
+
           </Form.Item>
         </Form>
       </div>

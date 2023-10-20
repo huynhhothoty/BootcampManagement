@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios"
 import { tempJWTToken } from "../../util/api/host";
 import { getAllBootcampAPI } from "../../util/api/bootcamp/bootcampApi";
+import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
     bootcampList: [],
@@ -12,9 +13,10 @@ export const getAllBootcamp = createAsyncThunk(
     'bootcamp/getAllBootcamp',
     async () => {
       try {
+        const userToken = sessionStorage.getItem(USER_TOKEN)
         let res = await axios.get(getAllBootcampAPI("2023"),{
           headers:{
-            'Authorization': `Bearer ${tempJWTToken}`,
+            'Authorization': `Bearer ${userToken}`,
             'Content-Type': 'application/json',
           },
         }) 
