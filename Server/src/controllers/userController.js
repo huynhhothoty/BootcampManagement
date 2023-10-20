@@ -63,9 +63,11 @@ const login = async (req, res, next) => {
         }
 
         let token = createToken(loginUser._id);
+        loginUser.sele;
         res.status(200).send({
             status: 'ok',
             accessToken: token,
+            loginUser: loginUser,
         });
     } catch (error) {
         return next(error);
