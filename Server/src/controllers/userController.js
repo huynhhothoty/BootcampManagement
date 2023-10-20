@@ -3,6 +3,7 @@ const CustomError = require('../utils/CustomError');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/email');
 const crypto = require('crypto');
+const crudFactory = require('./crudFactory');
 
 const getAllUser = async (req, res, next) => {
     try {
@@ -237,6 +238,8 @@ const updateInfo = async (req, res, next) => {
     }
 };
 
+const getOneUser = crudFactory.getOne(User, 'major');
+
 //
 module.exports = {
     register,
@@ -246,4 +249,5 @@ module.exports = {
     updatePassword,
     updateInfo,
     getAllUser,
+    getOneUser,
 };
