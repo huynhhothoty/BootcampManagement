@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Modal, Divider, Radio, Table, Input, Space, Button, Row, Col } from 'antd';
+import { Modal, Divider, Radio, Table, Input, Space, Button, Row, Col, Tag } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -150,7 +150,22 @@ const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}
             width: '5%',
 
         },
-       
+        {
+            title: 'Type',
+            key: 'type',
+            dataIndex: 'type',
+            width: '10%',
+            render: (_, { isCompulsory }) => (
+                <>
+                    {isCompulsory ? (<Tag color={"volcano"} >
+                                Compusory
+                            </Tag>):(<Tag color={"green"}>
+                            Elective
+                            </Tag>)}
+                    
+                </>
+            ),
+        },
         {
             title: 'Description',
             dataIndex: 'description',

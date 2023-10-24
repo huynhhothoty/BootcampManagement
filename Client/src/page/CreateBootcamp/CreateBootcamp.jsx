@@ -80,82 +80,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   }
 
   const handleCreatebootcamp = async () => {
-    //Check Total credits and bootcamp name
-    // if(bootcampName === "" || totalCredits === 0){
-    //   return
-    // }
-    if (bootcampName === "") setBootcampNameError(true)
-    if (totalCredits <= 0) setBootcampCreditError(true)
-    const tempErrorMessage = {
-      allowcate: [],
-      compulsory: [],
-      elective: [],
-      planning: [],
-      remainning: false
-    }
-    if (allowcateFields.length === 0) {
-      tempErrorMessage.allowcate.push({
-        message: NO_ALLOWCATION_CREDITS_DATA,
-        data: null
-      })
-    } else {
-      let errorFieldIndex = []
-      let errorField = []
-      let allowcateTotalCredits = 0
-      errorField = allowcateFields.map((field, index) => {
-        const error = {
-          missFieldName: false,
-          missSmallField: false,
-          smallFieldError: []
-        }
-
-        if (field.fieldName === "") {
-          error.missFieldName = true
-          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
-        }
-        if (field.smallField.length === 0) {
-          error.missSmallField = true
-          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
-        } else {
-          field.smallField.forEach((smallField, smallIndex) => {
-            if (smallField.fieldName === "") {
-              error.smallFieldError.push(smallIndex)
-              !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
-            }
-          })
-        }
-        allowcateTotalCredits += field.compulsoryCredits
-        allowcateTotalCredits += field.electiveCredits
-
-        let totalCompulsorySubjectCredits = 0
-        let totalElectiveSubjectCredits = 0
-        field.subjectList.forEach((subject) => {
-          if (subject.isCompulsory) {
-            totalCompulsorySubjectCredits += subject.credits
-          } else totalElectiveSubjectCredits += subject.credits
-        })
-        if (totalCompulsorySubjectCredits !== field.compulsoryCredits) tempErrorMessage.compulsory.push(index)
-        if (totalElectiveSubjectCredits !== field.electiveCredits) tempErrorMessage.elective.push(index)
-
-        return error
-      })
-      if (errorFieldIndex.length > 0 || allowcateTotalCredits !== totalCredits) {
-        tempErrorMessage.allowcate.push({
-          message: MISSING_FIELD_INFO,
-          data: {
-            errorFieldIndex,
-            errorField,
-            isEqualTotalCredits: allowcateTotalCredits === totalCredits ? true : false
-          }
-        })
-      }
-    }
-
-
-    semesterList.forEach((semester, index) => {
-      if (semester.length === 0) tempErrorMessage.planning.push(index)
-    })
-    tempErrorMessage.remainning = semesterSubjectList.some((subject) => subject.semester === null)
+    let tempErrorMessage = validateBeforeCreate()
 
     if (bootcampName !== "" && totalCredits > 0 && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false) {
 
@@ -256,6 +181,84 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       openNotification(NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_CREATE_BOOTCAMP_MISS_INFO)
     }
 
+  }
+
+  const validateBeforeCreate = () => {
+    if (bootcampName === "") setBootcampNameError(true)
+    if (totalCredits <= 0) setBootcampCreditError(true)
+    const tempErrorMessage = {
+      allowcate: [],
+      compulsory: [],
+      elective: [],
+      planning: [],
+      remainning: false
+    }
+    if (allowcateFields.length === 0) {
+      tempErrorMessage.allowcate.push({
+        message: NO_ALLOWCATION_CREDITS_DATA,
+        data: null
+      })
+    } else {
+      let errorFieldIndex = []
+      let errorField = []
+      let allowcateTotalCredits = 0
+      errorField = allowcateFields.map((field, index) => {
+        const error = {
+          missFieldName: false,
+          missSmallField: false,
+          smallFieldError: []
+        }
+
+        if (field.fieldName === "") {
+          error.missFieldName = true
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+        }
+        if (field.smallField.length === 0) {
+          error.missSmallField = true
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+        } else {
+          field.smallField.forEach((smallField, smallIndex) => {
+            if (smallField.fieldName === "") {
+              error.smallFieldError.push(smallIndex)
+              !errorFieldIndex.includes(index) && errorFieldIndex.push(index)
+            }
+          })
+        }
+        allowcateTotalCredits += field.compulsoryCredits
+        allowcateTotalCredits += field.electiveCredits
+
+        let totalCompulsorySubjectCredits = 0
+        let totalElectiveSubjectCredits = 0
+        field.subjectList.forEach((subject) => {
+          if (subject.isCompulsory) {
+            totalCompulsorySubjectCredits += subject.credits
+          } else totalElectiveSubjectCredits += subject.credits
+        })
+        if (totalCompulsorySubjectCredits !== field.compulsoryCredits) tempErrorMessage.compulsory.push(index)
+        if (totalElectiveSubjectCredits < field.electiveCredits) tempErrorMessage.elective.push(index)
+        return error
+      })
+      if (errorFieldIndex.length > 0 || allowcateTotalCredits !== totalCredits) {
+        tempErrorMessage.allowcate.push({
+          message: MISSING_FIELD_INFO,
+          data: {
+            errorFieldIndex,
+            errorField,
+            isEqualTotalCredits: allowcateTotalCredits === totalCredits ? true : false
+          }
+        })
+      }
+    }
+
+
+    semesterList.forEach((semester, index) => {
+      if (semester.length === 0) tempErrorMessage.planning.push(index)
+    })
+    tempErrorMessage.remainning = semesterSubjectList.some((subject) => (
+      subject.semester === null
+      && allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].isCompulsory === true
+    ))
+    return tempErrorMessage
   }
 
   const handleSaveAsDraft = async () => {

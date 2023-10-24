@@ -141,9 +141,9 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
 
         },
         {
-            title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
+            title: 'Type',
+            key: 'type',
+            dataIndex: 'type',
             width: '10%',
             render: (_, { isCompulsory }) => (
                 <>

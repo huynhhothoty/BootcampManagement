@@ -62,7 +62,8 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData }) => {
             }
             dispatch(addSubject({
                 fieldIndex: subjectModalData.fieldIndex,
-                subject: newSubject
+                subject: newSubject,
+                type: subjectModalData.sujectType
             }))
         }
         if(importedSubject) dispatch(updateWithNormalImportSubject(importedSubject))

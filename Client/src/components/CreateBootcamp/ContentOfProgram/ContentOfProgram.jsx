@@ -52,7 +52,7 @@ const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestMo
             <span style={{fontSize: 15}}>Total {type} Credits:</span>
             </Col>
             <Col span={20}>
-            <Progress status={getProgressStatus()} percent={getProgressPercentage()} format={() => `${totalActureCredits()}/${totalContentCredits()}`} />
+            <Progress status={type === "Compulsory" ? getProgressStatus() : ""} percent={getProgressPercentage()} format={() => `${totalActureCredits()}/${totalContentCredits()}`} />
             </Col>
 
         </Row>

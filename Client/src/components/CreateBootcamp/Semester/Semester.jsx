@@ -139,7 +139,22 @@ const Semester = ({error,totalSemester,setIsModalOpen, subjectList, semesterInde
             width: '5%',
 
         },
-       
+        {
+            title: 'Type',
+            key: 'type',
+            dataIndex: 'type',
+            width: '10%',
+            render: (_, { isCompulsory }) => (
+                <>
+                    {isCompulsory ? (<Tag color={"volcano"} >
+                                Compusory
+                            </Tag>):(<Tag color={"green"}>
+                            Elective
+                            </Tag>)}
+                    
+                </>
+            ),
+        },
         {
             title: 'Description',
             dataIndex: 'description',
@@ -222,7 +237,7 @@ const Semester = ({error,totalSemester,setIsModalOpen, subjectList, semesterInde
                 
                 </div>
             </div>
-            {(error && subjectList.length ===0) ? <div style={{ color: "red", marginTop: 10}}>**{MISSING_SUBJECT_IN_SEMESTER}</div> : ""}
+            {(error) ? <div style={{ color: "red", marginTop: 10}}>**{MISSING_SUBJECT_IN_SEMESTER}</div> : ""}
             <Divider />
             <Table columns={columns} dataSource={getSemesterData()} />;
         </Card>

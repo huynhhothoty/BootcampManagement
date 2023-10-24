@@ -4,7 +4,7 @@ import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col } from 'antd';
 import { useDispatch } from 'react-redux';
 import { removeSubject } from '../../../redux/CreateBootcamp/createBootCamp';
-import { NOT_EQUAL_CREDITS } from '../../../util/constants/errorMessage';
+import { NOT_EQUAL_CREDITS, NOT_EQUAL_OR_HIGER_CREDITS } from '../../../util/constants/errorMessage';
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig';
 import { removeImportedSubject } from '../../../redux/subject/subject';
 
@@ -35,7 +35,7 @@ const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestMo
         })
         if(type === "Compulsory"){
             return (<span style={{color: totalActureSubjectCredits === field.compulsoryCredits ? "#5cb85c" : "red"}} >{totalActureSubjectCredits}/{field.compulsoryCredits}</span>)
-        }else return  (<span style={{color: totalActureSubjectCredits === field.electiveCredits ? "#5cb85c" : "red"}} >{totalActureSubjectCredits}/{field.electiveCredits}</span>)
+        }else return  (<span style={{color: totalActureSubjectCredits >= field.electiveCredits ? "#5cb85c" : "red"}} >{totalActureSubjectCredits}/{field.electiveCredits}</span>)
     }
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
@@ -168,6 +168,7 @@ const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestMo
                 <Row>
                     <Col span={12}>
                     <Button type='default' danger onClick={async () => {
+                        console.log(data.index)
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig)
                         if(confirmed){
                             if(data._id){
@@ -175,7 +176,8 @@ const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestMo
                             }
                             dispath(removeSubject({
                                 fieldIndex: index,
-                                subjectIndex: data.index
+                                subjectIndex: data.index,
+                                type
                             }))
                         }
                         
@@ -247,7 +249,7 @@ const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestMo
                 </Button>
             </div>
             {
-                error ?  <div style={{ color: "red", marginTop: 10}}>**{NOT_EQUAL_CREDITS}</div> : ""
+                error ?  <div style={{ color: "red", marginTop: 10}}>**{type === "Compulsory" ? NOT_EQUAL_CREDITS : NOT_EQUAL_OR_HIGER_CREDITS}</div> : ""
             }
            
             <Divider />

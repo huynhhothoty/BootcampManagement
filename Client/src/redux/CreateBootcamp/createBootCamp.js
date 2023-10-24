@@ -26,7 +26,7 @@ export const createSubject = createAsyncThunk(
   "createBootcamp/createSubject",
   async (subjectData) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.post(createSubjectAPI, subjectData, {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -45,7 +45,7 @@ export const createFirstBootcamp = createAsyncThunk(
   "createBootcamp/createFirstBootcamp",
   async (bootcampData) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.post(createBootcampAPI, bootcampData, {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -64,7 +64,7 @@ export const createField = createAsyncThunk(
   "createBootcamp/createField",
   async (fieldData) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.post(createFieldAPI, fieldData, {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -83,7 +83,7 @@ export const createDraft = createAsyncThunk(
   "createBootcamp/createDraft",
   async (data) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.post(createDraftAPI, data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -102,7 +102,7 @@ export const updateDraft = createAsyncThunk(
   "createBootcamp/updateDraft",
   async (data) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.patch(updateDraftAPI(data.draftID), data.data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -121,7 +121,7 @@ export const getUserDraft = createAsyncThunk(
   "createBootcamp/getUserDraft",
   async (userID) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.get(getDraftByUserAPI(userID), {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -140,7 +140,7 @@ export const deleteDraft = createAsyncThunk(
   "createBootcamp/deleteDraft",
   async (draftID) => {
     try {
-      const userToken = sessionStorage.getItem(USER_TOKEN)
+      const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.delete(deleteDraftAPI(draftID), {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -212,6 +212,9 @@ export const createBootcampSlice = createSlice({
       ].electiveCredits = action.payload.credits;
 
       let tempCredits = 0;
+      const currentCredits =
+        state.allowcateFields[action.payload.bigFieldIndex].electiveCredits;
+
       state.allowcateFields[action.payload.bigFieldIndex].smallField.forEach(
         (field) => {
           tempCredits += field.electiveCredits;
@@ -219,6 +222,22 @@ export const createBootcampSlice = createSlice({
       );
       state.allowcateFields[action.payload.bigFieldIndex].electiveCredits =
         tempCredits;
+
+      if (
+        state.allowcateFields[action.payload.bigFieldIndex].electiveCredits >
+        currentCredits
+      ) {
+        state.completeTotalCredits +=
+          state.allowcateFields[action.payload.bigFieldIndex].electiveCredits -
+          currentCredits;
+      } else if (
+        state.allowcateFields[action.payload.bigFieldIndex].electiveCredits <
+        currentCredits
+      ) {
+        state.completeTotalCredits -=
+          currentCredits -
+          state.allowcateFields[action.payload.bigFieldIndex].electiveCredits;
+      }
     },
 
     addBigField: (state) => {
@@ -233,6 +252,8 @@ export const createBootcampSlice = createSlice({
     },
 
     deleteBigField: (state, action) => {
+      state.completeTotalCredits -=
+        state.allowcateFields[action.payload].electiveCredits;
       state.allowcateFields.splice(action.payload, 1);
     },
 
@@ -253,6 +274,10 @@ export const createBootcampSlice = createSlice({
         state.allowcateFields[action.payload.bigFieldIndex].smallField[
           action.payload.smallFieldIndex
         ].electiveCredits;
+      state.completeTotalCredits -=
+        state.allowcateFields[action.payload.bigFieldIndex].smallField[
+          action.payload.smallFieldIndex
+        ].electiveCredits;
       state.allowcateFields[action.payload.bigFieldIndex].smallField.splice(
         action.payload.smallFieldIndex,
         1
@@ -263,7 +288,8 @@ export const createBootcampSlice = createSlice({
       state.allowcateFields[action.payload.fieldIndex].subjectList.push(
         action.payload.subject
       );
-      state.completeTotalCredits += action.payload.subject.credits;
+      if (action.payload.type === "Compulsory")
+        state.completeTotalCredits += action.payload.subject.credits;
       state.semesterSubjectList.push({
         fieldIndex: action.payload.fieldIndex,
         subjectIndex:
@@ -298,10 +324,11 @@ export const createBootcampSlice = createSlice({
       ].fieldName = action.payload.fieldName;
     },
     removeSubject: (state, action) => {
-      state.completeTotalCredits -=
-        state.allowcateFields[action.payload.fieldIndex].subjectList[
-          action.payload.subjectIndex
-        ].credits;
+      if (action.payload.type === "Compulsory")
+        state.completeTotalCredits -=
+          state.allowcateFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].credits;
       const index = state.semesterSubjectList.findIndex(
         (subject) =>
           subject.fieldIndex === action.payload.fieldIndex &&
@@ -317,7 +344,15 @@ export const createBootcampSlice = createSlice({
           1
         );
       }
-
+      state.semesterSubjectList = state.semesterSubjectList.map((subject) => {
+        const newSubject = subject;
+        if (
+          newSubject.subjectIndex >
+          state.semesterSubjectList[index].subjectIndex
+        )
+          newSubject.subjectIndex -= 1;
+        return newSubject;
+      });
       state.semesterSubjectList.splice(index, 1);
       state.allowcateFields[action.payload.fieldIndex].subjectList.splice(
         action.payload.subjectIndex,
