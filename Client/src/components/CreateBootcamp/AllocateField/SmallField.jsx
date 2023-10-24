@@ -46,11 +46,15 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
             <Col span={16} style={{display:"flex", justifyContent:"space-evenly"}}>
                 <div>
                     <span style={{ marginRight: 10 }}>Compulsory Credits</span>
-                    <InputNumber min={0} max={20} placeholder="Compulsory Credits" value={fieldData.compulsoryCredits} onChange={handleChangeCompulsoryCredit}/>
+                    <InputNumber min={0} 
+                    // max={20} 
+                    placeholder="Compulsory Credits" value={fieldData.compulsoryCredits} onChange={handleChangeCompulsoryCredit}/>
                 </div>
                 <div>
                     <span style={{ marginRight: 10 }}>Elective Credits</span>
-                    <InputNumber  min={0} max={20} placeholder="Elective Credits" value={fieldData.electiveCredits} onChange={handleChangeElectiveCredit}/>
+                    <InputNumber  min={0} 
+                    // max={20} 
+                    placeholder="Elective Credits" value={fieldData.electiveCredits} onChange={handleChangeElectiveCredit}/>
                 </div>
                 <div>
                     <Button danger onClick={async () => {

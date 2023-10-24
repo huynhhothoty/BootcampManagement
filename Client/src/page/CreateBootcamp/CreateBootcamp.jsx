@@ -329,7 +329,9 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             </Col>
             <Col span={8} className='staticColum'>
               <div><span style={{ color: "red" }}>* </span>Total Program Credits</div>
-              <InputNumber status={(bootcampCreditError && totalCredits <= 0) ? "error" : ""} onChange={handleChangeBootcampTotalCredits} value={totalCredits} min={1} max={300} style={{ width: "100%", marginBlock: 8 }} placeholder="Please enter total credits" />
+              <InputNumber status={(bootcampCreditError && totalCredits <= 0) ? "error" : ""} onChange={handleChangeBootcampTotalCredits} value={totalCredits} min={1} 
+              // max={300} 
+              style={{ width: "100%", marginBlock: 8 }} placeholder="Please enter total credits" />
               {(bootcampCreditError && totalCredits <= 0) ? <div style={{ color: "red" }}>{NO_BOOTCAMP_TOTAL_CREDITS}</div> : ""}
               <Progress status={completeTotalCredits > totalCredits ? "exception" : ""} percent={CaculatePercent(completeTotalCredits, totalCredits)} format={() => `${completeTotalCredits}/${totalCredits}`} />
             </Col>

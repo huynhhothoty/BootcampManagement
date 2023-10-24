@@ -163,7 +163,9 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData }) => {
                                     },
                                 ]}
                             >
-                                <InputNumber min={0} max={20} style={{ width: "100%" }} placeholder='Number of credits'/>
+                                <InputNumber min={0} 
+                                // max={20} 
+                                style={{ width: "100%" }} placeholder='Number of credits'/>
                             </Form.Item>
                         </Col>
                         
