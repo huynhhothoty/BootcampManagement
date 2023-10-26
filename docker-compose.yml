@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+    server:
+        build: ./Server
+        ports:
+            - 3000:3000
+        environment:
+            # - JWT_EXPIRES: ${JWT_EXPIRES}
+            # - JWT_SECRET: ${JWT_SECRET}
+            # - DB_STRING: ${DB_STRING}
+            # - DB_NAME: ${DB_NAME}
+            # - DB_PASS: ${DB_PASS}
+            - NODE_ENV=development
+            - JWT_EXPIRES=3d
+            - JWT_SECRET=luuhongdongmy19122002
+            - DB_STRING=mongodb+srv://huynhhothoty:kuQRfdSzC3RllSpT@bootcampdb.ak789bd.mongodb.net/mybcdatabase?retryWrites=true&w=majority&appName=AtlasApp
+            - DB_NAME=huynhhothoty
+            - DB_PASS=kuQRfdSzC3RllSpT
+
+    client:
+        build: ./Client
+        # depends_on:
+        #     - server
+        ports:
+            - 5173:5173
+
+    mongodb:
+        image: mongo:latest
+        ports:
+            - 27017:27017

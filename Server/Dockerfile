@@ -1,0 +1,20 @@
+FROM node:18.18.0-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+ENV NODE_ENV: ${NODE_ENV}
+ENV JWT_EXPIRES: ${JWT_EXPIRES}
+ENV JWT_SECRET: ${JWT_SECRET}
+ENV DB_STRING: ${DB_STRING}
+ENV DB_NAME: ${DB_NAME}
+ENV DB_PASS: ${DB_PASS}
+
+CMD ["npm", "run", "start"]
