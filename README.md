@@ -4,15 +4,15 @@ A Site to manage bootcamp for student
 1. Clone this project or download it at this: [Link](https://github.com/huynhhothoty/BootcampManagement).
 2. Open the project in your IDE/text editor with the root directory being **BootcampManagement**.
 3. Choose one of the options below to execute the code.
-   - 🛹Execute by manual commands
-      1. Navigate to the **Server** folder, open it in a terminal, and run the following commands:  
-         `npm i`  
-         `npm run dev`
-      2. Navigate to the **Client** folder, open it in a terminal, and run the following commands:  
-         `npm i`  
-         `npm run dev`
-   - 🚋Execute by Docker (please install Docker in your device first): Run the following commands in the root folder (**BootcampManagement**):  
-        `docker-compose up` 
+- 🛹Execute by manual commands
+   1. Navigate to the **Server** folder, open it in a terminal, and run the following commands:  
+      `npm i`  
+      `npm run dev`
+   2. Navigate to the **Client** folder, open it in a terminal, and run the following commands:  
+      `npm i`  
+      `npm run dev`
+- 🚋Execute by Docker (please install Docker in your device first): Run the following commands in the root folder (**BootcampManagement**):  
+     `docker-compose up` 
 4. Open your browser at *http://localhost:5173/*.
 # 🌍How to use
 - Create a bootcamp:
