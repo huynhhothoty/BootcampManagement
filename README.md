@@ -2,17 +2,17 @@
 A Site to manage bootcamp for student
 # Available Functions
 1. Login
-   1.1. Demo account:
-   - email: admin@gmail.com
-   - password: 123456
+1.1. Demo account:
+- email: admin@gmail.com
+- password: 123456
 2. Create Bootcamp (Chương trình đào tạo)
-   2.1 Create new Bootcamp with imported bootcamp
-   2.2 Create new Bootcamp from scrapt
-   2.3 Save create progress for continue create next time (Using "Save as draft" button)
+2.1 Create new Bootcamp with imported bootcamp
+2.2 Create new Bootcamp from scrapt
+2.3 Save create progress for continue create next time (Using "Save as draft" button)
 3. View created bootcamps
-   3.1 View all created bootcamps
-   3.2 View the detail of each bootcamp
-   3.3 Edit, Delete BootCamp (Inprogress...)
+3.1 View all created bootcamps
+3.2 View the detail of each bootcamp
+3.3 Edit, Delete BootCamp (Inprogress...)
 # 🚀Install and run
 1. Clone this project or download it at this: [Link](https://github.com/huynhhothoty/BootcampManagement).
 2. Open the project in your IDE/text editor with the root directory being **BootcampManagement**.
