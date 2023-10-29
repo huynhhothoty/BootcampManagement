@@ -2,7 +2,7 @@
 A Site to manage bootcamp for student
 # Available Functions
 1. Login
-1.1. Demo account:
+Demo account:
 - email: admin@gmail.com
 - password: 123456
 2. Create Bootcamp (Chương trình đào tạo)
