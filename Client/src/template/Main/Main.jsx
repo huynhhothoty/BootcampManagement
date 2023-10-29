@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
+  UnorderedListOutlined,
   HomeOutlined,
   PlusCircleOutlined,
-
+  UserOutlined, 
+  DownOutlined,
+  LogoutOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Dropdown } from 'antd';
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +16,6 @@ import { getUserDraft } from "../../redux/CreateBootcamp/createBootCamp";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 import { setFirstUserData } from "../../redux/authentication/authentication";
 import { Avatar, Space } from 'antd';
-import { UserOutlined, DownOutlined, LogoutOutlined } from '@ant-design/icons';
 const { Header, Sider, Content } = Layout;
 
 
@@ -25,7 +26,7 @@ const Main = () => {
   const { userData } = useSelector(store => store.authentication)
   const [collapsed, setCollapsed] = useState(false);
   const [headerTitle, setheaderTitle] = useState("Home");
-  
+
   const handleLogout = () => {
     sessionStorage.removeItem(USER_TOKEN)
     sessionStorage.removeItem(USER_DATA)
@@ -34,10 +35,10 @@ const Main = () => {
 
   const items = [
     {
-      label: <span onClick={handleLogout} style={{color:"red"}}><LogoutOutlined style={{marginRight:20}}/> Logout</span>,
+      label: <span onClick={handleLogout} style={{ color: "red" }}><LogoutOutlined style={{ marginRight: 20 }} /> Logout</span>,
       key: '0',
     },
-   
+
   ]
 
   const {
@@ -51,8 +52,13 @@ const Main = () => {
         break;
 
       case '2':
-        navigate('/createBootcamp')
+        navigate('/createbootcamp')
         setheaderTitle('Create Bootcamp')
+        break;
+
+      case '3':
+        navigate('/userbootcamp')
+        setheaderTitle('My Bootcamp')
         break;
 
       default:
@@ -104,8 +110,8 @@ const Main = () => {
             },
             {
               key: '3',
-              icon: <UploadOutlined />,
-              label: 'nav 3',
+              icon: <UnorderedListOutlined />,
+              label: 'My Bootcamp',
             },
           ]}
         />
@@ -141,7 +147,7 @@ const Main = () => {
             }}
             trigger={['click']}
           >
-            <div style={{ marginRight: 20, cursor:"pointer" }}>
+            <div style={{ marginRight: 20, cursor: "pointer" }}>
               <Avatar size="large" icon={<UserOutlined />} />
               <span style={{ marginInline: 10 }}>{userData?.name}</span>
               <DownOutlined />

@@ -8,7 +8,10 @@ import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 const initialState = {
     loading: false,
     importedSubjectsList: [],
-    allSubjectList: []
+    allSubjectList: [],
+    viewedSubjectList: [],
+    viewedSemesterList: [],
+    viewedSemesterSubjectList:[]
 };
 export const getAllSubject = createAsyncThunk(
     'subject/getAllSubject',
@@ -59,12 +62,25 @@ export const subjectSlice = createSlice({
        removeImportedSubject: (state,action) => {
         const index = state.importedSubjectsList.findIndex(subject => subject._id === action.payload)
         state.importedSubjectsList.splice(index, 1)
+       },
+
+       updateViewedSubjectList: (state,action) => {
+        state.allSubjectList = action.payload
+       },
+       updateViewedSemesterList: (state,action) => {
+        state.viewedSemesterList = action.payload
+       },
+       updateViewedSemesterSubjectLis: (state,action) => {
+        state.viewedSemesterSubjectList = action.payload
        }
     }
 })
 export const {
     updateAfterImportBootcamp,
     updateWithNormalImportSubject,
-    removeImportedSubject
+    removeImportedSubject,
+    updateViewedSubjectList,
+    updateViewedSemesterList,
+    updateViewedSemesterSubjectLis
 } = subjectSlice.actions;
 export default subjectSlice.reducer;
