@@ -3,36 +3,40 @@ import { Button, Input, Space, Table, Tag } from 'antd';
 import React, { useRef, useState } from 'react'
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-
+import { DeleteOutlined } from '@ant-design/icons';
+import { useDispatch } from 'react-redux';
+import { deleteSemesterFromViewedSemesterList, deleteSubjectFromViewedSemster } from '../../redux/subject/subject';
+import { deleteConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 const data = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park',
-    },
-    {
-      key: '2',
-      name: 'Joe Black',
-      age: 42,
-      address: 'London No. 1 Lake Park',
-    },
-    {
-      key: '3',
-      name: 'Jim Green',
-      age: 32,
-      address: 'Sydney No. 1 Lake Park',
-    },
-    {
-      key: '4',
-      name: 'Jim Red',
-      age: 32,
-      address: 'London No. 2 Lake Park',
-    },
-  ];
+  {
+    key: '1',
+    name: 'John Brown',
+    age: 32,
+    address: 'New York No. 1 Lake Park',
+  },
+  {
+    key: '2',
+    name: 'Joe Black',
+    age: 42,
+    address: 'London No. 1 Lake Park',
+  },
+  {
+    key: '3',
+    name: 'Jim Green',
+    age: 32,
+    address: 'Sydney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Jim Red',
+    age: 32,
+    address: 'London No. 2 Lake Park',
+  },
+];
 
-const SemesterTableDisplay = ({semesterIndex,subjectList}) => {
-    const [searchText, setSearchText] = useState('');
+const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsModalOpen, setSelectedSemester, setIsUpdated, totalSemester }) => {
+  const dispatch = useDispatch()
+  const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -160,26 +164,71 @@ const SemesterTableDisplay = ({semesterIndex,subjectList}) => {
       dataIndex: 'credits',
       key: 'credits',
       ...getColumnSearchProps('credits'),
-     
+
     },
     {
-        title: 'Description',
-        dataIndex: 'description',
-        key: 'description'
-       
-      },
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description'
 
-      {
-        title: '123',
-        width:"8%",
-        dataIndex: '',
-        key: ''
-        
-      },
+    },
+
+    {
+      title: '',
+      width: "8%",
+      dataIndex: '',
+      key: '',
+      render: (_, row) => {
+        return <div>
+          <Button
+            danger
+            style={{ color: "red" }}
+            onClick={async() => {
+              const confirmed = await confirmModal.confirm(deleteConfirmConfig);
+              if (confirmed) {
+                dispatch(deleteSubjectFromViewedSemster({
+                  semester: semesterIndex, 
+                  inSemesterSubjectIndex: row.key, 
+                  fieldIndex: row.fieldIndex, 
+                  subjectIndex: row.subjectIndex
+                }))
+                setIsUpdated(true)
+              }
+              
+            }}
+          >
+            <DeleteOutlined />
+          </Button>
+        </div>
+      }
+    },
   ];
   return (
-    <ProCard collapsible title={<span style={{fontWeight:"bold", fontSize:25}}>{`Semester ${semesterIndex + 1}`}</span>} bordered style={{marginTop:18}}>
-        <Table columns={columns} dataSource={subjectList} />
+    <ProCard extra={<div>
+      <Button
+        type='primary'
+        onClick={() => {
+          setIsModalOpen(true)
+          setSelectedSemester(semesterIndex)
+        }}
+      >Add Subject</Button>
+      <Button
+        danger
+        disabled={totalSemester === 1 ? true: false}
+        style={{ marginLeft: 20 }}
+        onClick={async () => {
+          const confirmed = await confirmModal.confirm(deleteConfirmConfig);
+          if (confirmed) {
+            dispatch(deleteSemesterFromViewedSemesterList(semesterIndex))
+            setIsUpdated(true)
+          }
+
+        }}
+      >
+        Delete Semester
+      </Button>
+    </div>} collapsible title={<span style={{ fontWeight: "bold", fontSize: 25 }}>{`Semester ${semesterIndex + 1}`}</span>} bordered style={{ marginTop: 18 }}>
+      <Table columns={columns} dataSource={subjectList} />
     </ProCard>
   )
 }

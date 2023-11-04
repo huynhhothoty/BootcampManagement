@@ -35,7 +35,7 @@ const SemesterList = ({planningError,remainning, confirmModal}) => {
 
     return (
         <div>
-            <AddSubjectToSemesterModal selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+            <AddSubjectToSemesterModal type={"create"} selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <div>
                 <Button onClick={handleAddSemester}>Add Semester</Button>
                 {(remainning && semesterSubjectList.some((subject) => subject.semester === null)) ? <span style={{ color: "red", marginLeft: 10}}>**{SUBJECT_STILL_REMAIN}</span> : ""}

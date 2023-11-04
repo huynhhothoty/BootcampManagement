@@ -8,6 +8,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { getAllowcatById, updateViewedAllocatedField } from '../../redux/allocate/allowcate';
 import { updateViewedSemesterList, updateViewedSemesterSubjectLis, updateViewedSubjectList } from '../../redux/subject/subject';
 import { updateLoading } from '../../redux/loading/Loading';
+import { SUBJECT_ADDED_IMPORT } from '../../util/constants/subjectStatus';
 
 const AllBootcampTable = () => {
     const dispatch = useDispatch()
@@ -163,6 +164,7 @@ const AllBootcampTable = () => {
                         isCompulsory: subject.isCompulsory,
                         name: subject.name,
                         subjectCode: subject.subjectCode,
+                        status:[SUBJECT_ADDED_IMPORT],
                         _id: subject._id
                     }
                     tempSubjectList.push(subject)
@@ -209,7 +211,7 @@ const AllBootcampTable = () => {
                 title: data.name
             }
         ])
-        navigate("/userbootcamp/viewbootcamp")
+        navigate("/userbootcamp/viewbootcamp",{state:{viewedBootcampData: data}})
     }
 
     const columns = [

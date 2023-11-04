@@ -9,3 +9,7 @@ export const NOT_EQUAL_CREDITS = "Total subject credits are not equal to total F
 export const NOT_EQUAL_OR_HIGER_CREDITS = "Total subject credits are not equal or higher than total Field credits"
 export const MISSING_SUBJECT_IN_SEMESTER = "You need to add one or more subjects to this semester"
 export const SUBJECT_STILL_REMAIN = "These are still some Compulsory Subjects need to push into semester"
+
+
+export const VIEW_NOT_EQUAL_TOTAL_CREDITS = "You are not allowcated all credits"
+export const VIEW_NOT_EQUAL_CREDITS_IN_SUBJECTLIST = "Total subject credits are not equal to allowcated credits"

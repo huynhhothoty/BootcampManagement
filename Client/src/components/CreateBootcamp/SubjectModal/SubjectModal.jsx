@@ -1,18 +1,21 @@
 import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select } from 'antd'
 import ImportSubjectModal from '../ImportSubjectModal/ImportSubjectModal';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addSubject, editSubject } from '../../../redux/CreateBootcamp/createBootCamp';
 import dayjs from 'dayjs';
-import { getAllSubject, updateWithNormalImportSubject } from '../../../redux/subject/subject';
+import { addSubjectToViewedSemsterSubjectList, getAllSubject, updateWithNormalImportSubject } from '../../../redux/subject/subject';
+import { addToViewedFields, editSubjestViewedFields } from '../../../redux/allocate/allowcate';
+import { updateCompleteCreditsToViewedBootcamp } from '../../../redux/bootcamp/bootcamp';
 const { Option } = Select;
-const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData }) => {
+const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpdated }) => {
     const dispatch = useDispatch()
     const [form] = Form.useForm()
     const [isImportSubjectModalOpen, setIsImportSubjectModalOpen] = useState(false)
     const [autoIDYear, setAutoIDYear] = useState(dayjs(`${new Date().getFullYear()}/01/01`))
     const [autoID, setAutoID] = useState("")
     const [importedSubject, setImportedSubject] = useState(null)
+    const {viewedAllowcatedFields} = useSelector(store => store.allowcate)
 
     const handleCancel = () => {
         setAutoID("")
@@ -49,22 +52,51 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData }) => {
                 credits: a.credits,
                 description: a.description
             }
-            dispatch(editSubject({
-                fieldIndex: subjectModalData.fieldIndex,
-                subjectIndex: subjectModalData.subjectData.index,
-                subject: newSubject
-            }))
+            if(subjectModalData.isCreateBootcamp)
+                dispatch(editSubject({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subjectIndex: subjectModalData.subjectData.index,
+                    subject: newSubject
+                }))
+            else if(subjectModalData.isViewBootcamp){
+                dispatch(editSubjestViewedFields({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subjectIndex: subjectModalData.subjectData.index,
+                    subject: newSubject
+                }))
+            
+                if(subjectModalData.sujectType === "Compulsory"){
+                    dispatch(updateCompleteCreditsToViewedBootcamp(subjectData.credits * - 1))
+                    dispatch(updateCompleteCreditsToViewedBootcamp(a.credits))
+                }
+                setIsUpdated(true)
+            }
         }else if(subjectModalData.type === "add"){
             const newSubject = {
                 ...a,
                 isCompulsory: subjectModalData.sujectType === "Compulsory" ? true : false,
                 _id:importedSubject ? importedSubject._id : null
             }
+            if(subjectModalData.isCreateBootcamp)
             dispatch(addSubject({
                 fieldIndex: subjectModalData.fieldIndex,
                 subject: newSubject,
                 type: subjectModalData.sujectType
             }))
+            else if(subjectModalData.isViewBootcamp){
+                dispatch(addToViewedFields({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subject: newSubject,
+                    type: subjectModalData.sujectType
+                }))
+                dispatch(addSubjectToViewedSemsterSubjectList({
+                    fieldIndex:subjectModalData.fieldIndex,
+                    semester: null,
+                    subjectIndex: viewedAllowcatedFields[subjectModalData.fieldIndex].subjectList.length
+                }))
+                dispatch(updateCompleteCreditsToViewedBootcamp(a.credits))
+                setIsUpdated(true)
+            }
         }
         if(importedSubject) dispatch(updateWithNormalImportSubject(importedSubject))
         setImportedSubject(null)

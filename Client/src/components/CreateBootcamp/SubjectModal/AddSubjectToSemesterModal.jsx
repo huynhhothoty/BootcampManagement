@@ -4,10 +4,11 @@ import Highlighter from 'react-highlight-words';
 import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { addSubjectsToSemester } from '../../../redux/CreateBootcamp/createBootCamp';
+import { addSubjectToViewedSemster } from '../../../redux/subject/subject';
 
 
  
-const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}) => {
+const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester,type, setIsUpdated}) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -153,6 +154,12 @@ const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}
         {
             title: 'Type',
             key: 'type',
+            filters: [
+                { text: 'Compulsory', value: true },
+                { text: 'Elective', value: false },
+            ],
+            filterSearch: true,
+            onFilter: (value, record) => record.isCompulsory === value,
             dataIndex: 'type',
             width: '10%',
             render: (_, { isCompulsory }) => (
@@ -177,19 +184,33 @@ const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}
 
     const dispatch = useDispatch()
     const {semesterSubjectList,allowcateFields} = useSelector(store => store.createBootCamp)
+    const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
+
+    const { viewedSemesterList, viewedSemesterSubjectList } = useSelector(store => store.subject)
     const [data,setData] = useState([])
 
     const getData = () => {
+  
         const tempSubjectList = []
-        semesterSubjectList.forEach((subject,index) => {
-            if(subject.semester === null){
-                tempSubjectList.push({
-                    ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
-                    key:index
-                })
-            }
-        })
-     
+        if(type === 'create')
+            semesterSubjectList.forEach((subject,index) => {
+                if(subject.semester === null){
+                    tempSubjectList.push({
+                        ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
+                        key:index
+                    })
+                }
+            })
+        else if(type === 'view'){
+            viewedSemesterSubjectList.forEach((subject,index) => {
+                if(subject.semester === null){
+                    tempSubjectList.push({
+                        ...viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex],
+                        key:index
+                    })
+                }
+            })
+        }
         return tempSubjectList
     }
     const handleCancel = () => {
@@ -198,21 +219,35 @@ const AddSubjectToSemesterModal = ({isModalOpen,setIsModalOpen,selectedSemester}
     };
 
     const handleOk = () => {
-        dispatch(addSubjectsToSemester({
-            subjectIndexArr: selectedRowKeys,
-            semester: selectedSemester
-        }))
+        if(type === "create")
+            dispatch(addSubjectsToSemester({
+                subjectIndexArr: selectedRowKeys,
+                semester: selectedSemester
+            }))
+        else if(type === "view"){
+            let addSubjecList = []
+            selectedRowKeys.forEach((rowKey) => {
+                const tempSubjectSemesterData = viewedSemesterSubjectList[rowKey]
+                addSubjecList.push({
+                    ...tempSubjectSemesterData,
+                    semesterSubjectListIndex: rowKey,
+                    semester:selectedSemester
+                })
+            })
+            dispatch(addSubjectToViewedSemster(addSubjecList))
+            setIsUpdated(true)
+        }
         setIsModalOpen(false);
         setSelectedRowKeys([])
     }
 
     useEffect(() => {
         setData(getData())
-    },[semesterSubjectList])
+    },[semesterSubjectList,viewedSemesterSubjectList])
 
       return (
         <>
-          <Modal width={1000} title={`Add Subject to Semester ${selectedSemester}`} open={isModalOpen} onCancel={handleCancel} onOk={handleOk}>
+          <Modal okText={"Add"} cancelText={"Cancel"} width={1000} title={`Add Subject to Semester ${selectedSemester + 1}`} open={isModalOpen} onCancel={handleCancel} onOk={handleOk}>
           <div>
          
     

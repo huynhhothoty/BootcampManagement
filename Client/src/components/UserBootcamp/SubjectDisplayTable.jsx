@@ -1,22 +1,38 @@
 import {
-    EditableProTable,
-    ProCard,
-    ProForm,
-    ProFormDependency,
-    ProFormDigit,
+  EditableProTable,
+  ProCard,
+  ProForm,
+  ProFormDependency,
+  ProFormDigit,
 } from '@ant-design/pro-components';
 import { Button, Input, Space, Table, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
+import SubjectModal from '../CreateBootcamp/SubjectModal/SubjectModal';
+import { deleteConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
+import { removeImportedSubject, removeSubjectFromField } from '../../redux/subject/subject';
+import { deleteSubjectFromViewedFields } from '../../redux/allocate/allowcate';
+import { updateCompleteCreditsToViewedBootcamp } from '../../redux/bootcamp/bootcamp';
+import { VIEW_NOT_EQUAL_CREDITS_IN_SUBJECTLIST } from '../../util/constants/errorMessage';
 
-const SubjectDisplayTable = ({type,fieldName,fieldIndex,subjectList, totalCredits}) => {
+const SubjectDisplayTable = ({ type, fieldName, fieldIndex, subjectList, totalCredits, confirmModal, setIsUpdated, error }) => {
   const formRef = useRef();
-  const actionRef = useRef();
-
+  const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
+  const [subjectModalData, setSubjestModalData] = useState({
+    type: "",
+    fieldIndex: "",
+    modalName: "",
+    sujectType: "",
+    subjectData: null,
+    isCreateBootcamp: false,
+    isViewBootcamp: true
+  })
   const searchInput = useRef(null);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -127,15 +143,15 @@ const SubjectDisplayTable = ({type,fieldName,fieldIndex,subjectList, totalCredit
       title: 'Subject Name',
       dataIndex: 'name',
       valueType: 'name',
-      width:"20%",
+      width: "20%",
       ...getColumnSearchProps('name'),
     },
     {
       title: 'Type',
       key: 'isCompulsory',
       dataIndex: 'isCompulsory',
-      editable:false,
-      width:"10%",
+      editable: false,
+      width: "10%",
       render: (value) => {
         return <Tag color={value ? 'volcano' : 'green'}>{value ? "Compulsory" : "Elective"}</Tag>
       }
@@ -144,88 +160,144 @@ const SubjectDisplayTable = ({type,fieldName,fieldIndex,subjectList, totalCredit
       title: 'Credits',
       dataIndex: 'credits',
       valueType: 'digit',
-      fieldProps:{
-        placeholder:"Credits"
+      fieldProps: {
+        placeholder: "Credits"
       },
-      width:"8%"
+      width: "8%"
     },
     {
       title: 'Description',
       dataIndex: 'description',
       valueType: 'textarea',
-      fieldProps:{
-        placeholder:"Description"
+      fieldProps: {
+        placeholder: "Description"
       },
     },
-   
+
     {
       title: '',
       valueType: 'option',
       width: "5%",
       render: (_, row) => [
-        
+
         <a
           key="edit"
           onClick={() => {
-            actionRef.current?.startEditable(row.id);
+            setSubjestModalData({
+              type: "edit",
+              fieldIndex: fieldIndex,
+              modalName: `Edit subject ${row.name}`,
+              sujectType: type === "compulsory" ? "Compulsory" : "Elective",
+              subjectData: row,
+              isCreateBootcamp: false,
+              isViewBootcamp: true
+            })
+            setIsModalOpen(true)
           }}
         >
           Edit
         </a>,
-       
+        <a
+          style={{ color: "red", marginLeft: 20 }}
+          key="delete"
+          onClick={async () => {
+            const confirmed = await confirmModal.confirm(deleteConfirmConfig);
+            if (confirmed) {
+              dispatch(removeImportedSubject(row._id))
+              dispatch(removeSubjectFromField({ fieldIndex, subjectIndex: row.fieldSubjectListIndex }))
+              dispatch(deleteSubjectFromViewedFields({ fieldIndex, subjectIndex: row.fieldSubjectListIndex }))
+              dispatch(updateCompleteCreditsToViewedBootcamp(row.credits * -1))
+              setIsUpdated(true)
+            }
+
+          }}
+        >
+          Delete
+        </a>
       ],
     },
   ];
 
-    return (
-        <ProCard collapsible title={<span style={{fontWeight:"bold", fontSize:25}}>{fieldName}</span>} bordered style={{marginTop:18}}>
-      <div
-        style={{
-          margin: 'auto',
-        }}
-      >
-        <ProForm
-           
-          formRef={formRef}
-          initialValues={{
-            table:subjectList
+  return (
+    <>
+      <SubjectModal setIsUpdated={setIsUpdated} subjectModalData={subjectModalData} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <ProCard collapsible
+        title={
+          <span style={{ fontWeight: "bold", fontSize: 25 }}>
+            {fieldName}
+          </span>
+        }
+        bordered
+        subTitle = {
+          error ? <span style={{color:"red"}}>**{VIEW_NOT_EQUAL_CREDITS_IN_SUBJECTLIST}</span> : ""
+        }
+        style={{ marginTop: 18 }}>
+        <div
+          style={{
+            margin: 'auto',
           }}
-          submitter={false}
         >
-          <ProFormDependency name={['table']}>
-            {({ table }) => {
-              const info = table.reduce(
-                (pre, item) => {
-                  return {
-                    totalSubjectCredits:
-                      pre.totalSubjectCredits + item?.credits
-                  };
-                },
-                { totalSubjectCredits: 0},
-              );
-              return (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    paddingBlockEnd: 16,
-                  }}
-                >
-                  <div style={{ flex: 1 }}>Allowcated Credits: {totalCredits}</div>
-                  <div style={{ flex: 1 }}>Total Subject Credits: {info.totalSubjectCredits}</div>
-                  <div style={{ flex: 2, display:"flex",justifyContent:"flex-end" }}>
-                    <Button type='primary'>Add Subject</Button>
-                  </div>
-                </div>
-              );
+          <ProForm
+
+            formRef={formRef}
+            initialValues={{
+              table: subjectList
             }}
-          </ProFormDependency>
-          <Table columns={columns} dataSource={subjectList} />
-        </ProForm>
-      </div>
-    </ProCard>
-    )
+            submitter={false}
+          >
+            <ProFormDependency name={['table']}>
+              {({ table }) => {
+                const info = table.reduce(
+                  (pre, item) => {
+                    return {
+                      totalSubjectCredits:
+                        pre.totalSubjectCredits + item?.credits
+                    };
+                  },
+                  { totalSubjectCredits: 0 },
+                );
+                return (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      paddingBlockEnd: 16,
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>Allowcated Credits: {totalCredits}</div>
+                    <div style={{ flex: 1 }}>Total Subject Credits: {viewedAllowcatedFields[fieldIndex].subjectList.reduce(
+                      (total, item) => {
+                        if (item.isCompulsory === (type === "compulsory" ? true : false))
+                          return total + item?.credits
+                        else return total + 0
+                      },
+                      0,
+                    )}</div>
+                    <div style={{ flex: 2, display: "flex", justifyContent: "flex-end" }}>
+                      <Button type='primary' onClick={() => {
+                        setSubjestModalData({
+                          type: "add",
+                          fieldIndex: fieldIndex,
+                          modalName: `Add new subject to ${fieldName} field`,
+                          sujectType: type === "compulsory" ? "Compulsory" : "Elective",
+                          subjectData: null,
+                          isCreateBootcamp: false,
+                          isViewBootcamp: true
+                        })
+                        setIsModalOpen(true)
+                      }}>Add Subject</Button>
+                    </div>
+                  </div>
+                );
+              }}
+            </ProFormDependency>
+            <Table columns={columns} dataSource={subjectList.map((subject, index) => ({ ...subject, index, key: index }))} />
+          </ProForm>
+        </div>
+      </ProCard>
+    </>
+  )
 }
 
 export default SubjectDisplayTable

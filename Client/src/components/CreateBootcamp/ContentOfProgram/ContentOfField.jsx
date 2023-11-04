@@ -229,7 +229,9 @@ const ContentOfField = ({error, field, type, setIsSubjectModalOpen, setSubjestMo
             fieldIndex: index,
             modalName: `Add Subject to "${field.fieldName}" field`,
             sujectType: type,
-            subjectData: null
+            subjectData: null,
+            isCreateBootcamp:true,
+            isViewBootcamp:false
         })
         setIsSubjectModalOpen(true)
         

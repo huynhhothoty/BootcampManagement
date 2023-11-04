@@ -4,6 +4,7 @@ import { tempJWTToken } from "../../util/api/host";
 import {
   getAllBootcampAPI,
   getBootcampByUserIDAPI,
+  updateBootcampAPI,
 } from "../../util/api/bootcamp/bootcampApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
@@ -41,6 +42,25 @@ export const getBootcampsByUserID = createAsyncThunk(
       let userData = sessionStorage.getItem(USER_DATA);
       userData = JSON.parse(userData)
       let res = await axios.get(getBootcampByUserIDAPI(userData.id), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const updateBootcamp = createAsyncThunk(
+  "bootcamp/updateBootcamp",
+  async ({bootcampID,bootcampData}) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.patch(updateBootcampAPI(bootcampID), bootcampData,{
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
@@ -93,8 +113,17 @@ export const bootcampSlice = createSlice({
   reducers: {
     updateViewedBootcamp: (state, action) => {
       state.viewedBootcamp = action.payload
+    },
+    updateCompleteCreditsToViewedBootcamp: (state,action) => {
+      state.viewedBootcamp.completeTotalCredits += action.payload
+    },
+    updateViewedBootcampName: (state, action) => {
+      state.viewedBootcamp.bootcampName = action.payload
+    },
+    updateViewedBootcampTotalCredits: (state, action) => {
+      state.viewedBootcamp.totalCredits = action.payload
     }
   },
 });
-export const {updateViewedBootcamp} = bootcampSlice.actions;
+export const {updateViewedBootcamp,updateCompleteCreditsToViewedBootcamp,updateViewedBootcampName,updateViewedBootcampTotalCredits} = bootcampSlice.actions;
 export default bootcampSlice.reducer;

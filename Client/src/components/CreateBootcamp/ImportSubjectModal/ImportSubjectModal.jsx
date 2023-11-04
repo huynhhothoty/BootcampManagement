@@ -190,7 +190,7 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
     }
       return (
         <>
-          <Modal width={1000} onOk={handleImportSubject} title="Import a Subject" open={isModalOpen} onCancel={handleCancel}>
+          <Modal width={1000} okText={"Ok"} cancelText={"Cancel"} onOk={handleImportSubject} title="Import a Subject" open={isModalOpen} onCancel={handleCancel}>
           <div>
          
             {error ? <div style={{color:"red"}}>** You need to choose a subject</div> : ""}
