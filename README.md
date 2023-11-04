@@ -11,7 +11,7 @@ A Site to manage bootcamp for student
 3. View created bootcamps
 - View all created bootcamps
 - View the detail of each bootcamp
-- Edit, Delete BootCamp (Inprogress...)
+- Edit, Delete BootCamp
 # 🚀Install and run
 1. Clone this project or download it at this: [Link](https://github.com/huynhhothoty/BootcampManagement).
 2. Open the project in your IDE/text editor with the root directory being **BootcampManagement**.
