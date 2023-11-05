@@ -7,6 +7,7 @@ const semesterSchema = new mongoose.Schema({
         default: 'Semester 1',
     },
     subjectList: [{ type: mongoose.Schema.ObjectId, ref: 'Subject' }],
+    trackingList: [{ type: mongoose.Schema.ObjectId, ref: 'Subject' }],
 });
 const bootcampSchema = new mongoose.Schema(
     {
