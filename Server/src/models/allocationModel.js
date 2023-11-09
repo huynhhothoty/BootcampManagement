@@ -1,8 +1,26 @@
 const mongoose = require('mongoose');
 
 //
+const electHolderSchema = new mongoose.Schema({
+    credit: {
+        type: Number,
+        default: 0,
+    },
+    semester: {
+        type: Number,
+        default: 1,
+    },
+    name: {
+        type: String,
+        default: 'BigfieldName+STT',
+    },
+    branchMajor: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'BranchMajor',
+    },
+});
 
-childSchema = new mongoose.Schema({
+const childSchema = new mongoose.Schema({
     name: {
         type: String,
         default: 'small field 1',
@@ -16,7 +34,7 @@ childSchema = new mongoose.Schema({
         default: 0,
     },
 });
-sectionSchema = new mongoose.Schema({
+const sectionSchema = new mongoose.Schema({
     name: {
         type: String,
         default: 'big field 1',
@@ -36,9 +54,10 @@ sectionSchema = new mongoose.Schema({
             ref: 'Subject',
         },
     ],
+    electiveSubjectList: [electHolderSchema],
 });
 //
-mainSchema = new mongoose.Schema({
+const mainSchema = new mongoose.Schema({
     name: {
         type: String,
     },

@@ -33,6 +33,10 @@ const subjectSchema = new mongoose.Schema(
             },
             required: [true, 'subject must have one of type'],
         },
+        branchMajor: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'BranchMajor',
+        },
     },
     {
         timestamps: true,

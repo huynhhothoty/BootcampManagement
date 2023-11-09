@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const BranchMajor = require('../models/branchMajorModel');
 
 const majorSchema = new mongoose.Schema(
     {
@@ -17,6 +18,12 @@ const majorSchema = new mongoose.Schema(
             default:
                 'This is a description of a major, you can custom this field',
         },
+        branchMajor: [
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'BranchMajor',
+            },
+        ],
     },
     {
         timestamps: true,
@@ -26,6 +33,11 @@ const majorSchema = new mongoose.Schema(
 majorSchema.pre(/^find/, function () {
     this.select('-createdAt -updatedAt -__v');
 });
+
+majorSchema.post('findOneAndDelete', async function (doc) {
+    await BranchMajor.deleteMany({ _id: { $in: doc.branchMajor } });
+});
+
 //
 const Major = mongoose.model('Major', majorSchema);
 module.exports = Major;

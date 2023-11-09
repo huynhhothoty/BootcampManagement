@@ -3,7 +3,7 @@ const crudFactory = require('../controllers/crudFactory');
 
 const createMajor = crudFactory.createOne(Major);
 const updateMajor = crudFactory.updateOne(Major);
-const getMajor = crudFactory.getOne(Major, null);
+const getMajor = crudFactory.getOne(Major, 'branchMajor');
 const getAllMajor = crudFactory.getAll(Major);
 const deleteMajor = crudFactory.deleteOne(Major);
 

@@ -5,7 +5,7 @@ const CustomError = require('../utils/CustomError');
 //
 const createSubject = crudFactory.createOne(Subject);
 const updateSubject = crudFactory.updateOne(Subject);
-const getSubject = crudFactory.getOne(Subject, null);
+const getSubject = crudFactory.getOne(Subject, 'branchMajor');
 const getAllSubject = crudFactory.getAll(Subject);
 const deleteSubject = crudFactory.deleteOne(Subject);
 
