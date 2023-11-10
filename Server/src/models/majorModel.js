@@ -34,6 +34,10 @@ majorSchema.pre(/^find/, function () {
     this.select('-createdAt -updatedAt -__v');
 });
 
+majorSchema.pre('find', function () {
+    this.populate('branchMajor');
+});
+
 majorSchema.post('findOneAndDelete', async function (doc) {
     await BranchMajor.deleteMany({ _id: { $in: doc.branchMajor } });
 });

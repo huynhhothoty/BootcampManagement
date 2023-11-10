@@ -11,6 +11,9 @@ const getBC = crudFactory.getOne(Bootcamp, [
         path: 'detail',
         populate: { path: 'subjectList', model: 'Subject' },
     },
+    {
+        path: 'major.branchMajor',
+    },
 ]);
 const getAllBC = crudFactory.getAll(Bootcamp);
 const deleteBC = crudFactory.deleteOne(Bootcamp);
