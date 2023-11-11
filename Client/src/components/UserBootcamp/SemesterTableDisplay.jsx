@@ -1,5 +1,5 @@
 import { ProCard } from '@ant-design/pro-components'
-import { Button, Input, Space, Table, Tag } from 'antd';
+import { Badge, Button, Dropdown, Input, Space, Table, Tag } from 'antd';
 import React, { useRef, useState } from 'react'
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
@@ -7,6 +7,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { deleteSemesterFromViewedSemesterList, deleteSubjectFromViewedSemster } from '../../redux/subject/subject';
 import { deleteConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
+import { editElectiveGroupToViewedField } from '../../redux/allocate/allowcate';
 const data = [
   {
     key: '1',
@@ -142,20 +143,129 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
         text
       ),
   });
+
+
+  const expandedRowRender = (branch) => {
+    const columns = [
+      {
+        title: 'Subject Code',
+        dataIndex: 'subjectCode',
+        key: 'subjectCode',
+        width: '10%',
+        ...getColumnSearchProps('subjectCode'),
+      },
+      {
+        title: 'Subject Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: '20%',
+        ...getColumnSearchProps('name'),
+      },
+     
+      {
+        title: 'Type',
+        dataIndex: 'isCompulsory',
+        key: 'isCompulsory',
+        width: '10%',
+        render: (value) => {
+          return <Tag color={value ? "volcano" : "green"}>{value ? "Compulsory" : "Elective"}</Tag>
+        }
+      },
+      {
+        title: 'Credits',
+        dataIndex: 'credits',
+        key: 'credits',
+        ...getColumnSearchProps('credits'),
+
+      },
+      {
+        title: 'Description',
+        dataIndex: 'description',
+        key: 'description'
+
+      },
+
+      {
+        title: '',
+        width: "8%",
+        dataIndex: '',
+        key: '',
+        render: (_, row) => {
+          return <div>
+            <Button
+              danger
+              style={{ color: "red" }}
+              onClick={async () => {
+                const confirmed = await confirmModal.confirm(deleteConfirmConfig);
+                if (confirmed) {
+                  if (row.isGroup) {
+                    const groupData = {
+                      credit: row.credits,
+                      semester: null,
+                      branchMajor: null
+                    }
+                    dispatch(editElectiveGroupToViewedField({ fieldIndex: row.fieldIndex, groupData, groupIndex: row.groupIndex }))
+                    setIsUpdated(true)
+                  } else {
+                    dispatch(deleteSubjectFromViewedSemster({
+                      semester: semesterIndex,
+                      inSemesterSubjectIndex: row.key,
+                      fieldIndex: row.fieldIndex,
+                      subjectIndex: row.subjectIndex
+                    }))
+                    setIsUpdated(true)
+                  }
+  
+                }
+
+              }}
+            >
+              <DeleteOutlined />
+            </Button>
+          </div>
+        }
+      },
+    ]
+    const data = [];
+    subjectList.forEach((subject) => {
+      if (subject.branchMajor === branch._id) {
+        data.push(subject)
+      }
+    })
+    return <Table columns={columns} dataSource={data} pagination={false} />;
+  };
+
   const columns = [
+    {
+      title: 'Subject Code',
+      dataIndex: 'subjectCode',
+      key: 'subjectCode',
+      width: '10%',
+      ...getColumnSearchProps('subjectCode'),
+    },
     {
       title: 'Subject Name',
       dataIndex: 'name',
       key: 'name',
       width: '30%',
       ...getColumnSearchProps('name'),
+      render: (text,record) => {
+        if (record.isBranch) {
+          return  <span style={{fontWeight:"bold"}}>{text}</span>
+        }
+        return text
+      }
     },
+   
     {
       title: 'Type',
       dataIndex: 'isCompulsory',
       key: 'isCompulsory',
       width: '10%',
-      render: (value) => {
+      render: (value, record) => {
+        if (record.isBranch) {
+          return ""
+        }
         return <Tag color={value ? "volcano" : "green"}>{value ? "Compulsory" : "Elective"}</Tag>
       }
     },
@@ -179,22 +289,35 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
       dataIndex: '',
       key: '',
       render: (_, row) => {
+        if (row.isBranch)
+          return <></>
         return <div>
           <Button
             danger
             style={{ color: "red" }}
-            onClick={async() => {
+            onClick={async () => {
               const confirmed = await confirmModal.confirm(deleteConfirmConfig);
               if (confirmed) {
-                dispatch(deleteSubjectFromViewedSemster({
-                  semester: semesterIndex, 
-                  inSemesterSubjectIndex: row.key, 
-                  fieldIndex: row.fieldIndex, 
-                  subjectIndex: row.subjectIndex
-                }))
-                setIsUpdated(true)
+                if (row.isGroup) {
+                  const groupData = {
+                    credit: row.credits,
+                    semester: null,
+                    branchMajor: null
+                  }
+                  dispatch(editElectiveGroupToViewedField({ fieldIndex: row.fieldIndex, groupData, groupIndex: row.groupIndex }))
+                  setIsUpdated(true)
+                } else {
+                  dispatch(deleteSubjectFromViewedSemster({
+                    semester: semesterIndex,
+                    inSemesterSubjectIndex: row.key,
+                    fieldIndex: row.fieldIndex,
+                    subjectIndex: row.subjectIndex
+                  }))
+                  setIsUpdated(true)
+                }
+
               }
-              
+
             }}
           >
             <DeleteOutlined />
@@ -204,7 +327,7 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
     },
   ];
   return (
-    <ProCard extra={<div>
+    <ProCard bodyStyle={{ paddingInline: 0 }} extra={<div>
       <Button
         type='primary'
         onClick={() => {
@@ -214,7 +337,7 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
       >Add Subject</Button>
       <Button
         danger
-        disabled={totalSemester === 1 ? true: false}
+        disabled={totalSemester === 1 ? true : false}
         style={{ marginLeft: 20 }}
         onClick={async () => {
           const confirmed = await confirmModal.confirm(deleteConfirmConfig);
@@ -227,8 +350,12 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
       >
         Delete Semester
       </Button>
-    </div>} collapsible title={<span style={{ fontWeight: "bold", fontSize: 25 }}>{`Semester ${semesterIndex + 1}`}</span>} bordered style={{ marginTop: 18 }}>
-      <Table columns={columns} dataSource={subjectList} />
+    </div>} collapsible title={<span style={{ fontWeight: "bold", fontSize: 25 }}>{`Semester ${semesterIndex + 1}`}</span>} bordered>
+      <Table expandable={{
+        expandedRowRender,
+        rowExpandable: record => record.branchCode !== undefined
+
+      }} columns={columns} dataSource={subjectList.filter(subject => (subject.branchMajor === undefined || subject.branchMajor === null))} />
     </ProCard>
   )
 }

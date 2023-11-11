@@ -247,6 +247,7 @@ export const createBootcampSlice = createSlice({
         electiveCredits: 0,
         smallField: [],
         subjectList: [],
+        electiveSubjectList: []
       };
       state.allowcateFields.push(newField);
     },
@@ -365,13 +366,11 @@ export const createBootcampSlice = createSlice({
       );
     },
     addSubjectsToSemester: (state, action) => {
-      action.payload.subjectIndexArr.forEach((subjectIndex) => {
-        state.semesterSubjectList[subjectIndex].semester =
-          action.payload.semester;
-        state.semesterList[action.payload.semester].push({
-          ...state.semesterSubjectList[subjectIndex],
-          semesterSubjectListIndex: subjectIndex,
-        });
+      action.payload.forEach((subject) => {
+        state.semesterSubjectList[
+          subject.semesterSubjectListIndex
+        ].semester = subject.semester;
+        state.semesterList[subject.semester].push(subject);
       });
     },
     removeSubjectFromSemester: (state, action) => {
@@ -415,6 +414,23 @@ export const createBootcampSlice = createSlice({
       state.semesterList = action.payload.semesterList;
       state.bootcampName = action.payload.bootcampName;
     },
+    addNewGroup: (state,action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.push(action.payload.groupData)
+    },
+    editGroup: (state,action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[action.payload.groupIndex] = action.payload.groupData
+    },
+    deleteGroup: (state,action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.splice(action.payload.groupIndex,1)
+    },
+    editSubjectBranchMajor: (state, action) => {
+      state.allowcateFields[action.payload.fieldIndex].subjectList[
+        action.payload.subjectIndex
+      ] = action.payload.subject;
+      console.log(state.allowcateFields[action.payload.fieldIndex].subjectList[
+        action.payload.subjectIndex
+      ])
+    }
   },
 });
 
@@ -440,6 +456,10 @@ export const {
   editSubject,
   resetAll,
   importBootcamp,
+  addNewGroup,
+  editGroup,
+  deleteGroup,
+  editSubjectBranchMajor
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

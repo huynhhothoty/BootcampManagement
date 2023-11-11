@@ -5,6 +5,8 @@ import bootcamp from './bootcamp/bootcamp'
 import allowcate from './allocate/allowcate'
 import subject from './subject/subject'
 import authentication from './authentication/authentication'
+import major from './major/major'
+
 
 
 export const store = configureStore({
@@ -14,6 +16,7 @@ export const store = configureStore({
     bootcamp,
     allowcate,
     subject,
-    authentication
+    authentication,
+    major
   },
 })

@@ -24,6 +24,7 @@ const Main = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { userData } = useSelector(store => store.authentication)
+  const { draftID } = useSelector(store => store.createBootCamp)
   const [collapsed, setCollapsed] = useState(false);
   const [headerTitle, setheaderTitle] = useState("Home");
 
@@ -75,7 +76,8 @@ const Main = () => {
         let userData = sessionStorage.getItem(USER_DATA)
         userData = JSON.parse(userData)
         dispatch(setFirstUserData(userData))
-        await dispatch(getUserDraft(userData.id))
+        if(draftID !== "")
+          await dispatch(getUserDraft(userData.id))
 
       }
       else {

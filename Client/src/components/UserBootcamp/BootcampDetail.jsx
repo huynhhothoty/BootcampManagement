@@ -18,6 +18,8 @@ import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_RESE
 import { createSubject } from '../../redux/CreateBootcamp/createBootCamp';
 import { SUBJECT_ADDED_IMPORT, SUBJECT_EDITED } from '../../util/constants/subjectStatus';
 import { useLocation } from 'react-router-dom';
+import DraggableSemesterTable from './DraggableSemesterTable';
+import { getMajorById, updateViewedMajor } from '../../redux/major/major';
 
 const BootcampDetail = ({ confirmModal, openNotification }) => {
     const actionRef = useRef();
@@ -29,6 +31,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     const { viewedAllowcatedFields, viewedAllowcatedFieldsID } = useSelector(store => store.allowcate)
     const { importedSubjectsList } = useSelector(store => store.subject)
     const { viewedSemesterList, viewedSemesterSubjectList } = useSelector(store => store.subject)
+    const { viewedMajor } = useSelector(store => store.major)
     const { userData } = useSelector(store => store.authentication)
     const [addBigFieldIndex, setAddBigFieldIndex] = useState(null)
 
@@ -42,6 +45,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         compulsory: [],
         elective: [],
         planning: [],
+        electiveGroup: [],
         remainning: false,
         completeTotalCredits: false
     })
@@ -86,39 +90,79 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             } else if (type === "elective") {
                 const subjectList = []
                 let error = false
+                let groupError = false
                 if (errorMessage.elective.length > 0) {
                     if (errorMessage.elective.includes(index)) error = true
+                }
+                if(errorMessage.electiveGroup.length > 0){
+                    if (errorMessage.electiveGroup.includes(index)) groupError = true
                 }
                 field.subjectList.forEach((subject, sindex) => {
                     if (subject?.isCompulsory === false) {
                         subjectList.push({ ...subject, fieldSubjectListIndex: sindex, id: subject._id })
                     }
                 })
-                return <SubjectDisplayTable error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+               
+                return <SubjectDisplayTable groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
     }
 
     const renderSemester = () => {
-        return viewedSemesterList.map((semester, index) => {
-
+        const semesterCardList = viewedSemesterList.map((semester, index) => {
             let subjectList = []
+            
+           
+ 
             subjectList = semester.map((subject, sindex) => {
                 return {
                     ...viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex],
                     fieldIndex: subject.fieldIndex,
                     subjectIndex: subject.subjectIndex,
+                    isBranch: false,
+                    isGroup: false,
                     key: sindex
                 }
             })
-
-            return <SemesterTableDisplay totalSemester={viewedSemesterList.length} setIsUpdated={setIsUpdated} setIsModalOpen={setIsModalOpen} setSelectedSemester={setSelectedSemester} confirmModal={confirmModal} key={index} semesterIndex={index} subjectList={subjectList} />
+            viewedAllowcatedFields.forEach((field,fIndex) => {
+                field.electiveSubjectList.forEach((group,gIndex) => {
+                    if(group.semester === index){
+                        
+                        subjectList.unshift({
+                            name: `${field.fieldName} ${gIndex + 1}`,
+                            isCompulsory: false,
+                            credits: group.credit,
+                            isBranch: false,
+                            isGroup: true,
+                            branchMajor: group.branchMajor?._id ? group.branchMajor._id : group.branchMajor,
+                            semester:group.semester,
+                            fieldIndex: fIndex,
+                            groupIndex: gIndex,
+                        })
+                    }
+                })
+            })
+            viewedMajor.branchMajor.forEach((branch,index) => {
+                subjectList.unshift({
+                    ...branch,
+                    key: branch._id,
+                    isBranch: true,
+                    isGroup: false,
+                })
+            })
+            return {
+                component: <SemesterTableDisplay totalSemester={viewedSemesterList.length} setIsUpdated={setIsUpdated} setIsModalOpen={setIsModalOpen} setSelectedSemester={setSelectedSemester} confirmModal={confirmModal} key={index} semesterIndex={index} subjectList={subjectList} />,
+                key: index,
+                index
+            }
         })
+        return <DraggableSemesterTable semesterCardList={semesterCardList}/>
+        
     }
     const handleSaveChange = async () => {
         dispatch(updateLoading(true))
         let tempErrorMessage = validateBootcampData(viewedBootcamp.bootcampName, viewedBootcamp.totalCredits, viewedAllowcatedFields, viewedSemesterList, viewedSemesterSubjectList, viewedBootcamp.completeTotalCredits)
-        if (!tempErrorMessage.bootcampName && !tempErrorMessage.totalCredits && !tempErrorMessage.completeTotalCredits && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false) {
+        if (!tempErrorMessage.bootcampName && !tempErrorMessage.totalCredits && !tempErrorMessage.completeTotalCredits && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false && tempErrorMessage.electiveGroup.length === 0) {
             try {
                 let newFieldList = []
 
@@ -132,6 +176,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                 "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
                                 "description": viewedAllowcatedFields[i].subjectList[j].description,
+                                "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                 "type": "major"
                             }
                             const a = await dispatch(createSubject(subjectData))
@@ -153,11 +198,12 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                     const b = viewedAllowcatedFields[i].subjectList[j]
                                     if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)) {
                                         let subjectData = {
-                                            "name": allowcateFields[i].subjectList[j].name,
-                                            "subjectCode": allowcateFields[i].subjectList[j].subjectCode,
-                                            "credit": allowcateFields[i].subjectList[j].credits,
-                                            "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
-                                            "description": allowcateFields[i].subjectList[j].description,
+                                            "name": viewedAllowcatedFields[i].subjectList[j].name,
+                                            "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                            "credit": viewedAllowcatedFields[i].subjectList[j].credits,
+                                            "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
+                                            "description": viewedAllowcatedFields[i].subjectList[j].description,
+                                            "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                             "type": "major"
                                         }
                                         const a = await dispatch(createSubject(subjectData))
@@ -187,14 +233,15 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                           "OptionalCredit": sfield.electiveCredits
                         }
                       }),
-                      "subjectList": field.subjectList
+                      "subjectList": field.subjectList,
+                      "electiveSubjectList": field.electiveSubjectList,
                     }
                   })
                 }
 
                 const update_field_conatainer = await dispatch(updateAllowcate({allowcateId:viewedAllowcatedFieldsID, fieldData}))
                 const bootcampData = {
-                  "major": "651ea5a591fd7742d88ae608",
+                  "major": "651ea4fac9a4c12da715528f",
                   "author": userData.id,
                   "name": viewedBootcamp.bootcampName,
                   "year": 2023,
@@ -269,11 +316,13 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         name: subject.name,
                         subjectCode: subject.subjectCode,
                         status:[SUBJECT_ADDED_IMPORT],
+                        branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
                         _id: subject._id
                     }
                     tempSubjectList.push(subject)
                     return a
-                })
+                }),
+                electiveSubjectList: field.electiveSubjectList
             }
         })
 
@@ -295,6 +344,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             totalCredits,
             completeTotalCredits
         }))
+        await dispatch(getMajorById(data.major))
         dispatch(updateViewedSubjectList(tempSubjectList))
         dispatch(updateViewedSemesterList(semesterList))
         dispatch(updateViewedSemesterSubjectLis(semesterSubjectList))
@@ -434,10 +484,11 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             <ProCard subTitle={errorMessage.compulsory.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Compulsory Subject">
                 {renderFieldSubject("compulsory")}
             </ProCard>
-            <ProCard subTitle={errorMessage.elective.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Elective Subject">
+            <ProCard subTitle={errorMessage.elective.length > 0 || errorMessage.electiveGroup.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Elective Subject">
                 {renderFieldSubject("elective")}
             </ProCard>
             <ProCard
+                
                 subTitle={<div>
                     {errorMessage.remainning || errorMessage.planning.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""}
                     {errorMessage.remainning ? <span style={{ color: "red", marginLeft: 5 }}>**{SUBJECT_STILL_REMAIN}</span> : ""}
@@ -445,7 +496,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 extra={<Button onClick={() => {
                     dispatch(addSemesterToViewedSemesterList())
                     setIsUpdated(true)
-                }} type='primary'>Add Semester</Button>} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Semester Plan">
+                }} type='primary'>Add Semester</Button>} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25, paddingInline:0 }} style={{ marginTop: 20 }} bordered hoverable title="Semester Plan">
                 {renderSemester()}
             </ProCard>
             <div style={{ marginTop: 30 }}>

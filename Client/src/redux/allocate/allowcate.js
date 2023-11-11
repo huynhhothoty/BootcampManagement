@@ -108,8 +108,8 @@ export const allowcateSlice = createSlice({
     },
     editSubjestViewedFields: (state, action) => {
       let newStatusList = [...action.payload.subject.status]
-
-      newStatusList.push(SUBJECT_EDITED)
+      if(!newStatusList.includes(SUBJECT_EDITED))
+        newStatusList.push(SUBJECT_EDITED)
       state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex] = {
         ...action.payload.subject,
         status: newStatusList
@@ -136,6 +136,15 @@ export const allowcateSlice = createSlice({
     },
     deleteSubjectFromViewedFields: (state, action) => {
       state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList.splice(action.payload.subjectIndex, 1)
+    },
+    addNewElectiveGroupToViewedField: (state, action) => {
+      state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList.push(action.payload.groupData)
+    },
+    editElectiveGroupToViewedField: (state, action) => {
+      state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[action.payload.groupIndex] = action.payload.groupData
+    },
+    deleteElectiveGroupToViewedField: (state, action) => {
+      state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList.splice(action.payload.groupIndex, 1)
     }
   },
 });
@@ -149,6 +158,9 @@ export const {
   addSmallFieldToViewedFields,
   addBigFieldToViewedFields,
   deleteBigFieldFromViewedFields,
-  deleteSubjectFromViewedFields
+  deleteSubjectFromViewedFields,
+  addNewElectiveGroupToViewedField,
+  editElectiveGroupToViewedField,
+  deleteElectiveGroupToViewedField
 } = allowcateSlice.actions;
 export default allowcateSlice.reducer;

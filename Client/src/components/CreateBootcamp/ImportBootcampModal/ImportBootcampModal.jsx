@@ -5,6 +5,7 @@ import { getAllowcatById } from '../../../redux/allocate/allowcate';
 import { importBootcamp } from '../../../redux/CreateBootcamp/createBootCamp';
 import { updateLoading } from '../../../redux/loading/Loading';
 import { updateAfterImportBootcamp } from '../../../redux/subject/subject';
+import { getMajorById } from '../../../redux/major/major';
 
 const columns = [
   {
@@ -27,32 +28,36 @@ const columns = [
 const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) => {
   const dispatch = useDispatch()
   const { loading, bootcampList } = useSelector(store => store.bootcamp)
-  const [selectedBootcamp, setSelectedBootcamp] = useState(null)
+  const [selectedRows, setSelectedRows] = useState([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
   const [error, setError] = useState(false)
   const handleCancel = () => {
     setIsModalOpen(false);
     setError(false)
+    setSelectedRows([])
+    setSelectedRowKeys([])
   };
 
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
-      setSelectedBootcamp(selectedRows)
+      setSelectedRows(selectedRows)
+      setSelectedRowKeys(selectedRowKeys)
     },
 
   };
   const handleImport = async () => {
     dispatch(updateLoading(true))
-    if (selectedBootcamp !== null) {
+    if (selectedRows.length > 0) {
       setIsModalOpen(false);
-      let bootcampName = selectedBootcamp[0].name
-      let totalCredits = selectedBootcamp[0].totalCredit
-      let completeTotalCredits = selectedBootcamp[0].totalCredit
+      console.log(selectedRows[0])
+      let bootcampName = selectedRows[0].name
+      let totalCredits = selectedRows[0].totalCredit
+      let completeTotalCredits = selectedRows[0].totalCredit
       let allowcateFields = []
       let semesterSubjectList = []
       let semesterList = [[]]
-
-      const tempAllowcateFields = await dispatch(getAllowcatById(selectedBootcamp[0].allocation))
+      const tempAllowcateFields = await dispatch(getAllowcatById(selectedRows[0].allocation))
       let tempSubjectList = []
       allowcateFields = tempAllowcateFields.payload.data.detail.map((field,index) => {
         return {
@@ -83,15 +88,17 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               isCompulsory:subject.isCompulsory,
               name: subject.name,
               subjectCode:subject.subjectCode,
+              branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
               _id:subject._id
             }
             tempSubjectList.push(subject)
             return a
-          })
+          }),
+          electiveSubjectList: field.electiveSubjectList
         }
       })
       
-      semesterList = selectedBootcamp[0].detail.map((semester,index) => {
+      semesterList = selectedRows[0].detail.map((semester,index) => {
         return semester.subjectList.map((subject) => {
           const semesterSubjectListIndex = semesterSubjectList.findIndex(sSubject => sSubject._id === subject)
           semesterSubjectList[semesterSubjectListIndex].semester = index
@@ -102,6 +109,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
           }
         })
       })
+      await dispatch(getMajorById(selectedRows[0].major))
       dispatch(updateAfterImportBootcamp(tempSubjectList))
       dispatch(importBootcamp({
         totalCredits,
@@ -120,6 +128,9 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
       })
       dispatch(updateLoading(false))
     }else setError(true)
+
+    setSelectedRows([])
+    setSelectedRowKeys([])
   }
 
   return (

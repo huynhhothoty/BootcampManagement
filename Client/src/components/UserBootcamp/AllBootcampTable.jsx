@@ -9,6 +9,7 @@ import { getAllowcatById, updateViewedAllocatedField } from '../../redux/allocat
 import { updateViewedSemesterList, updateViewedSemesterSubjectLis, updateViewedSubjectList } from '../../redux/subject/subject';
 import { updateLoading } from '../../redux/loading/Loading';
 import { SUBJECT_ADDED_IMPORT } from '../../util/constants/subjectStatus';
+import { getMajorById, updateViewedMajor } from '../../redux/major/major';
 
 const AllBootcampTable = () => {
     const dispatch = useDispatch()
@@ -127,6 +128,7 @@ const AllBootcampTable = () => {
 
     const handleViewBootcamp = async (data) => {
         dispatch(updateLoading(true))
+      
         let bootcampName = data.name
         let totalCredits = parseInt(data.totalCredit)
         let completeTotalCredits = data.totalCredit
@@ -165,11 +167,13 @@ const AllBootcampTable = () => {
                         name: subject.name,
                         subjectCode: subject.subjectCode,
                         status:[SUBJECT_ADDED_IMPORT],
+                        branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
                         _id: subject._id
                     }
                     tempSubjectList.push(subject)
                     return a
-                })
+                }),
+                electiveSubjectList: field.electiveSubjectList
             }
         })
 
@@ -191,6 +195,7 @@ const AllBootcampTable = () => {
             totalCredits,
             completeTotalCredits
         }))
+        await dispatch(getMajorById(data.major))
         dispatch(updateViewedSubjectList(tempSubjectList))
         dispatch(updateViewedSemesterList(semesterList))
         dispatch(updateViewedSemesterSubjectLis(semesterSubjectList))

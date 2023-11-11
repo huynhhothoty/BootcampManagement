@@ -217,6 +217,12 @@ export const subjectSlice = createSlice({
       );
       state.viewedSemesterSubjectList[tempIndex].semester = null
     },
+
+    dragSortSemester: (state,action) => {
+      state.viewedSemesterList = action.payload.newSemesterList
+      state.viewedSemesterSubjectList = action.payload.newViewedSemesterSubjectList
+
+    }
   },
 });
 export const {
@@ -233,5 +239,6 @@ export const {
   deleteSemesterFromViewedSemesterList,
   addSubjectToViewedSemster,
   deleteSubjectFromViewedSemster,
+  dragSortSemester
 } = subjectSlice.actions;
 export default subjectSlice.reducer;

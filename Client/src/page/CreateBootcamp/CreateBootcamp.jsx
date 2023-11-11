@@ -1,5 +1,5 @@
 import { Button, Col, Form, Input, InputNumber, Progress, Radio, Row, } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CaculatePercent } from '../../util/CaculatePercent/caculatePercent';
 import Semester from '../../components/CreateBootcamp/Semester/Semester';
 import SubjectModal from '../../components/CreateBootcamp/SubjectModal/SubjectModal';
@@ -15,6 +15,7 @@ import { updateLoading } from '../../redux/loading/Loading';
 import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_SAVE_DRAFT, NOTI_SUCCESS_TITLE } from '../../util/constants/notificationMessage';
 import { getAllBootcamp } from '../../redux/bootcamp/bootcamp';
 import { validateBootcampData } from '../../util/ValidateBootcamp/validateBootcampData';
+import { getMajorById } from '../../redux/major/major';
 
 
 const text = `
@@ -33,6 +34,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     compulsory: [],
     elective: [],
     planning: [],
+    electiveGroup: [],
     remainning: false
   })
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
@@ -66,7 +68,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     {
       key: '3',
       label: 'Add Elective Subjects',
-      children: <ContentOfProgram confirmModal={confirmModal} errorMessage={errorMessage.elective} type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
+      children: <ContentOfProgram confirmModal={confirmModal} groupError={errorMessage.electiveGroup} errorMessage={errorMessage.elective} type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
       key: '4',
@@ -83,10 +85,11 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   }
 
   const handleCreatebootcamp = async () => {
+    
     let tempErrorMessage = validateBootcampData(bootcampName,totalCredits,allowcateFields,semesterList,semesterSubjectList,completeTotalCredits)
     setBootcampNameError(tempErrorMessage.bootcampName)
     setBootcampCreditError(tempErrorMessage.totalCredits)
-    if (bootcampName !== "" && totalCredits > 0 && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false) {
+    if (bootcampName !== "" && totalCredits > 0 && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false && tempErrorMessage.electiveGroup.length === 0) {
 
       try {
         dispatch(updateLoading(true))
@@ -104,6 +107,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                 "credit": allowcateFields[i].subjectList[j].credits,
                 "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
                 "description": allowcateFields[i].subjectList[j].description,
+                "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
                 "type": "major"
               }
               const a = await dispatch(createSubject(subjectData))
@@ -119,6 +123,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                   "credit": allowcateFields[i].subjectList[j].credits,
                   "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
                   "description": allowcateFields[i].subjectList[j].description,
+                  "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
                   "type": "major"
                 }
                 const a = await dispatch(createSubject(subjectData))
@@ -145,13 +150,14 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                   "OptionalCredit": sfield.electiveCredits
                 }
               }),
-              "subjectList": field.subjectList
+              "subjectList": field.subjectList,
+              "electiveSubjectList": field.electiveSubjectList
             }
           })
         }
         const created_field_container = await dispatch(createField(fieldData))
         const bootcampData = {
-          "major": "651ea5a591fd7742d88ae608",
+          "major": "651ea4fac9a4c12da715528f",
           "author": userData.id,
           "name": bootcampName,
           "year": 2023,
@@ -219,10 +225,14 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         }
       }
       await dispatch(updateDraft(sendData))
+      openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
     }
    
     dispatch(updateLoading(false))
   }
+  useEffect(() => {
+    dispatch(getMajorById('651ea4fac9a4c12da715528f'))
+  },[])
   return (
     <div>
 
