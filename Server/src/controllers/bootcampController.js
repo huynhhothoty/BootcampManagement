@@ -124,6 +124,7 @@ const getAllWithDetail = async (req, res, next) => {
                 path: 'major',
                 populate: { path: 'branchMajor' },
             })
+            .populate('allocation')
             .populate({
                 path: 'detail',
                 populate: { path: 'subjectList', model: 'Subject' },
