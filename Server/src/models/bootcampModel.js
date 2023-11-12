@@ -49,13 +49,6 @@ const bootcampSchema = new mongoose.Schema(
 // middleware
 bootcampSchema.pre(/^find/, async function () {
     this.select('-createdAt -updatedAt -__v');
-    this.populate('major');
-    this.populate('author');
-    this.populate('allocation');
-    this.populate({
-        path: 'detail',
-        populate: { path: 'subjectList', model: 'Subject' },
-    });
     //
 });
 bootcampSchema.pre('save', function () {

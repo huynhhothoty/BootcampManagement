@@ -1,6 +1,7 @@
 const Bootcamp = require('../models/bootcampModel');
 const crudFactory = require('./crudFactory');
 const CustomError = require('../utils/CustomError');
+const ApiFeatures = require('../utils/ApiFeature');
 
 //
 const createBC = crudFactory.createOne(Bootcamp);
@@ -114,6 +115,34 @@ const getBootcampStats = async (req, res, next) => {
     }
 };
 
+const getAllWithDetail = async (req, res, next) => {
+    try {
+        const initQuery = Bootcamp.find()
+            .populate('author')
+            .populate('major')
+            .populate({
+                path: 'major',
+                populate: { path: 'branchMajor' },
+            })
+            .populate({
+                path: 'detail',
+                populate: { path: 'subjectList', model: 'Subject' },
+            });
+        const apiFeat = new ApiFeatures(initQuery, req.query);
+        apiFeat.filter().sorting().pagination();
+
+        const docs = await apiFeat.myQuery;
+
+        res.status(200).send({
+            status: 'ok',
+            total: docs.length,
+            data: docs,
+        });
+    } catch (error) {
+        return next(new CustomError(error));
+    }
+};
+
 const findAllBCOfUser = async (req, res, next) => {
     try {
         const id = req.params.id;
@@ -138,4 +167,5 @@ module.exports = {
     beforeCrud,
     getBootcampStats,
     findAllBCOfUser,
+    getAllWithDetail,
 };
