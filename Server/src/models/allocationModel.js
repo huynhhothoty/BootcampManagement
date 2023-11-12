@@ -18,6 +18,10 @@ const electHolderSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'BranchMajor',
     },
+    tracking: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const childSchema = new mongoose.Schema({
