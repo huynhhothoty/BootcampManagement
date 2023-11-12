@@ -12,7 +12,8 @@ const getBC = crudFactory.getOne(Bootcamp, [
         populate: { path: 'subjectList', model: 'Subject' },
     },
     {
-        path: 'major.branchMajor',
+        path: 'major',
+        populate: { path: 'branchMajor' },
     },
 ]);
 const getAllBC = crudFactory.getAll(Bootcamp);
