@@ -221,7 +221,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         subjectList: newSubjectList
                       })
                 }
-
+             
                 const fieldData = {
                   "detail": newFieldList.map((field) => {
                     return {
@@ -238,7 +238,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                   })
                 }
-
+                
                 const update_field_conatainer = await dispatch(updateAllowcate({allowcateId:viewedAllowcatedFieldsID, fieldData}))
                 const bootcampData = {
                   "major": "651ea4fac9a4c12da715528f",

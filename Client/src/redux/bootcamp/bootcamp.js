@@ -4,6 +4,7 @@ import { tempJWTToken } from "../../util/api/host";
 import {
   getAllBootcampAPI,
   getBootcampByUserIDAPI,
+  getBootcampsForTrackingByUserIDAPI,
   updateBootcampAPI,
 } from "../../util/api/bootcamp/bootcampApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
@@ -12,7 +13,8 @@ const initialState = {
   bootcampList: [],
   userBootcampList: [],
   loading: false,
-  viewedBootcamp: {}
+  viewedBootcamp: {},
+  userTrackingBootcampList: []
 };
 
 export const getAllBootcamp = createAsyncThunk(
@@ -42,6 +44,27 @@ export const getBootcampsByUserID = createAsyncThunk(
       let userData = sessionStorage.getItem(USER_DATA);
       userData = JSON.parse(userData)
       let res = await axios.get(getBootcampByUserIDAPI(userData.id), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const getBootcampsForTrackingByUserID = createAsyncThunk(
+  "bootcamp/getBootcampsForTrackingByUserID",
+  async () => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let userData = sessionStorage.getItem(USER_DATA);
+      userData = JSON.parse(userData)
+      let res = await axios.get(getBootcampsForTrackingByUserIDAPI(userData.id), {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
@@ -107,6 +130,22 @@ export const bootcampSlice = createSlice({
       state.loading = false;
     });
     builder.addCase(getBootcampsByUserID.rejected, (state, action) => {
+      state.loading = false;
+    });
+
+    builder.addCase(getBootcampsForTrackingByUserID.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(getBootcampsForTrackingByUserID.fulfilled, (state, action) => {
+      state.userTrackingBootcampList = action.payload.data.map((bootcamp) => {
+        return {
+          ...bootcamp,
+          key: bootcamp._id,
+        };
+      });
+      state.loading = false;
+    });
+    builder.addCase(getBootcampsForTrackingByUserID.rejected, (state, action) => {
       state.loading = false;
     });
   },
