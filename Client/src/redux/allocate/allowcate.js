@@ -128,7 +128,8 @@ export const allowcateSlice = createSlice({
         electiveCredits: 0,
         fieldName: "",
         smallField: [],
-        subjectList: []
+        subjectList: [],
+        electiveSubjectList:[]
       })
     },
     deleteBigFieldFromViewedFields: (state, action) => {

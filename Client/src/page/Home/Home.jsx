@@ -3,23 +3,37 @@ import BootcampProgressCard from "../../components/Home/BootcampProgressCard/Boo
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getBootcampsByUserID, getBootcampsForTrackingByUserID } from "../../redux/bootcamp/bootcamp";
-import SemesterCheckList from "../../components/Home/SemesterCheckList";
+
 import { getMajorById } from "../../redux/major/major";
+import { updateLoading } from "../../redux/loading/Loading";
+import BootcampSemesterDrawer from "../../components/Home/BootcampSemesterDrawer";
 const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
   const [renderBootcampData, setRenderBootcampData] = useState([])
-  const [open, setOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const onClose = () => {
+    setOpenDrawer(false);
+  };
   const [drawerData,setDrawerData] = useState({
     semesterList: [],
-    allocation: []
+    allocation: {},
+    bootcampId: ''
   })
   const showDrawer = (bootcamp) => {
-    setOpen(true);
+    setOpenDrawer(true);
     drawerData.semesterList = bootcamp.detail
-    drawerData.allocation = bootcamp.allocation.detail
+    drawerData.allocation = bootcamp.allocation
+    drawerData.bootcampId = bootcamp._id
     setDrawerData(drawerData)
   };
+  const resetDrawerData = () => {
+    setDrawerData({
+      semesterList: [],
+      allocation: {},
+      bootcampId: ''
+    })
+  }
   const renderBootcampStatic = () => {
     return userTrackingBootcampList.map((bootcamp) => {
       return (<Col
@@ -37,19 +51,24 @@ const Home = () => {
           }}
           onClick={() => {showDrawer(bootcamp)}}
         >
-          <BootcampProgressCard bootcamp={bootcamp}/>
+          <BootcampProgressCard bootcamp={bootcamp} />
         </Card>
       </Col>)
     })
   }
   useEffect(() => {
-    dispatch(getBootcampsForTrackingByUserID())
-    dispatch(getMajorById('651ea4fac9a4c12da715528f'))
+    (async () => {
+      dispatch(updateLoading(true))
+      await dispatch(getBootcampsForTrackingByUserID())
+      await dispatch(getMajorById('651ea4fac9a4c12da715528f'))
+      dispatch(updateLoading(false))
+    })()
+    
   },[])
 
   return (
     <div className="bootcamp-progress">
-      <SemesterCheckList open={open} setOpen={setOpen} drawerData={drawerData}/>
+      <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData}/>
       <Row gutter={[16, 16]}>
        {renderBootcampStatic()}
       </Row>

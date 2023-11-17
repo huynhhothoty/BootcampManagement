@@ -116,7 +116,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             else {
               const a = importedSubjectsList[subjectIndex]
               const b = allowcateFields[i].subjectList[j]
-              if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)) {
+              if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor)) {
                 let subjectData = {
                   "name": allowcateFields[i].subjectList[j].name,
                   "subjectCode": allowcateFields[i].subjectList[j].subjectCode,

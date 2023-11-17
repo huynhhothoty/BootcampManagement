@@ -50,7 +50,7 @@ const Login = () => {
           autoComplete="off"
           layout="vertical"
         >
-            <p>{error}</p>
+            <p style={{color:"red"}}>{error}</p>
           <Form.Item
             label="Email"
             name="email"
@@ -77,13 +77,13 @@ const Login = () => {
             <Input.Password />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             name="remember"
             valuePropName="checked"
 
           >
             <Checkbox>Remember me</Checkbox>
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item>
 

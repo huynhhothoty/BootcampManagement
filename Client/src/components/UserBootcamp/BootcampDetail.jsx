@@ -188,6 +188,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                     "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                     "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                     "description": viewedAllowcatedFields[i].subjectList[j].description,
+                                    "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                 }
                                 const a = await dispatch(updateSubject({ subjectID: viewedAllowcatedFields[i].subjectList[j]._id, updatedData }))
                                 newSubjectList.push(a.payload.data._id)
@@ -196,7 +197,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 if (subjectIndex !== -1) {
                                     const a = importedSubjectsList[subjectIndex]
                                     const b = viewedAllowcatedFields[i].subjectList[j]
-                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)) {
+                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)|| (a.branchMajor !== b.branchMajor)) {
                                         let subjectData = {
                                             "name": viewedAllowcatedFields[i].subjectList[j].name,
                                             "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
