@@ -89,7 +89,7 @@ const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList }) =>
     useEffect(() => {
         setSelectedRowKeys(checkedKeyList)
         setSelectedSubjectRows(checkedRowList)
-    },[])
+    },[checkedKeyList,checkedRowList])
     return (
         <>
 

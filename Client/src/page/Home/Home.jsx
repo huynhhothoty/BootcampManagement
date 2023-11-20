@@ -58,10 +58,10 @@ const Home = () => {
   }
   useEffect(() => {
     (async () => {
-      dispatch(updateLoading(true))
+ 
       await dispatch(getBootcampsForTrackingByUserID())
       await dispatch(getMajorById('651ea4fac9a4c12da715528f'))
-      dispatch(updateLoading(false))
+
     })()
     
   },[])
