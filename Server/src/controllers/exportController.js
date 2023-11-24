@@ -74,37 +74,244 @@ const createAlloSheet = (alloWS, allocation) => {
     }
 };
 
-const createSubjectSheet = (subWS, subjects) => {};
+const createPlanSheet = (planWS, semesterList) => {
+    planWS.getColumn(1).width = 5;
+    planWS.getColumn(1).alignment = { horizontal: 'center' };
+    planWS.getColumn(2).width = 16;
+    planWS.getColumn(3).width = 40;
+    planWS.getColumn(4).width = 9;
+    planWS.getColumn(4).alignment = { horizontal: 'center' };
+    planWS.getColumn(5).width = 18;
+
+    let curRow = 1;
+    semesterList.forEach((semester) => {
+        let startRow = curRow;
+
+        planWS.mergeCells(`A${startRow}:E${startRow}`);
+        planWS.getCell(curRow, 1).value = semester.semester;
+        planWS.getCell(curRow, 1).alignment = { horizontal: 'center', vertical: 'middle' };
+        planWS.getCell(curRow, 1).font = { bold: true };
+        planWS.getRow(curRow).height = 40;
+        curRow++;
+
+        planWS.getRow(curRow).alignment = { horizontal: 'center' };
+        planWS.getRow(curRow).font = { bold: true };
+
+        planWS.getCell(curRow, 1).value = 'No.';
+        planWS.getCell(curRow, 2).value = 'Course ID';
+        planWS.getCell(curRow, 3).value = 'Course Title';
+        planWS.getCell(curRow, 4).value = 'Credits';
+        planWS.getCell(curRow, 5).value = 'Prerequisite';
+        curRow++;
+
+        let index = 1;
+        let sumCredit = 0;
+        semester.subjectList.forEach((subject) => {
+            planWS.getCell(curRow, 1).value = index;
+            planWS.getCell(curRow, 2).value = subject.subjectCode;
+            planWS.getCell(curRow, 3).value = subject.name;
+            planWS.getCell(curRow, 4).value = subject.credit;
+            curRow++;
+            index++;
+            sumCredit += subject.credit;
+        });
+
+        planWS.mergeCells(`A${curRow}:C${curRow}`);
+        planWS.getCell(curRow, 1).value = 'Total';
+        planWS.getRow(curRow).font = { bold: true };
+        planWS.getRow(curRow).alignment = { horizontal: 'center', vertical: 'middle' };
+        planWS.getRow(curRow).height = 30;
+        planWS.getCell(curRow, 4).value = sumCredit;
+
+        for (let row = startRow; row <= curRow; row++) {
+            for (let col = 1; col <= 5; col++) {
+                planWS.getCell(row, col).border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+
+                if (col === 1) {
+                    planWS.getCell(row, col).border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' },
+                        left: { style: 'thick' },
+                    };
+                }
+                planWS.getCell(startRow, col).border = {
+                    top: { style: 'thick' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+                planWS.getCell(curRow, col).border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thick' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+            }
+            planWS.getCell(row, 6).border = {
+                left: { style: 'thick' },
+            };
+        }
+
+        curRow += 3;
+    });
+};
+
+const createSubjectList = (subjectWS, allocation) => {
+    subjectWS.getColumn(1).width = 5;
+    subjectWS.getColumn(1).alignment = { horizontal: 'center' };
+    subjectWS.getColumn(2).width = 16;
+    subjectWS.getColumn(3).width = 40;
+    subjectWS.getColumn(4).width = 9;
+    subjectWS.getColumn(4).alignment = { horizontal: 'center' };
+    subjectWS.getColumn(5).width = 18;
+
+    let curRow = 1;
+    allocation.forEach((bigField) => {
+        let startRow = curRow;
+
+        subjectWS.mergeCells(`A${startRow}:E${startRow}`);
+        subjectWS.getCell(curRow, 1).value = bigField.name;
+        subjectWS.getCell(curRow, 1).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+        };
+        subjectWS.getCell(curRow, 1).font = { bold: true };
+        subjectWS.getRow(curRow).height = 40;
+        curRow++;
+
+        subjectWS.getRow(curRow).alignment = { horizontal: 'center' };
+        subjectWS.getRow(curRow).font = { bold: true };
+
+        subjectWS.getCell(curRow, 1).value = 'No.';
+        subjectWS.getCell(curRow, 2).value = 'Course ID';
+        subjectWS.getCell(curRow, 3).value = 'Course Title';
+        subjectWS.getCell(curRow, 4).value = 'Credits';
+        subjectWS.getCell(curRow, 5).value = 'Notes';
+        curRow++;
+
+        let index = 1;
+        let sumCredit = 0;
+        bigField.subjectList.forEach((subject) => {
+            subjectWS.getCell(curRow, 1).value = index;
+            subjectWS.getCell(curRow, 2).value = subject.subjectCode;
+            subjectWS.getCell(curRow, 3).value = subject.name;
+            subjectWS.getCell(curRow, 4).value = subject.credit;
+            curRow++;
+            index++;
+            sumCredit += subject.credit;
+        });
+
+        subjectWS.mergeCells(`A${curRow}:C${curRow}`);
+        subjectWS.getCell(curRow, 1).value = 'Total';
+        subjectWS.getRow(curRow).font = { bold: true };
+        subjectWS.getRow(curRow).alignment = { horizontal: 'center', vertical: 'middle' };
+        subjectWS.getRow(curRow).height = 30;
+        subjectWS.getCell(curRow, 4).value = sumCredit;
+
+        // border format
+        for (let row = startRow; row <= curRow; row++) {
+            for (let col = 1; col <= 5; col++) {
+                subjectWS.getCell(row, col).border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+
+                if (col === 1) {
+                    subjectWS.getCell(row, col).border = {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' },
+                        left: { style: 'thick' },
+                    };
+                }
+                subjectWS.getCell(startRow, col).border = {
+                    top: { style: 'thick' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+                subjectWS.getCell(curRow, col).border = {
+                    top: { style: 'thin' },
+                    bottom: { style: 'thick' },
+                    right: { style: 'thin' },
+                    left: { style: 'thin' },
+                };
+            }
+            subjectWS.getCell(row, 6).border = {
+                left: { style: 'thick' },
+            };
+        }
+
+        curRow += 3;
+    });
+};
 
 const exportFileExcel = async (req, res, next) => {
     try {
         const bootcamp = await Bootcamp.findById(req.params.id)
             .select('allocation detail')
-            .populate({ path: 'allocation' });
+            .populate([
+                { path: 'detail.subjectList' },
+                {
+                    path: 'allocation',
+                    populate: { path: 'detail.subjectList', populate: { path: 'branchMajor' } },
+                },
+            ]);
 
         const allocation = bootcamp.allocation.detail;
+        const semesterList = bootcamp.detail;
 
         // handle excel
         const workbook = new ExcelJS.Workbook();
         const alloWS = workbook.addWorksheet('Allocation');
-        const subWS = workbook.addWorksheet('Subjects');
+        const planWS = workbook.addWorksheet('Planning');
+        const compulsoryWS = workbook.addWorksheet('Compulsory Subjects');
+        const electiveWS = workbook.addWorksheet('Elective Subjects');
 
+        // filter allocation into two allocation, one include compul, one include elective
+        let allocationWithCompulsory = JSON.parse(JSON.stringify(allocation));
+        let allocationWithElective = JSON.parse(JSON.stringify(allocation));
+
+        allocationWithCompulsory.forEach((big) => {
+            big.subjectList = big.subjectList.filter((subject) => subject.isCompulsory === true);
+        });
+        allocationWithCompulsory = allocationWithCompulsory.filter(
+            (big) => big.subjectList.length > 0
+        );
+
+        allocationWithElective.forEach((big) => {
+            big.subjectList = big.subjectList.filter((subject) => subject.isCompulsory === false);
+        });
+        allocationWithElective = allocationWithElective.filter((big) => big.subjectList.length > 0);
+
+        // create excel sheet for each domain we need
         createAlloSheet(alloWS, allocation);
-        // createSubjectSheet(subWS, null);
+        createPlanSheet(planWS, semesterList);
+        createSubjectList(compulsoryWS, allocationWithCompulsory);
+        createSubjectList(electiveWS, allocationWithElective);
 
-        // Đặt header cho response để trình duyệt hiểu định dạng file Excel
+        // //1. Đặt header cho response để trình duyệt hiểu định dạng file Excel
+        // //2. Gửi file Excel trực tiếp cho client
+        // //3. Kết thúc response with res.end()
         res.setHeader(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
         res.setHeader('Content-Disposition', 'attachment; filename=BootcampExport.xlsx');
 
-        // Gửi file Excel trực tiếp cho client
         await workbook.xlsx.write(res);
 
-        // Kết thúc response
         res.end();
-        // res.status(200).send(bootcamp);
+
+        // res.status(200).send(allocation);
     } catch (error) {
         console.log(error);
         next(new CustomError(error));
