@@ -142,7 +142,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
             })
-            viewedMajor.branchMajor.forEach((branch,index) => {
+            
+            viewedMajor.branchMajor?.forEach((branch,index) => {
                 subjectList.unshift({
                     ...branch,
                     key: branch._id,
