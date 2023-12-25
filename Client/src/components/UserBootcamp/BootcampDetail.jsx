@@ -20,6 +20,7 @@ import { SUBJECT_ADDED_IMPORT, SUBJECT_EDITED } from '../../util/constants/subje
 import { useLocation } from 'react-router-dom';
 import DraggableSemesterTable from './DraggableSemesterTable';
 import { getMajorById, updateViewedMajor } from '../../redux/major/major';
+import ViewBootcampOnly from './ViewBootcampOnly';
 
 const BootcampDetail = ({ confirmModal, openNotification }) => {
     const actionRef = useRef();
@@ -94,7 +95,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 if (errorMessage.elective.length > 0) {
                     if (errorMessage.elective.includes(index)) error = true
                 }
-                if(errorMessage.electiveGroup.length > 0){
+                if (errorMessage.electiveGroup.length > 0) {
                     if (errorMessage.electiveGroup.includes(index)) groupError = true
                 }
                 field.subjectList.forEach((subject, sindex) => {
@@ -102,7 +103,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         subjectList.push({ ...subject, fieldSubjectListIndex: sindex, id: subject._id })
                     }
                 })
-               
+
                 return <SubjectDisplayTable groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
@@ -111,9 +112,9 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     const renderSemester = () => {
         const semesterCardList = viewedSemesterList.map((semester, index) => {
             let subjectList = []
-            
-           
- 
+
+
+
             subjectList = semester.map((subject, sindex) => {
                 return {
                     ...viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex],
@@ -124,10 +125,10 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     key: sindex
                 }
             })
-            viewedAllowcatedFields.forEach((field,fIndex) => {
-                field.electiveSubjectList.forEach((group,gIndex) => {
-                    if(group.semester === index){
-                        
+            viewedAllowcatedFields.forEach((field, fIndex) => {
+                field.electiveSubjectList.forEach((group, gIndex) => {
+                    if (group.semester === index) {
+
                         subjectList.unshift({
                             name: `${field.fieldName} ${gIndex + 1}`,
                             isCompulsory: false,
@@ -135,15 +136,15 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             isBranch: false,
                             isGroup: true,
                             branchMajor: group.branchMajor?._id ? group.branchMajor._id : group.branchMajor,
-                            semester:group.semester,
+                            semester: group.semester,
                             fieldIndex: fIndex,
                             groupIndex: gIndex,
                         })
                     }
                 })
             })
-            
-            viewedMajor.branchMajor?.forEach((branch,index) => {
+
+            viewedMajor.branchMajor?.forEach((branch, index) => {
                 subjectList.unshift({
                     ...branch,
                     key: branch._id,
@@ -157,8 +158,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 index
             }
         })
-        return <DraggableSemesterTable semesterCardList={semesterCardList}/>
-        
+        return <DraggableSemesterTable semesterCardList={semesterCardList} />
+
     }
     const handleSaveChange = async () => {
         dispatch(updateLoading(true))
@@ -198,7 +199,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 if (subjectIndex !== -1) {
                                     const a = importedSubjectsList[subjectIndex]
                                     const b = viewedAllowcatedFields[i].subjectList[j]
-                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description)|| (a.branchMajor !== b.branchMajor)) {
+                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor)) {
                                         let subjectData = {
                                             "name": viewedAllowcatedFields[i].subjectList[j].name,
                                             "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
@@ -218,49 +219,49 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             }
                         }
                     }
-                      newFieldList.push({
+                    newFieldList.push({
                         ...viewedAllowcatedFields[i],
                         subjectList: newSubjectList
-                      })
-                }
-             
-                const fieldData = {
-                  "detail": newFieldList.map((field) => {
-                    return {
-                      "name": field.fieldName,
-                      "detail": field.smallField.map((sfield) => {
-                        return {
-                          "name": sfield.fieldName,
-                          "compulsoryCredit": sfield.compulsoryCredits,
-                          "OptionalCredit": sfield.electiveCredits
-                        }
-                      }),
-                      "subjectList": field.subjectList,
-                      "electiveSubjectList": field.electiveSubjectList,
-                    }
-                  })
-                }
-                
-                const update_field_conatainer = await dispatch(updateAllowcate({allowcateId:viewedAllowcatedFieldsID, fieldData}))
-                const bootcampData = {
-                  "major": "651ea4fac9a4c12da715528f",
-                  "author": userData.id,
-                  "name": viewedBootcamp.bootcampName,
-                  "year": 2023,
-                  "totalCredit": viewedBootcamp.totalCredits,
-                  "draft": false,
-                  "allocation": update_field_conatainer.payload.data._id,
-                  "detail": viewedSemesterList.map((semester, index) => {
-                    return {
-                      semester: `Semester ${index + 1}`,
-                      subjectList: semester.map((subject) => {
-                        return newFieldList[subject.fieldIndex].subjectList[subject.subjectIndex]
-                      })
-                    }
-                  })
+                    })
                 }
 
-                await dispatch(updateBootcamp({bootcampID:viewedBootcamp.id,bootcampData }))
+                const fieldData = {
+                    "detail": newFieldList.map((field) => {
+                        return {
+                            "name": field.fieldName,
+                            "detail": field.smallField.map((sfield) => {
+                                return {
+                                    "name": sfield.fieldName,
+                                    "compulsoryCredit": sfield.compulsoryCredits,
+                                    "OptionalCredit": sfield.electiveCredits
+                                }
+                            }),
+                            "subjectList": field.subjectList,
+                            "electiveSubjectList": field.electiveSubjectList,
+                        }
+                    })
+                }
+
+                const update_field_conatainer = await dispatch(updateAllowcate({ allowcateId: viewedAllowcatedFieldsID, fieldData }))
+                const bootcampData = {
+                    "major": "651ea4fac9a4c12da715528f",
+                    "author": userData.id,
+                    "name": viewedBootcamp.bootcampName,
+                    "year": 2023,
+                    "totalCredit": viewedBootcamp.totalCredits,
+                    "draft": false,
+                    "allocation": update_field_conatainer.payload.data._id,
+                    "detail": viewedSemesterList.map((semester, index) => {
+                        return {
+                            semester: `Semester ${index + 1}`,
+                            subjectList: semester.map((subject) => {
+                                return newFieldList[subject.fieldIndex].subjectList[subject.subjectIndex]
+                            })
+                        }
+                    })
+                }
+
+                await dispatch(updateBootcamp({ bootcampID: viewedBootcamp.id, bootcampData }))
                 openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_SUCCESS)
                 dispatch(updateLoading(false))
                 setIsUpdated(false)
@@ -317,7 +318,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         isCompulsory: subject.isCompulsory,
                         name: subject.name,
                         subjectCode: subject.subjectCode,
-                        status:[SUBJECT_ADDED_IMPORT],
+                        status: [SUBJECT_ADDED_IMPORT],
                         branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
                         _id: subject._id
                     }
@@ -339,7 +340,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 }
             })
         })
-        dispatch(updateViewedAllocatedField({data:allowcateFields, id:data.allocation}))
+        dispatch(updateViewedAllocatedField({ data: allowcateFields, id: data.allocation }))
         dispatch(updateViewedBootcamp({
             id: data._id,
             bootcampName,
@@ -361,7 +362,9 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
 
                 // bordered
                 dataSource={viewedBootcamp}
-                editable={{
+                editable={
+                    history.state.viewType === "view" ? false :
+                    {
                     onSave: (updatedField, data) => {
 
                         if (updatedField === "bootcampName") {
@@ -439,72 +442,82 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             >
 
             </ProDescriptions>
-            <ProCard
-                collapsible
-                ref={positionRef}
-                bodyStyle={{ paddingTop: 0, paddingBottom: 25 }}
-                bordered
-                hoverable
-                title={<div>
-                    Allowcate of Credits
-                    {errorMessage.allowcate.length > 0 ? !errorMessage.allowcate[0].data ? <div style={{ color: "red" }}>{errorMessage.allowcate[0].message}<WarningOutlined style={{ color: "red", marginLeft: 10 }} /></div> : <WarningOutlined style={{ color: "red", marginLeft: 10 }} /> : ""}
-                </div>
-                }
-                extra={
-                    <div style={{ display: "flex" }}>
-                        <span style={{ marginRight: 30, display: "flex", flexDirection: "column" }}>
-                            <span >Total allowcated credits: <span style={{ fontWeight: "bold" }}>{sumTotalAllowcatedCredits()}</span></span>
-                            {errorMessage.allowcate.length > 0 ? errorMessage.allowcate[0].data ? errorMessage.allowcate[0].data.isEqualTotalCredits === false ? <span style={{ color: "red" }}>**{NOT_CORRECT_CREDITS}</span> : "" : "" : ""}
-                        </span>
-                        <Button
-                            type='primary'
-                            onClick={() => {
-                                dispatch(addBigFieldToViewedFields())
-                                setAddBigFieldIndex(viewedAllowcatedFields.length)
-                                if (scrollX > positionRef.current.offsetHeight) {
-                                    window.scrollTo({
-                                        top: positionRef.current.offsetHeight,
-                                        behavior: "smooth"
-                                    })
-                                } else {
-                                    window.scrollTo({
-                                        top: scrollX,
-                                        behavior: "smooth"
-                                    })
+            {
+                history.state.viewType === "view" ?
+                    (<ViewBootcampOnly/>)
+                    :
+                    (
+                        <>
+                            <ProCard
+                                collapsible
+                                ref={positionRef}
+                                bodyStyle={{ paddingTop: 0, paddingBottom: 25 }}
+                                bordered
+                                hoverable
+                                title={<div>
+                                    Allowcate of Credits
+                                    {errorMessage.allowcate.length > 0 ? !errorMessage.allowcate[0].data ? <div style={{ color: "red" }}>{errorMessage.allowcate[0].message}<WarningOutlined style={{ color: "red", marginLeft: 10 }} /></div> : <WarningOutlined style={{ color: "red", marginLeft: 10 }} /> : ""}
+                                </div>
                                 }
-                                setIsUpdated(true)
+                                extra={
+                                    <div style={{ display: "flex" }}>
+                                        <span style={{ marginRight: 30, display: "flex", flexDirection: "column" }}>
+                                            <span >Total allowcated credits: <span style={{ fontWeight: "bold" }}>{sumTotalAllowcatedCredits()}</span></span>
+                                            {errorMessage.allowcate.length > 0 ? errorMessage.allowcate[0].data ? errorMessage.allowcate[0].data.isEqualTotalCredits === false ? <span style={{ color: "red" }}>**{NOT_CORRECT_CREDITS}</span> : "" : "" : ""}
+                                        </span>
+                                        <Button
+                                            type='primary'
+                                            onClick={() => {
+                                                dispatch(addBigFieldToViewedFields())
+                                                setAddBigFieldIndex(viewedAllowcatedFields.length)
+                                                if (scrollX > positionRef.current.offsetHeight) {
+                                                    window.scrollTo({
+                                                        top: positionRef.current.offsetHeight,
+                                                        behavior: "smooth"
+                                                    })
+                                                } else {
+                                                    window.scrollTo({
+                                                        top: scrollX,
+                                                        behavior: "smooth"
+                                                    })
+                                                }
+                                                setIsUpdated(true)
 
-                            }}
-                        >
-                            Add Field
-                        </Button>
-                    </div>
-                }
-            >
-                {renderAllowcate()}
-            </ProCard>
-            <ProCard subTitle={errorMessage.compulsory.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Compulsory Subject">
-                {renderFieldSubject("compulsory")}
-            </ProCard>
-            <ProCard subTitle={errorMessage.elective.length > 0 || errorMessage.electiveGroup.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Elective Subject">
-                {renderFieldSubject("elective")}
-            </ProCard>
-            <ProCard
-                
-                subTitle={<div>
-                    {errorMessage.remainning || errorMessage.planning.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""}
-                    {errorMessage.remainning ? <span style={{ color: "red", marginLeft: 5 }}>**{SUBJECT_STILL_REMAIN}</span> : ""}
-                </div>}
-                extra={<Button onClick={() => {
-                    dispatch(addSemesterToViewedSemesterList())
-                    setIsUpdated(true)
-                }} type='primary'>Add Semester</Button>} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25, paddingInline:0 }} style={{ marginTop: 20 }} bordered hoverable title="Semester Plan">
-                {renderSemester()}
-            </ProCard>
-            <div style={{ marginTop: 30 }}>
-                <Button disabled={isUpdated ? false : true} onClick={handleSaveChange} type='primary'>Save Change</Button>
-                <Button onClick={() => {handleResetBootcamp(history.state.viewedBootcampData)}} style={{ marginLeft: 15 }}>Reset</Button>
-            </div>
+                                            }}
+                                        >
+                                            Add Field
+                                        </Button>
+                                    </div>
+                                }
+                            >
+                                {renderAllowcate()}
+                            </ProCard>
+                            <ProCard subTitle={errorMessage.compulsory.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Compulsory Subject">
+                                {renderFieldSubject("compulsory")}
+                            </ProCard>
+                            <ProCard subTitle={errorMessage.elective.length > 0 || errorMessage.electiveGroup.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Elective Subject">
+                                {renderFieldSubject("elective")}
+                            </ProCard>
+                            <ProCard
+
+                                subTitle={<div>
+                                    {errorMessage.remainning || errorMessage.planning.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""}
+                                    {errorMessage.remainning ? <span style={{ color: "red", marginLeft: 5 }}>**{SUBJECT_STILL_REMAIN}</span> : ""}
+                                </div>}
+                                extra={<Button onClick={() => {
+                                    dispatch(addSemesterToViewedSemesterList())
+                                    setIsUpdated(true)
+                                }} type='primary'>Add Semester</Button>} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25, paddingInline: 0 }} style={{ marginTop: 20 }} bordered hoverable title="Semester Plan">
+                                {renderSemester()}
+                            </ProCard>
+                            <div style={{ marginTop: 30 }}>
+                                <Button disabled={isUpdated ? false : true} onClick={handleSaveChange} type='primary'>Save Change</Button>
+                                <Button onClick={() => { handleResetBootcamp(history.state.viewedBootcampData) }} style={{ marginLeft: 15 }}>Reset</Button>
+                            </div>
+                        </>
+                    )
+            }
+
         </div>
     )
 }

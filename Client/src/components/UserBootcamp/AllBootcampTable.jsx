@@ -126,7 +126,7 @@ const AllBootcampTable = () => {
 
     const { setBreadCrumbList } = useOutletContext()
 
-    const handleViewBootcamp = async (data) => {
+    const handleViewBootcamp = async (data,viewType) => {
         dispatch(updateLoading(true))
       
         let bootcampName = data.name
@@ -216,7 +216,7 @@ const AllBootcampTable = () => {
                 title: data.name
             }
         ])
-        navigate("/userbootcamp/viewbootcamp",{state:{viewedBootcampData: data}})
+        navigate("/userbootcamp/viewbootcamp",{state:{viewedBootcampData: data, viewType}})
     }
 
     const columns = [
@@ -238,14 +238,16 @@ const AllBootcampTable = () => {
         {
             title: '',
             dataIndex: 'year',
-            width: '8%',
+            width: '14%',
             render: (_, data) => (
-                <>
-                    <Button type='primary' onClick={() => {
-                        handleViewBootcamp(data)
+                <div style={{display:'flex', justifyContent:"space-between"}}>
+                    <Button onClick={() => {
+                        handleViewBootcamp(data,'view')
                     }}>View</Button>
-
-                </>
+                    <Button type='primary' onClick={() => {
+                        handleViewBootcamp(data,'edit')
+                    }}>Edit</Button>
+                </div>
             ),
         }
     ];
