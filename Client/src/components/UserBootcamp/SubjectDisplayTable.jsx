@@ -141,6 +141,19 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
 
   const columns = [
     {
+      title: 'Subject Code',
+      dataIndex: '',
+      key: 'subjectCode',
+      width: '15%',
+  },
+    {
+      title: 'Abbreviated name',
+      dataIndex: 'subjectCode',
+      key: 'abbreviatedName',
+      width: '15%',
+      ...getColumnSearchProps('subjectCode'),
+   },
+    {
       title: 'Subject Name',
       dataIndex: 'name',
       valueType: 'name',

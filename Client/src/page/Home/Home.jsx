@@ -7,6 +7,7 @@ import { getBootcampsByUserID, getBootcampsForTrackingByUserID } from "../../red
 import { getMajorById } from "../../redux/major/major";
 import { updateLoading } from "../../redux/loading/Loading";
 import BootcampSemesterDrawer from "../../components/Home/BootcampSemesterDrawer";
+import TestComp from "../../components/TestComp";
 const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
@@ -68,6 +69,7 @@ const Home = () => {
 
   return (
     <div className="bootcamp-progress">
+      <TestComp/>
       <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData}/>
       <Row gutter={[16, 16]}>
        {renderBootcampStatic()}

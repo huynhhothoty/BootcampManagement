@@ -32,7 +32,7 @@ const Login = () => {
       <div className="background-image"></div>
       <div className="login-form-container">
         <div className="login-form-header">
-          <h1>Welcom back</h1>
+          <h1>Welcome back</h1>
           <p>Login to the Dashboard</p>
         
         </div>

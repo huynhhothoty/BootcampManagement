@@ -147,8 +147,14 @@ const ContentOfField = ({ error, field, type, setIsSubjectModalOpen, setSubjestM
     const columns = [
         {
             title: 'Subject Code',
-            dataIndex: 'subjectCode',
+            dataIndex: '',
             key: 'subjectCode',
+            width: '15%',
+        },
+        {
+            title: 'Abbreviated name',
+            dataIndex: 'subjectCode',
+            key: 'abbreviatedName',
             width: '15%',
             ...getColumnSearchProps('subjectCode'),
         },
@@ -204,7 +210,9 @@ const ContentOfField = ({ error, field, type, setIsSubjectModalOpen, setSubjestM
                                 fieldIndex: index,
                                 modalName: `Edit Subject`,
                                 sujectType: type,
-                                subjectData: data
+                                subjectData: data,
+                                isCreateBootcamp: true,
+                                isViewBootcamp: false
                             })
                             setIsSubjectModalOpen(true)
                         }}>

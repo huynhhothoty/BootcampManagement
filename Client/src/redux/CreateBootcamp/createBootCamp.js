@@ -407,6 +407,13 @@ export const createBootcampSlice = createSlice({
       state.bootcampName = "";
     },
     importBootcamp: (state, action) => {
+      state.totalCredits = 0;
+      state.completeTotalCredits = 0;
+      state.allowcateFields = [];
+      state.semesterSubjectList = [];
+      state.semesterList = [[]];
+      state.bootcampName = "";
+
       state.totalCredits = action.payload.totalCredits;
       state.completeTotalCredits = action.payload.completeTotalCredits;
       state.allowcateFields = action.payload.allowcateFields;

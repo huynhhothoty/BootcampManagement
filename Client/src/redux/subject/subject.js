@@ -74,6 +74,7 @@ export const subjectSlice = createSlice({
   },
   reducers: {
     updateAfterImportBootcamp: (state, action) => {
+      state.importedSubjectsList = []
       state.importedSubjectsList = action.payload;
     },
     updateWithNormalImportSubject: (state, action) => {

@@ -145,7 +145,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                         <Col span={24}>
                             <Form.Item
                                 name="subjectCode"
-                                label="Subject Code"
+                                label="Abbreviated name"
                                 rules={[
                                     {
                                         required: true,
@@ -153,16 +153,18 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                                     },
                                 ]}
                             >
-                                <Input placeholder="Please enter a Subject ID" />
+                                <Row gutter={16}>
+                                    <Col span={18}>
+                                    <Input placeholder="Please enter a Subject Abbreviated name" />
+                                    </Col>
+                                    <Col span={6}>
+                                    <Button onClick={handleAutoCreateSubjectCode}>Auto Create</Button>
+                                    </Col>
+                                </Row>
+                                
+                               
                             </Form.Item>
-                            <Row style={{ marginBlock: 16 }}>
-                                <Col span={6}> <Button onClick={handleAutoCreateSubjectCode}>Auto Create</Button></Col>
-                                <Col span={9}><DatePicker onChange={(value) => setAutoIDYear(value)} value={autoIDYear} style={{ marginInline: 16 }} placeholder='Year' picker="year" /></Col>
-                                <Col span={9}><Input onChange={(e) => {setAutoID(e.target.value)}} value={autoID} placeholder='Enter ID' width={20} /></Col>
-
-
-
-                            </Row>
+                           
 
                         </Col>
 

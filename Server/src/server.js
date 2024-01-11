@@ -5,6 +5,7 @@ const rootRouter = require('./routers/index');
 const CustomError = require('./utils/CustomError');
 const ErrorHandler = require('./middlewares/Error/ErrorHandler');
 
+
 // Init
 const dotenv = require('dotenv');
 dotenv.config();
@@ -27,6 +28,32 @@ app.use(cors(corsOptions));
 
 // set route
 app.use('/api', rootRouter);
+
+//Test Upload file
+const exceljs = require('exceljs')
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'src/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
+    },
+  });
+
+  const upload = multer({ storage: storage });
+
+app.post('/api/testGetFile',upload.single("excelFile"),async (req,res) => {
+    
+    const workbook = new exceljs.Workbook();
+    await workbook.xlsx.readFile(`src/${req.file.filename}`);
+    const worksheet = workbook.getWorksheet(1);
+    const rows = worksheet.getSheetValues();
+    console.log(rows)
+    res.status(200).send({status:"ok"})
+})
+// Test upload file
 
 // invalid route
 app.all('*', (req, res, next) => {
