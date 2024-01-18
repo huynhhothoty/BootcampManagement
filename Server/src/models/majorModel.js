@@ -15,8 +15,7 @@ const majorSchema = new mongoose.Schema(
         },
         summary: {
             type: String,
-            default:
-                'This is a description of a major, you can custom this field',
+            default: 'This is a description of a major, you can custom this field',
         },
         branchMajor: [
             {
@@ -24,6 +23,10 @@ const majorSchema = new mongoose.Schema(
                 ref: 'BranchMajor',
             },
         ],
+        templateBootcamp: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Bootcamp',
+        },
     },
     {
         timestamps: true,

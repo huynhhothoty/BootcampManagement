@@ -133,29 +133,20 @@ const createPlanSheet = (planWS, semesterList) => {
                 };
 
                 if (col === 1) {
-                    planWS.getCell(row, col).border = {
-                        top: { style: 'thin' },
-                        bottom: { style: 'thin' },
-                        right: { style: 'thin' },
-                        left: { style: 'thick' },
-                    };
+                    const border = planWS.getCell(row, col).border;
+                    planWS.getCell(row, col).border = { ...border, left: { style: 'thick' } };
                 }
-                planWS.getCell(startRow, col).border = {
-                    top: { style: 'thick' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' },
-                    left: { style: 'thin' },
-                };
-                planWS.getCell(curRow, col).border = {
-                    top: { style: 'thin' },
-                    bottom: { style: 'thick' },
-                    right: { style: 'thin' },
-                    left: { style: 'thin' },
-                };
+                let border = planWS.getCell(startRow, col).border;
+                planWS.getCell(startRow, col).border = { ...border, top: { style: 'thick' } };
+
+                border = planWS.getCell(curRow, col).border;
+                planWS.getCell(curRow, col).border = { ...border, bottom: { style: 'thick' } };
             }
-            planWS.getCell(row, 6).border = {
-                left: { style: 'thick' },
-            };
+            let thisCellBorder = planWS.getCell(row, 5).border;
+            planWS.getCell(row, 5).border = { ...thisCellBorder, right: { style: 'thick' } };
+
+            thisCellBorder = planWS.getCell(row, 1).border;
+            planWS.getCell(row, 1).border = { ...thisCellBorder, left: { style: 'thick' } };
         }
 
         curRow += 3;
@@ -225,31 +216,21 @@ const createSubjectList = (subjectWS, allocation) => {
                 };
 
                 if (col === 1) {
-                    subjectWS.getCell(row, col).border = {
-                        top: { style: 'thin' },
-                        bottom: { style: 'thin' },
-                        right: { style: 'thin' },
-                        left: { style: 'thick' },
-                    };
+                    const border = subjectWS.getCell(row, col).border;
+                    subjectWS.getCell(row, col).border = { ...border, left: { style: 'thick' } };
                 }
-                subjectWS.getCell(startRow, col).border = {
-                    top: { style: 'thick' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' },
-                    left: { style: 'thin' },
-                };
-                subjectWS.getCell(curRow, col).border = {
-                    top: { style: 'thin' },
-                    bottom: { style: 'thick' },
-                    right: { style: 'thin' },
-                    left: { style: 'thin' },
-                };
-            }
-            subjectWS.getCell(row, 6).border = {
-                left: { style: 'thick' },
-            };
-        }
+                let border = subjectWS.getCell(startRow, col).border;
+                subjectWS.getCell(startRow, col).border = { ...border, top: { style: 'thick' } };
 
+                border = subjectWS.getCell(curRow, col).border;
+                subjectWS.getCell(curRow, col).border = { ...border, bottom: { style: 'thick' } };
+            }
+            let thisCellBorder = subjectWS.getCell(row, 5).border;
+            subjectWS.getCell(row, 5).border = { ...thisCellBorder, right: { style: 'thick' } };
+
+            thisCellBorder = subjectWS.getCell(row, 1).border;
+            subjectWS.getCell(row, 1).border = { ...thisCellBorder, left: { style: 'thick' } };
+        }
         curRow += 3;
     });
 };
@@ -306,9 +287,7 @@ const exportFileExcel = async (req, res, next) => {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         );
         res.setHeader('Content-Disposition', 'attachment; filename=BootcampExport.xlsx');
-
         await workbook.xlsx.write(res);
-
         res.end();
 
         // res.status(200).send(allocation);

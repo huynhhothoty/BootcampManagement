@@ -20,6 +20,11 @@ const bootcampSchema = new mongoose.Schema(
             ref: 'Major',
             required: [true, 'Bootcamp must have its major'],
         },
+        type: {
+            type: String,
+            enum: ['template', 'bootcamp'],
+            default: 'bootcamp',
+        },
         year: {
             type: Number,
             default: new Date().year,
@@ -47,10 +52,10 @@ const bootcampSchema = new mongoose.Schema(
     }
 );
 // middleware
-bootcampSchema.pre(/^find/, async function () {
-    this.select('-createdAt -updatedAt -__v');
-    //
-});
+// bootcampSchema.pre(/^find/, async function () {
+//     this.select('-createdAt -updatedAt -__v');
+//     //
+// });
 bootcampSchema.pre('save', function () {
     this.populate('major');
     this.populate('author');

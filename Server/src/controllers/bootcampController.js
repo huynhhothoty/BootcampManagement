@@ -16,10 +16,13 @@ const getBC = crudFactory.getOne(Bootcamp, [
         path: 'major',
         populate: { path: 'branchMajor' },
     },
+    {
+        path: 'allocation',
+    },
 ]);
 const getAllBC = crudFactory.getAll(Bootcamp);
 const deleteBC = crudFactory.deleteOne(Bootcamp);
-//
+// function use to check if user's major is legal for operating a bootcamp
 const beforeCrud = async (req, res, next) => {
     try {
         if (req.user.role != 'admin') {
@@ -34,9 +37,7 @@ const beforeCrud = async (req, res, next) => {
                     );
                 req.body.author = req.user.id;
             } else {
-                const thisBC = await Bootcamp.findById(req.params.id).select(
-                    'major'
-                );
+                const thisBC = await Bootcamp.findById(req.params.id).select('major');
 
                 if (thisBC && thisBC.major.toString() !== userMajor.toString())
                     return next(

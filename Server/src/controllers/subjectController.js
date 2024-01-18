@@ -19,10 +19,7 @@ const getSuggestCode = async (req, res, next) => {
         const filter = {
             name: regexPattern,
         };
-        const myquery = Subject.find(filter)
-            .sort({ updatedAt: -1 })
-            .limit(5)
-            .select('subjectCode');
+        const myquery = Subject.find(filter).sort({ updatedAt: -1 }).limit(5).select('subjectCode');
         let similarCodeList = await myquery;
 
         let suggestCode = '';
