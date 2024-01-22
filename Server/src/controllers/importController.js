@@ -29,6 +29,7 @@ const importBC = async (req, res, next) => {
         let tempBigField = {};
         let tempSmallField = [];
         let bigFieldList = [];
+        let totalCredit = 0;
 
         // read allocation
         alloWs.eachRow((row, rowNumber) => {
@@ -39,6 +40,8 @@ const importBC = async (req, res, next) => {
                     compulsoryCredit: row.getCell(3).value ?? 0,
                     OptionalCredit: isMerge ? 0 : row.getCell(4).value ?? 0,
                 };
+                if (row.getCell(1).value.toString().toLowerCase().startsWith('total'))
+                    totalCredit = row.getCell(2).value;
 
                 const isBigField =
                     row.getCell(1).alignment.horizontal === 'left' ||
@@ -153,6 +156,7 @@ const importBC = async (req, res, next) => {
 
         const dataFromImportFile = {
             type: 'bootcamp',
+            totalCredit,
             allocation: {
                 detail: fullAllo,
             },
