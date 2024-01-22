@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Major = require('../models/majorModel');
+const CustomError = require('../utils/CustomError');
 
 //
 const semesterSchema = new mongoose.Schema({
@@ -53,8 +55,7 @@ const bootcampSchema = new mongoose.Schema(
 );
 // middleware
 // bootcampSchema.pre(/^find/, async function () {
-//     this.select('-createdAt -updatedAt -__v');
-//     //
+//    this.where({type: ''})
 // });
 bootcampSchema.pre('save', function () {
     this.populate('major');
@@ -64,6 +65,15 @@ bootcampSchema.pre('save', function () {
         path: 'detail',
         populate: { path: 'subjectList', model: 'Subject' },
     });
+});
+
+bootcampSchema.post('save', async function (doc, next) {
+    if (doc.type === 'template') {
+        const major = await Major.findById(doc.major);
+        if (!major) return next(new CustomError('This major Id is not exist', 404));
+        major.templateBootcamp = doc._id;
+        await major.save();
+    }
 });
 //
 const Bootcamp = mongoose.model('Bootcamp', bootcampSchema);

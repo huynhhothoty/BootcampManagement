@@ -49,17 +49,12 @@ const login = async (req, res, next) => {
 
         // check are they null
         if (!email || !password) {
-            return next(
-                new CustomError('Please fill all email and password', 400)
-            );
+            return next(new CustomError('Please fill all email and password', 400));
         }
 
         // check email and password if correct
         const loginUser = await User.findOne({ email });
-        if (
-            !loginUser ||
-            !loginUser.comparePassword(password, loginUser.password)
-        ) {
+        if (!loginUser || !loginUser.comparePassword(password, loginUser.password)) {
             return next(new CustomError('Email or Password is incorrect', 401));
         }
 
@@ -91,9 +86,7 @@ const forgetPassoword = async (req, res, next) => {
         }
         const thisUser = await User.findOne({ email: req.body.email });
         if (!thisUser) {
-            return next(
-                new CustomError('There is no account with this email', 404)
-            );
+            return next(new CustomError('There is no account with this email', 404));
         }
 
         const resetToken = thisUser.createResetPasswordToken();
@@ -121,12 +114,7 @@ const forgetPassoword = async (req, res, next) => {
             thisUser.resetTokenExpire = undefined;
             await thisUser.save({ validateBeforeSave: false });
             console.log(error);
-            return next(
-                new CustomError(
-                    'Error occurs when sending email, please try again',
-                    500
-                )
-            );
+            return next(new CustomError('Error occurs when sending email, please try again', 500));
         }
     } catch (error) {
         return next(error);
@@ -136,17 +124,12 @@ const forgetPassoword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
     try {
         // get user base on token
-        const hashToken = crypto
-            .createHash('sha256')
-            .update(req.params.token)
-            .digest('hex');
+        const hashToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
         const thisUser = await User.findOne({ passwordResetToken: hashToken });
 
         // if token is not expire + this user is exist, set the new password for this user
         if (!thisUser || thisUser.resetTokenExpire < Date.now()) {
-            return next(
-                new CustomError('This reset token is invalid or expired', 400)
-            );
+            return next(new CustomError('This reset token is invalid or expired', 400));
         }
 
         let newPassword = req.body.password;
@@ -177,16 +160,9 @@ const updatePassword = async (req, res, next) => {
         // check typed password is correct
         const { oldPassword, newPassword } = req.body;
         if (!oldPassword || !newPassword)
-            return next(
-                new CustomError(
-                    'Please enter your password and new password',
-                    400
-                )
-            );
+            return next(new CustomError('Please enter your password and new password', 400));
         if (!thisUser.comparePassword(oldPassword, thisUser.password)) {
-            return next(
-                new CustomError('Your password you enter is incorrect', 401)
-            );
+            return next(new CustomError('Your password you enter is incorrect', 401));
         }
 
         // change password
@@ -215,20 +191,14 @@ const filterObject = (obj, ...allowField) => {
 const updateInfo = async (req, res, next) => {
     try {
         if (req.body.password)
-            return next(
-                new CustomError('You can not update password here', 400)
-            );
+            return next(new CustomError('You can not update password here', 400));
 
         const filterBody = filterObject(req.body, 'name', 'email');
 
-        const updateUser = await User.findByIdAndUpdate(
-            req.user._id,
-            filterBody,
-            {
-                new: true,
-                runValidators: true,
-            }
-        );
+        const updateUser = await User.findByIdAndUpdate(req.user._id, filterBody, {
+            new: true,
+            runValidators: true,
+        });
 
         res.status(200).send({
             status: 'ok',
