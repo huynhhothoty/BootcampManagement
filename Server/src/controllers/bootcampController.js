@@ -55,6 +55,16 @@ const beforeCrud = async (req, res, next) => {
     }
 };
 
+const createTemplate = async (req, res, next) => {
+    try {
+        req.body.type = 'template';
+        next();
+    } catch (error) {
+        console.log(error);
+        return next(new CustomError(error));
+    }
+};
+
 const getBootcampStats = async (req, res, next) => {
     try {
         let filter = {};
@@ -170,4 +180,5 @@ module.exports = {
     getBootcampStats,
     findAllBCOfUser,
     getAllWithDetail,
+    createTemplate,
 };

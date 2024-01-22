@@ -12,6 +12,13 @@ BCRouter.route('/')
     .post(authorize('leader', 'admin'), BCController.beforeCrud, BCController.createBC)
     .get(authorize('admin', 'leader'), BCController.getAllBC);
 
+BCRouter.route('/template').post(
+    authorize('leader', 'admin'),
+    BCController.beforeCrud,
+    BCController.createTemplate,
+    BCController.createBC
+);
+
 BCRouter.route('/detail').get(authorize('admin', 'leader'), BCController.getAllWithDetail);
 
 BCRouter.route('/stats').get(authorize('admin'), BCController.getBootcampStats);
