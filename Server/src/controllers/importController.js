@@ -66,14 +66,24 @@ const importBC = async (req, res, next) => {
                 ) {
                     const smallField = { ...dataField };
                     tempSmallField = [...tempSmallField, smallField];
+                } else if (isDefaultField){
+                    tempBigField.detail = [...tempSmallField];
+                    data = [...data, tempBigField];
                 }
             }
         });
+
 
         // read semester
         let currentSemester = 1;
         let planData = [];
         let tempSubjectList = [];
+        let tempElectList = bigFieldList.map(ele=>{
+            return {
+                bigField: ele,
+                electSubList: []
+            }
+        });
         planWs.eachRow((row) => {
             const fieldData = {
                 name: row.getCell(3).value,
@@ -92,10 +102,20 @@ const importBC = async (req, res, next) => {
                     currentSemester++;
                     tempSubjectList = [];
                 }
+            } else if (fieldData.name.toLowerCase().includes('elective')) {
+                tempElectList = tempElectList.map(ele=>{
+                    if (ele.bigField.toLowerCase().includes(fieldData.name.toLowerCase().slice(0, 10).trim())) return {
+                        bigField: ele.bigField,
+                        electSubList: [...ele.electSubList, {...fieldData, semester: currentSemester}]
+                    }
+                    return ele
+                })
             } else {
                 tempSubjectList = [...tempSubjectList, fieldData];
             }
         });
+
+        console.log(tempElectList)
 
         // read subject list
         let subjectData = [];
@@ -147,12 +167,21 @@ const importBC = async (req, res, next) => {
             }
         });
 
-        const fullAllo = data.map((ele, index) => {
+        let fullAllo = data.map((ele, index) => {
             return {
                 ...ele,
                 subjectList: subjectData.at(index),
             };
         });
+
+        fullAllo = fullAllo.map(ele=>{
+            tempElectList.forEach(ele2=>{
+                if (ele2.bigField.toString().toLowerCase().includes(ele.name.toString().toLowerCase())) {
+                    return {...ele, electiveSubjectList: ele2}
+                }
+            })
+            return ele
+        })
 
         const dataFromImportFile = {
             type: 'bootcamp',
