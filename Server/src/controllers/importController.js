@@ -22,7 +22,10 @@ const importBC = async (req, res, next) => {
 
         if (!alloWs || !planWs || !compulWs || !optionWs)
             return next(
-                new CustomError('Your file is not in correct format, please check again!', 400)
+                new CustomError(
+                    'Your file is not in correct format, please check again!',
+                    400
+                )
             );
 
         let data = [];
@@ -66,30 +69,29 @@ const importBC = async (req, res, next) => {
                 ) {
                     const smallField = { ...dataField };
                     tempSmallField = [...tempSmallField, smallField];
-                } else if (isDefaultField){
+                } else if (isDefaultField) {
                     tempBigField.detail = [...tempSmallField];
                     data = [...data, tempBigField];
                 }
             }
         });
 
-
         // read semester
         let currentSemester = 1;
         let planData = [];
         let tempSubjectList = [];
-        let tempElectList = bigFieldList.map(ele=>{
+        let tempElectList = bigFieldList.map((ele) => {
             return {
                 bigField: ele,
-                electSubList: []
-            }
+                electSubList: [],
+            };
         });
         planWs.eachRow((row) => {
             const fieldData = {
                 name: row.getCell(3).value,
                 subjectCode: row.getCell(2).value,
                 credit: row.getCell(4).value ?? 0,
-                isCompulsory: true,
+                isCompulsory: row.getCell(2).value ? true : false,
             };
 
             if (isNaN(Number(row.getCell(1).value))) {
@@ -103,19 +105,23 @@ const importBC = async (req, res, next) => {
                     tempSubjectList = [];
                 }
             } else if (fieldData.name.toLowerCase().includes('elective')) {
-                tempElectList = tempElectList.map(ele=>{
-                    if (ele.bigField.toLowerCase().includes(fieldData.name.toLowerCase().slice(0, 10).trim())) return {
-                        bigField: ele.bigField,
-                        electSubList: [...ele.electSubList, {...fieldData, semester: currentSemester}]
-                    }
-                    return ele
-                })
+                tempElectList = tempElectList.map((ele) => {
+                    const bigFieldName = ele.bigField.toLowerCase().trim();
+                    const elecName = fieldData.name.toLowerCase().trim().slice(0, -10);
+                    if (bigFieldName.includes(elecName))
+                        return {
+                            bigField: ele.bigField,
+                            electSubList: [
+                                ...ele.electSubList,
+                                { ...fieldData, semester: currentSemester },
+                            ],
+                        };
+                    return ele;
+                });
             } else {
                 tempSubjectList = [...tempSubjectList, fieldData];
             }
         });
-
-        console.log(tempElectList)
 
         // read subject list
         let subjectData = [];
@@ -174,14 +180,15 @@ const importBC = async (req, res, next) => {
             };
         });
 
-        fullAllo = fullAllo.map(ele=>{
-            tempElectList.forEach(ele2=>{
-                if (ele2.bigField.toString().toLowerCase().includes(ele.name.toString().toLowerCase())) {
-                    return {...ele, electiveSubjectList: ele2}
+        fullAllo = fullAllo.map((ele) => {
+            let returnEle = ele;
+            tempElectList.forEach((ele2) => {
+                if (ele2.bigField.trim().includes(ele.name.toLowerCase().trim())) {
+                    returnEle = { ...ele, electiveSubjectList: ele2.electSubList };
                 }
-            })
-            return ele
-        })
+            });
+            return returnEle;
+        });
 
         const dataFromImportFile = {
             type: 'bootcamp',

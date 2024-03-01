@@ -33,12 +33,23 @@ const createAlloSheet = (alloWS, allocation) => {
     // set content of table
     let curRow = 3;
     allocation.forEach((item) => {
+        // count total for big field
+        let compul = 0;
+        let option = 0;
+        item.detail.forEach((smallItem) => {
+            compul += smallItem.compulsoryCredit;
+            option += smallItem.OptionalCredit;
+        });
+
         alloWS.getRow(curRow).font = { bold: true };
         alloWS.getCell(curRow, 1).value = item.name;
         alloWS.getCell(curRow, 1).alignment = { horizontal: 'left' };
-        alloWS.getCell(curRow, 2).value = item.compulsoryCredit + item.OptionalCredit;
-        alloWS.getCell(curRow, 3).value = item.compulsoryCredit;
-        alloWS.getCell(curRow, 4).value = item.OptionalCredit;
+        // alloWS.getCell(curRow, 2).value = item.compulsoryCredit + item.OptionalCredit;
+        // alloWS.getCell(curRow, 3).value = item.compulsoryCredit;
+        // alloWS.getCell(curRow, 4).value = item.OptionalCredit;
+        alloWS.getCell(curRow, 2).value = compul + option;
+        alloWS.getCell(curRow, 3).value = compul;
+        alloWS.getCell(curRow, 4).value = option;
 
         curRow++;
 
@@ -47,7 +58,8 @@ const createAlloSheet = (alloWS, allocation) => {
             alloWS.getCell(curRow, 1).alignment = {
                 horizontal: 'right',
             };
-            alloWS.getCell(curRow, 2).value = smallItem.compulsoryCredit + smallItem.OptionalCredit;
+            alloWS.getCell(curRow, 2).value =
+                smallItem.compulsoryCredit + smallItem.OptionalCredit;
             alloWS.getCell(curRow, 3).value = smallItem.compulsoryCredit;
             alloWS.getCell(curRow, 4).value = smallItem.OptionalCredit;
 
@@ -74,7 +86,7 @@ const createAlloSheet = (alloWS, allocation) => {
     }
 };
 
-const createPlanSheet = (planWS, semesterList) => {
+const createPlanSheet = (planWS, semesterList, electList) => {
     planWS.getColumn(1).width = 5;
     planWS.getColumn(1).alignment = { horizontal: 'center' };
     planWS.getColumn(2).width = 16;
@@ -86,10 +98,14 @@ const createPlanSheet = (planWS, semesterList) => {
     let curRow = 1;
     semesterList.forEach((semester) => {
         let startRow = curRow;
+        let currentSemester = semester.semester;
 
         planWS.mergeCells(`A${startRow}:E${startRow}`);
-        planWS.getCell(curRow, 1).value = semester.semester;
-        planWS.getCell(curRow, 1).alignment = { horizontal: 'center', vertical: 'middle' };
+        planWS.getCell(curRow, 1).value = currentSemester;
+        planWS.getCell(curRow, 1).alignment = {
+            horizontal: 'center',
+            vertical: 'middle',
+        };
         planWS.getCell(curRow, 1).font = { bold: true };
         planWS.getRow(curRow).height = 40;
         curRow++;
@@ -116,6 +132,20 @@ const createPlanSheet = (planWS, semesterList) => {
             sumCredit += subject.credit;
         });
 
+        // write elective subject to semester
+        const semesterIndex = currentSemester.trim().split(' ')[1];
+        if (electList[semesterIndex - 1].length > 0) {
+            electList[semesterIndex - 1].forEach((subject) => {
+                planWS.getCell(curRow, 1).value = index;
+                planWS.getCell(curRow, 2).value = '';
+                planWS.getCell(curRow, 3).value = subject.name;
+                planWS.getCell(curRow, 4).value = subject.credit;
+                curRow++;
+                index++;
+                sumCredit += subject.credit;
+            });
+        }
+
         planWS.mergeCells(`A${curRow}:C${curRow}`);
         planWS.getCell(curRow, 1).value = 'Total';
         planWS.getRow(curRow).font = { bold: true };
@@ -134,19 +164,34 @@ const createPlanSheet = (planWS, semesterList) => {
 
                 if (col === 1) {
                     const border = planWS.getCell(row, col).border;
-                    planWS.getCell(row, col).border = { ...border, left: { style: 'thick' } };
+                    planWS.getCell(row, col).border = {
+                        ...border,
+                        left: { style: 'thick' },
+                    };
                 }
                 let border = planWS.getCell(startRow, col).border;
-                planWS.getCell(startRow, col).border = { ...border, top: { style: 'thick' } };
+                planWS.getCell(startRow, col).border = {
+                    ...border,
+                    top: { style: 'thick' },
+                };
 
                 border = planWS.getCell(curRow, col).border;
-                planWS.getCell(curRow, col).border = { ...border, bottom: { style: 'thick' } };
+                planWS.getCell(curRow, col).border = {
+                    ...border,
+                    bottom: { style: 'thick' },
+                };
             }
             let thisCellBorder = planWS.getCell(row, 5).border;
-            planWS.getCell(row, 5).border = { ...thisCellBorder, right: { style: 'thick' } };
+            planWS.getCell(row, 5).border = {
+                ...thisCellBorder,
+                right: { style: 'thick' },
+            };
 
             thisCellBorder = planWS.getCell(row, 1).border;
-            planWS.getCell(row, 1).border = { ...thisCellBorder, left: { style: 'thick' } };
+            planWS.getCell(row, 1).border = {
+                ...thisCellBorder,
+                left: { style: 'thick' },
+            };
         }
 
         curRow += 3;
@@ -217,19 +262,34 @@ const createSubjectList = (subjectWS, allocation) => {
 
                 if (col === 1) {
                     const border = subjectWS.getCell(row, col).border;
-                    subjectWS.getCell(row, col).border = { ...border, left: { style: 'thick' } };
+                    subjectWS.getCell(row, col).border = {
+                        ...border,
+                        left: { style: 'thick' },
+                    };
                 }
                 let border = subjectWS.getCell(startRow, col).border;
-                subjectWS.getCell(startRow, col).border = { ...border, top: { style: 'thick' } };
+                subjectWS.getCell(startRow, col).border = {
+                    ...border,
+                    top: { style: 'thick' },
+                };
 
                 border = subjectWS.getCell(curRow, col).border;
-                subjectWS.getCell(curRow, col).border = { ...border, bottom: { style: 'thick' } };
+                subjectWS.getCell(curRow, col).border = {
+                    ...border,
+                    bottom: { style: 'thick' },
+                };
             }
             let thisCellBorder = subjectWS.getCell(row, 5).border;
-            subjectWS.getCell(row, 5).border = { ...thisCellBorder, right: { style: 'thick' } };
+            subjectWS.getCell(row, 5).border = {
+                ...thisCellBorder,
+                right: { style: 'thick' },
+            };
 
             thisCellBorder = subjectWS.getCell(row, 1).border;
-            subjectWS.getCell(row, 1).border = { ...thisCellBorder, left: { style: 'thick' } };
+            subjectWS.getCell(row, 1).border = {
+                ...thisCellBorder,
+                left: { style: 'thick' },
+            };
         }
         curRow += 3;
     });
@@ -243,7 +303,10 @@ const exportFileExcel = async (req, res, next) => {
                 { path: 'detail.subjectList' },
                 {
                     path: 'allocation',
-                    populate: { path: 'detail.subjectList', populate: { path: 'branchMajor' } },
+                    populate: {
+                        path: 'detail.subjectList',
+                        populate: { path: 'branchMajor' },
+                    },
                 },
             ]);
 
@@ -262,20 +325,35 @@ const exportFileExcel = async (req, res, next) => {
         let allocationWithElective = JSON.parse(JSON.stringify(allocation));
 
         allocationWithCompulsory.forEach((big) => {
-            big.subjectList = big.subjectList.filter((subject) => subject.isCompulsory === true);
+            big.subjectList = big.subjectList.filter(
+                (subject) => subject.isCompulsory === true
+            );
         });
         allocationWithCompulsory = allocationWithCompulsory.filter(
             (big) => big.subjectList.length > 0
         );
 
         allocationWithElective.forEach((big) => {
-            big.subjectList = big.subjectList.filter((subject) => subject.isCompulsory === false);
+            big.subjectList = big.subjectList.filter(
+                (subject) => subject.isCompulsory === false
+            );
         });
-        allocationWithElective = allocationWithElective.filter((big) => big.subjectList.length > 0);
+        allocationWithElective = allocationWithElective.filter(
+            (big) => big.subjectList.length > 0
+        );
+
+        // get elective subject list from allocation
+        const electiveSubjectList = new Array(20).fill([]);
+        allocation.forEach((ele) => {
+            ele.electiveSubjectList.forEach((sub) => {
+                const temp = electiveSubjectList[sub.semester];
+                electiveSubjectList[sub.semester] = [...temp, sub];
+            });
+        });
 
         // create excel sheet for each domain we need
         createAlloSheet(alloWS, allocation);
-        createPlanSheet(planWS, semesterList);
+        createPlanSheet(planWS, semesterList, electiveSubjectList);
         createSubjectList(compulsoryWS, allocationWithCompulsory);
         createSubjectList(electiveWS, allocationWithElective);
 
@@ -290,7 +368,7 @@ const exportFileExcel = async (req, res, next) => {
         await workbook.xlsx.write(res);
         res.end();
 
-        // res.status(200).send(allocation);
+        // res.status(200).send(electiveSubjectList);
     } catch (error) {
         console.log(error);
         next(new CustomError(error));

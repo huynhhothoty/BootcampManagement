@@ -7,6 +7,13 @@ const subjectSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Subject must have a name'],
         },
+        shortFormName: {
+            type: String,
+        },
+        isAutoCreateCode: {
+            type: Boolean,
+            default: true,
+        },
         subjectCode: {
             type: String,
             required: [true, 'Subject must have a code'],
@@ -37,6 +44,10 @@ const subjectSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'BranchMajor',
         },
+        prerequisite: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Subject',
+        },
     },
     {
         timestamps: true,
@@ -45,6 +56,32 @@ const subjectSchema = new mongoose.Schema(
 // middleware
 subjectSchema.pre(/^find/, function () {
     this.select('-createdAt -updatedAt -__v');
+});
+subjectSchema.pre('save', function (next) {
+    const convert = (str) => {
+        let x = str;
+        const test = x.trim().split(' ');
+        let m = '';
+        if (test.length >= 4) {
+            for (let i = 0; i < 4; i++) {
+                m += test[i][0];
+            }
+        } else {
+            let i = 0;
+            while (m.length < 4) {
+                if (x[i] != ' ') m += x[i];
+                i++;
+            }
+        }
+
+        return m.toUpperCase();
+    };
+    if (!this.shortFormName) {
+        const subName = this.name;
+        this.shortFormName = convert(subName);
+    }
+
+    next();
 });
 //
 const Subject = mongoose.model('Subject', subjectSchema);
