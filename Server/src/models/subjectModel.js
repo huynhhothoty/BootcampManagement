@@ -16,7 +16,7 @@ const subjectSchema = new mongoose.Schema(
         },
         subjectCode: {
             type: String,
-            required: [true, 'Subject must have a code'],
+            default: 'SUBJECTCODE220702',
         },
         credit: {
             type: Number,
