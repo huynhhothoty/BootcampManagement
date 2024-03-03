@@ -15,10 +15,15 @@ const importBC = async (req, res, next) => {
         await workbook.xlsx.load(fileBuffer);
 
         // get data from sheet
-        const alloWs = workbook.getWorksheet('Sheet1');
-        const planWs = workbook.getWorksheet('Sheet2');
-        const compulWs = workbook.getWorksheet('Sheet3');
-        const optionWs = workbook.getWorksheet('Sheet4');
+        const alloWs =
+            workbook.getWorksheet('Sheet1') || workbook.getWorksheet('Allocation');
+        const planWs =
+            workbook.getWorksheet('Sheet2') || workbook.getWorksheet('Planning');
+        const compulWs =
+            workbook.getWorksheet('Sheet3') ||
+            workbook.getWorksheet('Compulsory Subjects');
+        const optionWs =
+            workbook.getWorksheet('Sheet4') || workbook.getWorksheet('Elective Subjects');
 
         if (!alloWs || !planWs || !compulWs || !optionWs)
             return next(
@@ -77,7 +82,7 @@ const importBC = async (req, res, next) => {
         });
 
         // read semester
-        let currentSemester = 1;
+        let currentSemester = 0;
         let planData = [];
         let tempSubjectList = [];
         let tempElectList = bigFieldList.map((ele) => {

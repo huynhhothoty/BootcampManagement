@@ -319,6 +319,10 @@ const exportFileExcel = async (req, res, next) => {
         const planWS = workbook.addWorksheet('Planning');
         const compulsoryWS = workbook.addWorksheet('Compulsory Subjects');
         const electiveWS = workbook.addWorksheet('Elective Subjects');
+        // const alloWS = workbook.addWorksheet('Sheet1');
+        // const planWS = workbook.addWorksheet('Sheet2');
+        // const compulsoryWS = workbook.addWorksheet('Sheet3');
+        // const electiveWS = workbook.addWorksheet('Sheet4');
 
         // filter allocation into two allocation, one include compul, one include elective
         let allocationWithCompulsory = JSON.parse(JSON.stringify(allocation));
@@ -345,9 +349,15 @@ const exportFileExcel = async (req, res, next) => {
         // get elective subject list from allocation
         const electiveSubjectList = new Array(20).fill([]);
         allocation.forEach((ele) => {
-            ele.electiveSubjectList.forEach((sub) => {
+            ele.electiveSubjectList.forEach((sub, index) => {
+                let subject = sub.toObject();
+                subject = {
+                    ...subject,
+                    name: `${ele.name.split('(')[0].trim()} Elective ${index + 1}`,
+                };
+
                 const temp = electiveSubjectList[sub.semester];
-                electiveSubjectList[sub.semester] = [...temp, sub];
+                electiveSubjectList[sub.semester] = [...temp, subject];
             });
         });
 
