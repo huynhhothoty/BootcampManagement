@@ -1,6 +1,7 @@
 import { Table } from 'antd'
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode'
 
 const SemesterViewOnly = () => {
     const { viewedSemesterList, viewedSemesterSubjectList } = useSelector(store => store.subject)
@@ -30,6 +31,13 @@ const SemesterViewOnly = () => {
           dataIndex: 'subjectCode',
           key: 'subjectCode',
           width:"20%",
+          render:(text,row,b) => {
+            if(row.isAutoCreateCode){
+              if(row.semester !== undefined){
+                  return AutogenAllSubjectCode(row,b)
+              }
+            } else return text
+        }
         },
         {
           title: 'Course Name',

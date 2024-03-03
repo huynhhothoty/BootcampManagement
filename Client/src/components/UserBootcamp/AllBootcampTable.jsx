@@ -1,7 +1,7 @@
 import { Button, Input, Space, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllBootcamp, getBootcampsByUserID, updateViewedBootcamp } from '../../redux/bootcamp/bootcamp';
+import { exportBootcamp, getAllBootcamp, getBootcampsByUserID, updateViewedBootcamp } from '../../redux/bootcamp/bootcamp';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { updateViewedSemesterList, updateViewedSemesterSubjectLis, updateViewedS
 import { updateLoading } from '../../redux/loading/Loading';
 import { SUBJECT_ADDED_IMPORT } from '../../util/constants/subjectStatus';
 import { getMajorById, updateViewedMajor } from '../../redux/major/major';
+import { DownloadOutlined } from '@ant-design/icons';
 
 const AllBootcampTable = () => {
     const dispatch = useDispatch()
@@ -126,9 +127,9 @@ const AllBootcampTable = () => {
 
     const { setBreadCrumbList } = useOutletContext()
 
-    const handleViewBootcamp = async (data,viewType) => {
+    const handleViewBootcamp = async (data, viewType) => {
         dispatch(updateLoading(true))
-      
+
         let bootcampName = data.name
         let totalCredits = parseInt(data.totalCredit)
         let completeTotalCredits = data.totalCredit
@@ -166,9 +167,11 @@ const AllBootcampTable = () => {
                         isCompulsory: subject.isCompulsory,
                         name: subject.name,
                         subjectCode: subject.subjectCode,
-                        status:[SUBJECT_ADDED_IMPORT],
+                        status: [SUBJECT_ADDED_IMPORT],
                         branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
-                        _id: subject._id
+                        _id: subject._id,
+                        shortFormName: subject.shortFormName ? subject.shortFormName : "",
+                        isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                     }
                     tempSubjectList.push(subject)
                     return a
@@ -182,13 +185,14 @@ const AllBootcampTable = () => {
                 const semesterSubjectListIndex = semesterSubjectList.findIndex(sSubject => sSubject._id === subject)
                 semesterSubjectList[semesterSubjectListIndex].semester = index
                 const a = semesterSubjectList[semesterSubjectListIndex]
+                allowcateFields[a.fieldIndex].subjectList[a.subjectIndex]['semester'] = index
                 return {
                     ...a,
                     semesterSubjectListIndex
                 }
             })
         })
-        dispatch(updateViewedAllocatedField({data:allowcateFields, id:data.allocation}))
+        dispatch(updateViewedAllocatedField({ data: allowcateFields, id: data.allocation }))
         dispatch(updateViewedBootcamp({
             id: data._id,
             bootcampName,
@@ -216,7 +220,7 @@ const AllBootcampTable = () => {
                 title: data.name
             }
         ])
-        navigate("/userbootcamp/viewbootcamp",{state:{viewedBootcampData: data, viewType}})
+        navigate("/userbootcamp/viewbootcamp", { state: { viewedBootcampData: data, viewType } })
     }
 
     const columns = [
@@ -238,15 +242,20 @@ const AllBootcampTable = () => {
         {
             title: '',
             dataIndex: 'year',
-            width: '14%',
+            width: '17%',
             render: (_, data) => (
-                <div style={{display:'flex', justifyContent:"space-between"}}>
+                <div style={{ display: 'flex', justifyContent: "space-between" }}>
                     <Button onClick={() => {
-                        handleViewBootcamp(data,'view')
+                        handleViewBootcamp(data, 'view')
                     }}>View</Button>
                     <Button type='primary' onClick={() => {
-                        handleViewBootcamp(data,'edit')
+                        handleViewBootcamp(data, 'edit')
                     }}>Edit</Button>
+                    <Button type="primary" icon={<DownloadOutlined />} style={{backgroundColor:"#229a59"}} onClick={() => {
+                         dispatch(exportBootcamp({bootcampID: data._id, bootcampName: data.name}))
+                    }}>
+                        Export
+                    </Button>
                 </div>
             ),
         }

@@ -16,8 +16,9 @@ import { removeImportedSubject, removeSubjectFromField } from '../../redux/subje
 import { addNewElectiveGroupToViewedField, deleteElectiveGroupToViewedField, deleteSubjectFromViewedFields, editElectiveGroupToViewedField } from '../../redux/allocate/allowcate';
 import { updateCompleteCreditsToViewedBootcamp } from '../../redux/bootcamp/bootcamp';
 import { VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS, VIEW_NOT_EQUAL_CREDITS_IN_SUBJECTLIST } from '../../util/constants/errorMessage';
+import { AutogenAllSubjectCode, padZero } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 
-const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectList, totalCredits, confirmModal, setIsUpdated, error, electiveSubjectList }) => {
+const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectList, totalCredits, confirmModal, setIsUpdated, error, electiveSubjectList, firstIndex }) => {
   const formRef = useRef();
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('');
@@ -142,17 +143,31 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
   const columns = [
     {
       title: 'Subject Code',
-      dataIndex: '',
+      dataIndex: 'subjectCode',
       key: 'subjectCode',
       width: '15%',
+      render: (text,row) => {
+        if(row.semester !== undefined){
+          if(row.isAutoCreateCode){
+            if(row.semester !== undefined){
+                return AutogenAllSubjectCode(row)
+            }
+        } else return text
+        }
+        return ''
+      }
   },
-    {
-      title: 'Abbreviated name',
-      dataIndex: 'subjectCode',
-      key: 'abbreviatedName',
-      width: '15%',
-      ...getColumnSearchProps('subjectCode'),
-   },
+  {
+    title: 'Is Autogen',
+    dataIndex: 'isAutoCreateCode',
+    key: 'isAutoCreateCode',
+    width: '8%',
+    render: (text,row) => {
+        if(row.isAutoCreateCode){
+            return <Tag color="green">True</Tag> 
+        } else return <Tag color="volcano">False</Tag>
+    }
+},
     {
       title: 'Subject Name',
       dataIndex: 'name',
@@ -450,7 +465,16 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
                   );
                 }}
               </ProFormDependency>
-              <Table columns={columns} dataSource={subjectList.map((subject, index) => ({ ...subject, index, key: index }))} />
+              <Table columns={columns} dataSource={
+                subjectList.map((subject, index) => {
+                  return { 
+                    ...subject,
+                    index, 
+                    key: index,
+                    indexAutogenSubjectCode: padZero(firstIndex + index + 1)
+                  }
+              })} 
+              />
             </ProForm>
           </ProCard>
         </div>

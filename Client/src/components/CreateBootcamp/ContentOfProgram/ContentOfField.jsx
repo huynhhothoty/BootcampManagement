@@ -7,6 +7,7 @@ import { addNewGroup, deleteGroup, editGroup, removeSubject } from '../../../red
 import { NOT_EQUAL_CREDITS, NOT_EQUAL_OR_HIGER_CREDITS, VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS } from '../../../util/constants/errorMessage'
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig'
 import { removeImportedSubject } from '../../../redux/subject/subject'
+import { AutogenAllSubjectCode, padZero } from '../../../util/AutogenSubjectCode/autogenSubjectCode'
 
 
 
@@ -147,16 +148,27 @@ const ContentOfField = ({ error, field, type, setIsSubjectModalOpen, setSubjestM
     const columns = [
         {
             title: 'Subject Code',
-            dataIndex: '',
+            dataIndex: 'subjectCode',
             key: 'subjectCode',
             width: '15%',
+            render: (text,row) => {
+                if(row.isAutoCreateCode){
+                    if(row.semester || type === "Elective"){
+                        return AutogenAllSubjectCode(row)
+                    }
+                } else return text
+            }
         },
         {
-            title: 'Abbreviated name',
-            dataIndex: 'subjectCode',
-            key: 'abbreviatedName',
-            width: '15%',
-            ...getColumnSearchProps('subjectCode'),
+            title: 'Is Autogen',
+            dataIndex: 'isAutoCreateCode',
+            key: 'isAutoCreateCode',
+            width: '8%',
+            render: (text,row) => {
+                if(row.isAutoCreateCode){
+                    return <Tag color="green">True</Tag> 
+                } else return <Tag color="volcano">False</Tag>
+            }
         },
         {
             title: 'Subject Name',
@@ -299,7 +311,8 @@ const ContentOfField = ({ error, field, type, setIsSubjectModalOpen, setSubjestM
                 tempData.push({
                     ...subject,
                     index,
-                    key: index
+                    key: index,
+                    indexAutogenSubjectCode: padZero(field.firstIndexSubjectCode + index + 1)
                 })
             }
         })

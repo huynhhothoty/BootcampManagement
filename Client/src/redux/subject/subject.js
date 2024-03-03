@@ -229,7 +229,6 @@ export const subjectSlice = createSlice({
       state.checkSubjectList = action.payload
     },
     updateSubjectCheckStatus: (state, action) => {
-      console.log(action.payload)
       state.checkSubjectList[action.payload.subjectIndex].check = action.payload.check
     }
   },

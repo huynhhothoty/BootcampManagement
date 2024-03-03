@@ -8,20 +8,26 @@ const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestMo
     const dispatch = useDispatch()
     const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
     const renderFields = () => {
+        let firstIndexSubjectCode = 0
         return allowcateFields.map((field,index) => {
             let newGroupError = false
+            let newField = {}
             if(groupError){
                 if(groupError.length > 0){
                     if(groupError.includes(index))
                     newGroupError = true
                 }
             }
-            
+            newField = {
+                ...field,
+                firstIndexSubjectCode
+            }
+            firstIndexSubjectCode += field.subjectList.length 
             if(errorMessage.length > 0){
                 if(errorMessage.includes(index))
-                return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={field} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+                return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
             }
-            return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={field} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+            return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
         })
     }
     const totalActureCredits = () => {

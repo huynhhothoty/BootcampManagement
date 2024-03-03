@@ -186,7 +186,6 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
         setIsModalOpen(false);
         setSelectedRowKeys('')
         setSelectedSubject(null)
-
     }
       return (
         <>

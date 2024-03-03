@@ -21,6 +21,7 @@ import { useLocation } from 'react-router-dom';
 import DraggableSemesterTable from './DraggableSemesterTable';
 import { getMajorById, updateViewedMajor } from '../../redux/major/major';
 import ViewBootcampOnly from './ViewBootcampOnly';
+import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 
 const BootcampDetail = ({ confirmModal, openNotification }) => {
     const actionRef = useRef();
@@ -75,9 +76,11 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         })
     }
     const renderFieldSubject = (type) => {
+        let firstIndexSubjectCode = 0
         return viewedAllowcatedFields.map((field, index) => {
             if (type === "compulsory") {
                 const subjectList = []
+                let newFirstIndex = firstIndexSubjectCode
                 let error = false
                 if (errorMessage.compulsory.length > 0) {
                     if (errorMessage.compulsory.includes(index)) error = true
@@ -87,9 +90,11 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         subjectList.push({ ...subject, fieldSubjectListIndex: sindex, id: subject._id })
                     }
                 })
-                return <SubjectDisplayTable error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
+                firstIndexSubjectCode += field.subjectList.length
+                return <SubjectDisplayTable firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
             } else if (type === "elective") {
                 const subjectList = []
+                let newFirstIndex = firstIndexSubjectCode
                 let error = false
                 let groupError = false
                 if (errorMessage.elective.length > 0) {
@@ -103,8 +108,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         subjectList.push({ ...subject, fieldSubjectListIndex: sindex, id: subject._id })
                     }
                 })
-
-                return <SubjectDisplayTable groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+                firstIndexSubjectCode += field.subjectList.length
+                return <SubjectDisplayTable firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
     }
@@ -112,9 +117,6 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     const renderSemester = () => {
         const semesterCardList = viewedSemesterList.map((semester, index) => {
             let subjectList = []
-
-
-
             subjectList = semester.map((subject, sindex) => {
                 return {
                     ...viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex],
@@ -122,7 +124,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     subjectIndex: subject.subjectIndex,
                     isBranch: false,
                     isGroup: false,
-                    key: sindex
+                    key: sindex,
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex,subject.subjectIndex,viewedAllowcatedFields)
                 }
             })
             viewedAllowcatedFields.forEach((field, fIndex) => {
@@ -167,19 +170,21 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         if (!tempErrorMessage.bootcampName && !tempErrorMessage.totalCredits && !tempErrorMessage.completeTotalCredits && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false && tempErrorMessage.electiveGroup.length === 0) {
             try {
                 let newFieldList = []
-
+                let subjectInListIndex = 1
                 for (let i = 0; i < viewedAllowcatedFields.length; i++) {
                     const newSubjectList = []
                     for (let j = 0; j < viewedAllowcatedFields[i].subjectList.length; j++) {
                         if (viewedAllowcatedFields[i].subjectList[j]._id === null) {
                             let subjectData = {
                                 "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                 "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                 "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
                                 "description": viewedAllowcatedFields[i].subjectList[j].description,
                                 "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
-                                "type": "major"
+                                "type": "major",
+                                "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
+                                "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
                             }
                             const a = await dispatch(createSubject(subjectData))
                             newSubjectList.push(a.payload.data._id)
@@ -187,10 +192,12 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_EDITED)) {
                                 const updatedData = {
                                     "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                    "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                    "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                     "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                     "description": viewedAllowcatedFields[i].subjectList[j].description,
                                     "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
+                                    "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
+                                    "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
                                 }
                                 const a = await dispatch(updateSubject({ subjectID: viewedAllowcatedFields[i].subjectList[j]._id, updatedData }))
                                 newSubjectList.push(a.payload.data._id)
@@ -199,15 +206,17 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 if (subjectIndex !== -1) {
                                     const a = importedSubjectsList[subjectIndex]
                                     const b = viewedAllowcatedFields[i].subjectList[j]
-                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor)) {
+                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor) || (a.isAutoCreateCode !== b.isAutoCreateCode) || (a.shortFormName !== b.shortFormName)) {
                                         let subjectData = {
                                             "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                            "subjectCode": viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                            "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                             "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                             "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
                                             "description": viewedAllowcatedFields[i].subjectList[j].description,
                                             "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
-                                            "type": "major"
+                                            "type": "major",
+                                            "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
+                                            "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
                                         }
                                         const a = await dispatch(createSubject(subjectData))
                                         newSubjectList.push(a.payload.data._id)
@@ -218,6 +227,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 else newSubjectList.push(viewedAllowcatedFields[i].subjectList[j]._id)
                             }
                         }
+                        subjectInListIndex++
                     }
                     newFieldList.push({
                         ...viewedAllowcatedFields[i],
@@ -320,7 +330,9 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         subjectCode: subject.subjectCode,
                         status: [SUBJECT_ADDED_IMPORT],
                         branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
-                        _id: subject._id
+                        _id: subject._id,
+                        shortFormName: subject.shortFormName ? subject.shortFormName : "",
+                        isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                     }
                     tempSubjectList.push(subject)
                     return a

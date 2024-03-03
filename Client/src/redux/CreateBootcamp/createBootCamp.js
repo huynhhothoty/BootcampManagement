@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createBootcampAPI } from "../../util/api/bootcamp/bootcampApi";
+import { createBootcampAPI, createTemplateBootcampAPI } from "../../util/api/bootcamp/bootcampApi";
 import { tempJWTToken } from "../../util/api/host";
 import axios from "axios";
 import { createFieldAPI } from "../../util/api/allowcate/allowcateApi";
@@ -20,6 +20,7 @@ const initialState = {
   semesterSubjectList: [],
   semesterList: [[]],
   draftID: "",
+  selectedMajor: ''
 };
 
 export const createSubject = createAsyncThunk(
@@ -47,6 +48,25 @@ export const createFirstBootcamp = createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.post(createBootcampAPI, bootcampData, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const createTemplateBootcamp = createAsyncThunk(
+  "createBootcamp/createTemplateBootcamp",
+  async (bootcampData) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.post(createTemplateBootcampAPI, bootcampData, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
@@ -371,6 +391,7 @@ export const createBootcampSlice = createSlice({
           subject.semesterSubjectListIndex
         ].semester = subject.semester;
         state.semesterList[subject.semester].push(subject);
+        state.allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]['semester'] = subject.semester
       });
     },
     removeSubjectFromSemester: (state, action) => {
@@ -437,6 +458,12 @@ export const createBootcampSlice = createSlice({
       console.log(state.allowcateFields[action.payload.fieldIndex].subjectList[
         action.payload.subjectIndex
       ])
+    },
+    updateAutogenSubjectCode: (state,action) => {
+      state.allowcateFields = action.payload
+    },
+    updateSelectedMajor: (state,action) => {
+      state.selectedMajor = action.payload
     }
   },
 });
@@ -466,7 +493,9 @@ export const {
   addNewGroup,
   editGroup,
   deleteGroup,
-  editSubjectBranchMajor
+  editSubjectBranchMajor,
+  updateAutogenSubjectCode,
+  updateSelectedMajor
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

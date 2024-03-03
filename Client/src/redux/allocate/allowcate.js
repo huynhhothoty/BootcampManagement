@@ -146,6 +146,12 @@ export const allowcateSlice = createSlice({
     },
     deleteElectiveGroupToViewedField: (state, action) => {
       state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList.splice(action.payload.groupIndex, 1)
+    },
+    updateAllowcateSubjectListSemester: (state,action) => {
+      action.payload.forEach((subject) => {
+        state.viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex]['semester'] = subject.semester
+      })
+     
     }
   },
 });
@@ -162,6 +168,7 @@ export const {
   deleteSubjectFromViewedFields,
   addNewElectiveGroupToViewedField,
   editElectiveGroupToViewedField,
-  deleteElectiveGroupToViewedField
+  deleteElectiveGroupToViewedField,
+  updateAllowcateSubjectListSemester
 } = allowcateSlice.actions;
 export default allowcateSlice.reducer;

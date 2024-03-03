@@ -2,7 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { tempJWTToken } from "../../util/api/host";
 import {
+  exportBootcampAPI,
   getAllBootcampAPI,
+  getBootcampByIdAPI,
   getBootcampByUserIDAPI,
   getBootcampsForTrackingByUserIDAPI,
   updateBootcampAPI,
@@ -23,6 +25,25 @@ export const getAllBootcamp = createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.get(getAllBootcampAPI("2023"), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const getBootcampById = createAsyncThunk(
+  "bootcamp/getBootcampById",
+  async (bootcampId) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(getBootcampByIdAPI(bootcampId), {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
@@ -97,6 +118,33 @@ export const updateBootcamp = createAsyncThunk(
   }
 );
 
+export const exportBootcamp = createAsyncThunk(
+  "bootcamp/exportBootcamp",
+  async ({bootcampID,bootcampName}) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(exportBootcampAPI(bootcampID),{
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${bootcampName}.xlsx`); // Tên tệp mặc định là 'file.pdf', bạn có thể điều chỉnh tùy thích
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      return { success: true };
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
 export const bootcampSlice = createSlice({
   name: "bootcamp",
   initialState,
@@ -146,6 +194,16 @@ export const bootcampSlice = createSlice({
       state.loading = false;
     });
     builder.addCase(getBootcampsForTrackingByUserID.rejected, (state, action) => {
+      state.loading = false;
+    });
+
+    builder.addCase(exportBootcamp.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(exportBootcamp.fulfilled, (state, action) => {
+      state.loading = false;
+    });
+    builder.addCase(exportBootcamp.rejected, (state, action) => {
       state.loading = false;
     });
   },

@@ -5,7 +5,7 @@ import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux';
 import { addSubjectsToSemester, editGroup, editSubject, editSubjectBranchMajor } from '../../../redux/CreateBootcamp/createBootCamp';
 import { addSubjectToViewedSemster } from '../../../redux/subject/subject';
-import { editElectiveGroupToViewedField, editSubjestViewedFields } from '../../../redux/allocate/allowcate';
+import { editElectiveGroupToViewedField, editSubjestViewedFields, updateAllowcateSubjectListSemester } from '../../../redux/allocate/allowcate';
 
 
 
@@ -304,6 +304,7 @@ const AddSubjectToSemesterModal = ({ isModalOpen, setIsModalOpen, selectedSemest
                 }
             })
             dispatch(addSubjectToViewedSemster(addSubjecList))
+            dispatch(updateAllowcateSubjectListSemester(addSubjecList))
             setIsUpdated(true)
         }
         setIsModalOpen(false);

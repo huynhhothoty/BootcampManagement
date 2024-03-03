@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteSemester, editGroup, removeSubjectFromSemester } from '../../../redux/CreateBootcamp/createBootCamp';
 import { MISSING_SUBJECT_IN_SEMESTER } from '../../../util/constants/errorMessage';
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig';
+import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
 
 const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterIndex, setSelectedSemester, confirmModal }) => {
 
@@ -123,7 +124,15 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             dataIndex: 'subjectCode',
             key: 'subjectCode',
             width: '15%',
-            ...getColumnSearchProps('subjectCode'),
+            render: (text,row) => {
+                if(!row.isGroup && !row.isBranch){
+                    if(row.isAutoCreateCode){
+                        if(row.semester !== undefined){
+                            return AutogenAllSubjectCode(row)
+                        }
+                    } else return text
+                }else return ''
+            }
         },
         {
             title: 'Subject Name',
@@ -215,7 +224,15 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                 dataIndex: 'subjectCode',
                 key: 'subjectCode',
                 width: '15%',
-                ...getColumnSearchProps('subjectCode'),
+                render: (text,row) => {
+                    if(!row.isGroup && !row.isBranch){
+                        if(row.isAutoCreateCode){
+                            if(row.semester !== undefined){
+                                return AutogenAllSubjectCode(row)
+                            }
+                        } else return text
+                    }else return ''
+                }
             },
             {
                 title: 'Subject Name',
@@ -348,7 +365,7 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
 
     const getSemesterData = () => {
         let newSubjectArray = [];
-
+      
         subjectList.forEach((subject, index) => {
             if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === undefined || allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === null) {
                 newSubjectArray.push({
@@ -356,7 +373,8 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     semesterSubjectListIndex: subject.semesterSubjectListIndex,
                     isBranch: false,
                     isGroup: false,
-                    key: index
+                    key: index,
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex,subject.subjectIndex,allowcateFields)
                 })
             }
         })

@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { deleteSemesterFromViewedSemesterList, deleteSubjectFromViewedSemster } from '../../redux/subject/subject';
 import { deleteConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 import { editElectiveGroupToViewedField } from '../../redux/allocate/allowcate';
+import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 const data = [
   {
     key: '1',
@@ -149,10 +150,18 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
     const columns = [
       {
         title: 'Subject Code',
-        dataIndex: 'subjectCode',
+        dataIndex: '',
         key: 'subjectCode',
         width: '10%',
-        ...getColumnSearchProps('subjectCode'),
+        render:(text,row) => {
+          if(!row.isBranch && !row.isGroup)
+            if(row.isAutoCreateCode){
+              if(row.semester !== undefined){
+                  return AutogenAllSubjectCode(row)
+              }
+            } else return text
+          else return ''
+        }
       },
       {
         title: 'Subject Name',
@@ -241,7 +250,15 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
       dataIndex: 'subjectCode',
       key: 'subjectCode',
       width: '10%',
-      ...getColumnSearchProps('subjectCode'),
+      render:(text,row) => {
+        if(!row.isBranch && !row.isGroup)
+          if(row.isAutoCreateCode){
+            if(row.semester !== undefined){
+                return AutogenAllSubjectCode(row)
+            }
+        } else return text
+        else return ''
+      }
     },
     {
       title: 'Subject Name',
@@ -355,7 +372,7 @@ const SemesterTableDisplay = ({ semesterIndex, subjectList, confirmModal, setIsM
         expandedRowRender,
         rowExpandable: record => record.branchCode !== undefined
 
-      }} columns={columns} dataSource={subjectList.filter(subject => (subject.branchMajor === undefined || subject.branchMajor === null))} />
+      }} pagination={false} columns={columns} dataSource={subjectList.filter(subject => (subject.branchMajor === undefined || subject.branchMajor === null))} />
     </ProCard>
   )
 }
