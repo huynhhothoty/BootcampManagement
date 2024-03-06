@@ -35,12 +35,7 @@ export const authenticationSlice = createSlice({
       state.loading = false;
      
       if (action.payload.status === "ok") {
-        const newUserData = {
-            email: action.payload.loginUser.email,
-            name: action.payload.loginUser.name,
-            role: action.payload.loginUser.role,
-            id: action.payload.loginUser.id
-        }
+        const newUserData = action.payload.loginUser
         state.userData = newUserData
         sessionStorage.setItem(USER_DATA,JSON.stringify(newUserData))
         sessionStorage.setItem(USER_TOKEN,action.payload.accessToken)

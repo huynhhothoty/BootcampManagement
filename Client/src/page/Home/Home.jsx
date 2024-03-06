@@ -37,6 +37,7 @@ const Home = () => {
   }
   const renderBootcampStatic = () => {
     return userTrackingBootcampList.map((bootcamp) => {
+      console.log(bootcamp)
       return (<Col
         xxl={8}
         xl={8}

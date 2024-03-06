@@ -267,6 +267,18 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
   const handleSelectMajor = (value) => {
     dispatch(updateSelectedMajor(value))
+
+      if(userData){
+        if(userData.role === "admin"){
+          const selectedMajorData = majorList.find((major) => major._id === value)
+          if (selectedMajorData.templateBootcamp) {
+            handleAddTemplate(selectedMajorData.templateBootcamp)
+          }
+        }else if(userData.role === "leader"){
+          handleAddTemplate(userData.major.templateBootcamp)
+        }
+      }
+     
   }
 
   const handleAddTemplate = async (bootcampId) => {
@@ -362,29 +374,43 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   }
 
   useEffect(() => {
-    dispatch(getAllMajor())
+    if(userData){
+      if(userData.role === "admin"){
+        dispatch(getAllMajor())
+      }else if(userData.role === "leader"){
+        dispatch(updateSelectedMajor(userData.major._id))
+      }
+    }
+     
     // dispatch(getMajorById('651ea4fac9a4c12da715528f'))
   }, [])
   useEffect(() => {
-    const newMajorList = majorList.map((major) => {
-      return {
-        value: major._id,
-        label: major.name
+    if(userData){
+      if(userData.role === "admin"){
+        const newMajorList = majorList.map((major) => {
+          return {
+            value: major._id,
+            label: major.name
+          }
+        })
+        setMajorSelectList(newMajorList)
+      }else if(userData.role === "leader"){
+        const newMajorList = [{
+          value: userData.major._id,
+          label: userData.major.name
+        }]
+        setMajorSelectList(newMajorList)
       }
-    })
-    setMajorSelectList(newMajorList)
-  }, [majorList])
+    }
+   
+  },[userData])
 
 
   useEffect(() => {
-    if (selectedMajor.length > 0) {
-      const selectedMajorData = majorList.find((major) => major._id === selectedMajor)
-      if (selectedMajorData.templateBootcamp) {
-        handleAddTemplate(selectedMajorData.templateBootcamp)
-      }
-    }
 
-  }, [selectedMajor])
+   
+
+  }, [])
   return (
     <div>
 
@@ -404,13 +430,20 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               width: 240,
               marginLeft: 20
             }}
+            defaultValue={selectedMajor.length > 0 ? selectedMajor : null}
             options={majorSelectList}
             onChange={handleSelectMajor}
           />
-          <Radio.Group style={{ marginLeft: 20 }} defaultValue="create" buttonStyle="solid" onChange={(e) => setManageStatus(e.target.value)}>
-            <Radio.Button value="template">Template Manage</Radio.Button>
-            <Radio.Button value="create">Create Bootcamp</Radio.Button>
-          </Radio.Group>
+          {
+            userData?.role === "admin" ? 
+            <Radio.Group style={{ marginLeft: 20 }} defaultValue="create" buttonStyle="solid" onChange={(e) => setManageStatus(e.target.value)}>
+              <Radio.Button value="template">Template Manage</Radio.Button>
+              <Radio.Button value="create">Create Bootcamp</Radio.Button>
+            </Radio.Group>
+            :
+            <Button style={{ marginLeft: 20 }} type='primary' onClick={() => {handleAddTemplate(userData.major.templateBootcamp)}}>Reload Template</Button>
+          }
+          
         </Col>
         <Col span={12} style={{ display: "flex", justifyContent: "flex-end" }}>
 

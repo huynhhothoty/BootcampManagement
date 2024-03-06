@@ -22,7 +22,7 @@ const BootcampProgressCard = ({bootcamp}) => {
         let totalCompulsoryCredits = 0
         let totalElectiveCredits = 0
         
-        detail.forEach((semester,index) => {
+        detail?.forEach((semester,index) => {
             semester.subjectList.forEach(subject => {
                 if(semester.trackingList.includes(subject._id)){
                     if(subject.isCompulsory) {
@@ -36,7 +36,7 @@ const BootcampProgressCard = ({bootcamp}) => {
            
         })
       
-        allocation.detail.forEach(field => {
+        allocation?.detail.forEach(field => {
             field.electiveSubjectList.forEach((group) => {
 
                 if(group.semester !== null){
