@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { departmentModel } = require('./departmentModel');
+const CustomError = require('../utils/CustomError');
 
 //
 const subjectSchema = new mongoose.Schema(
@@ -52,11 +54,6 @@ const subjectSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'BranchMajor',
         },
-        department: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Department',
-        },
-
         departmentChild: {
             type: mongoose.Schema.ObjectId,
         },
@@ -66,9 +63,10 @@ const subjectSchema = new mongoose.Schema(
     }
 );
 // middleware
-subjectSchema.pre(/^find/, function () {
-    this.select('-createdAt -updatedAt -__v');
-    this.populate([{ path: 'branchMajor' }, { path: 'department' }, { path: 'major' }]);
+subjectSchema.pre(/^find/, async function (next) {
+    this.select('-createdAt -updatedAt -__v -department');
+    this.populate([{ path: 'branchMajor' }, { path: 'major' }]);
+    //
 });
 subjectSchema.pre('save', function (next) {
     const convert = (str) => {

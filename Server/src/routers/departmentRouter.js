@@ -12,6 +12,8 @@ departmentRouter
     .post(departmentController.createDepartment)
     .get(departmentController.getAllDepartment);
 
+departmentRouter.route('/child/:id').get(departmentController.getDepartmentChild);
+
 departmentRouter
     .route('/:id')
     .patch(departmentController.updateDepartment)

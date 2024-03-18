@@ -27,6 +27,12 @@ const majorSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'Bootcamp',
         },
+        department: [
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'Department',
+            },
+        ],
     },
     {
         timestamps: true,
