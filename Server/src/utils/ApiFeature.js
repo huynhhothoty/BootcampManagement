@@ -40,7 +40,7 @@ class ApiFeatures {
 
     pagination() {
         const thePage = this.queryFields.page || 1;
-        const theLimit = this.queryFields.limit || 100;
+        const theLimit = this.queryFields.limit;
         this.myQuery.skip(Math.abs(thePage - 1) * theLimit).limit(theLimit);
 
         return this;

@@ -17,6 +17,10 @@ subjectRouter
     .get(authorize('leader', 'admin'), subjectController.getSuggestCode);
 
 subjectRouter
+    .route('/many')
+    .patch(authorize('leader', 'admin'), subjectController.updateManySubject);
+
+subjectRouter
     .route('/:id')
     .get(subjectController.getSubject)
     .patch(authorize('leader', 'admin'), subjectController.updateSubject)

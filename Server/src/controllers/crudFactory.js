@@ -90,6 +90,25 @@ const getAll = (Model) => async (req, res, next) => {
         return next(new CustomError(error));
     }
 };
+
+const updateMany =
+    (Model, query = {}) =>
+    async (req, res, next) => {
+        try {
+            const doc = await Model.updateMany(query, req.body, {
+                new: true,
+                runValidators: true,
+            });
+
+            res.status(200).send({
+                status: 'ok',
+                data: doc,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(new CustomError(error));
+        }
+    };
 //
 module.exports = {
     createOne,
@@ -97,4 +116,5 @@ module.exports = {
     updateOne,
     getOne,
     getAll,
+    updateMany,
 };

@@ -40,13 +40,26 @@ const subjectSchema = new mongoose.Schema(
             },
             required: [true, 'subject must have one of type'],
         },
+        prerequisite: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Subject',
+        },
+        major: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Major',
+        },
         branchMajor: {
             type: mongoose.Schema.ObjectId,
             ref: 'BranchMajor',
         },
-        prerequisite: {
+        department: [
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'Department',
+            },
+        ],
+        departmentChild: {
             type: mongoose.Schema.ObjectId,
-            ref: 'Subject',
         },
     },
     {
@@ -56,6 +69,7 @@ const subjectSchema = new mongoose.Schema(
 // middleware
 subjectSchema.pre(/^find/, function () {
     this.select('-createdAt -updatedAt -__v');
+    this.populate([{ path: 'branchMajor' }, { path: 'department' }, { path: 'major' }]);
 });
 subjectSchema.pre('save', function (next) {
     const convert = (str) => {

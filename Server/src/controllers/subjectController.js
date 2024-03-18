@@ -8,6 +8,7 @@ const updateSubject = crudFactory.updateOne(Subject);
 const getSubject = crudFactory.getOne(Subject, 'branchMajor');
 const getAllSubject = crudFactory.getAll(Subject);
 const deleteSubject = crudFactory.deleteOne(Subject);
+const updateManySubject = crudFactory.updateMany(Subject);
 
 const getSuggestCode = async (req, res, next) => {
     try {
@@ -19,7 +20,10 @@ const getSuggestCode = async (req, res, next) => {
         const filter = {
             name: regexPattern,
         };
-        const myquery = Subject.find(filter).sort({ updatedAt: -1 }).limit(5).select('subjectCode');
+        const myquery = Subject.find(filter)
+            .sort({ updatedAt: -1 })
+            .limit(5)
+            .select('subjectCode');
         let similarCodeList = await myquery;
 
         let suggestCode = '';
@@ -50,4 +54,5 @@ module.exports = {
     getSubject,
     deleteSubject,
     getSuggestCode,
+    updateManySubject,
 };

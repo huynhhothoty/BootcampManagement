@@ -7,6 +7,7 @@ const alloRouter = require('./alloRouter');
 const draftRouter = require('./draftRouter');
 const branchRouter = require('./branchMajorRouter');
 const importRouter = require('./importRouter');
+const departmentRouter = require('./departmentRouter');
 
 const rootRouter = express.Router();
 
@@ -18,6 +19,7 @@ rootRouter.use('/allocation', alloRouter);
 rootRouter.use('/draft', draftRouter);
 rootRouter.use('/branch', branchRouter);
 rootRouter.use('/import', importRouter);
+rootRouter.use('/department', departmentRouter);
 
 //
 module.exports = rootRouter;
