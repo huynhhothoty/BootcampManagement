@@ -52,12 +52,11 @@ const subjectSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'BranchMajor',
         },
-        department: [
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Department',
-            },
-        ],
+        department: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Department',
+        },
+
         departmentChild: {
             type: mongoose.Schema.ObjectId,
         },
