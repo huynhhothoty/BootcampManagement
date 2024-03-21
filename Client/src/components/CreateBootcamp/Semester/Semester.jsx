@@ -1,10 +1,10 @@
-import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col } from 'antd';
+import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col, Tooltip } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteSemester, editGroup, removeSubjectFromSemester } from '../../../redux/CreateBootcamp/createBootCamp';
-import { MISSING_SUBJECT_IN_SEMESTER } from '../../../util/constants/errorMessage';
+import { MISSING_SUBJECT_IN_SEMESTER, WARNING_OUT_OF_CREDITS } from '../../../util/constants/errorMessage';
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig';
 import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
 
@@ -124,14 +124,14 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             dataIndex: 'subjectCode',
             key: 'subjectCode',
             width: '15%',
-            render: (text,row) => {
-                if(!row.isGroup && !row.isBranch){
-                    if(row.isAutoCreateCode){
-                        if(row.semester !== undefined){
+            render: (text, row) => {
+                if (!row.isGroup && !row.isBranch) {
+                    if (row.isAutoCreateCode) {
+                        if (row.semester !== undefined) {
                             return AutogenAllSubjectCode(row)
                         }
                     } else return text
-                }else return ''
+                } else return ''
             }
         },
         {
@@ -224,14 +224,14 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                 dataIndex: 'subjectCode',
                 key: 'subjectCode',
                 width: '15%',
-                render: (text,row) => {
-                    if(!row.isGroup && !row.isBranch){
-                        if(row.isAutoCreateCode){
-                            if(row.semester !== undefined){
+                render: (text, row) => {
+                    if (!row.isGroup && !row.isBranch) {
+                        if (row.isAutoCreateCode) {
+                            if (row.semester !== undefined) {
                                 return AutogenAllSubjectCode(row)
                             }
                         } else return text
-                    }else return ''
+                    } else return ''
                 }
             },
             {
@@ -365,7 +365,7 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
 
     const getSemesterData = () => {
         let newSubjectArray = [];
-      
+
         subjectList.forEach((subject, index) => {
             if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === undefined || allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === null) {
                 newSubjectArray.push({
@@ -374,7 +374,7 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     isBranch: false,
                     isGroup: false,
                     key: index,
-                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex,subject.subjectIndex,allowcateFields)
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex, subject.subjectIndex, allowcateFields)
                 })
             }
         })
@@ -396,21 +396,38 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     }
             })
         })
-        if (viewedMajor) {
-            viewedMajor.branchMajor.forEach((branch, index) => {
-                newSubjectArray.unshift({
-                    ...branch,
-                    key: branch._id,
-                    isBranch: true,
-                    isGroup: false,
+        if (semesterIndex >= 4)
+            if (viewedMajor) {
+                viewedMajor.branchMajor.forEach((branch, index) => {
+                    newSubjectArray.unshift({
+                        ...branch,
+                        key: branch._id,
+                        isBranch: true,
+                        isGroup: false,
+                    })
                 })
-            })
-        }
+            }
 
         return newSubjectArray
     }
 
-
+    const countTotalCredits = () => {
+        let totalCredits = 0
+        subjectList.forEach((subject, index) => {
+            if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === undefined || allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === null) {
+                totalCredits += allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].credits
+            }
+        })
+        allowcateFields.forEach((field, fIndex) => {
+            field.electiveSubjectList.forEach((group, gIndex) => {
+                if (group.branchMajor === undefined || group.branchMajor === null)
+                    if (group.semester === semesterIndex) {
+                        totalCredits += group.credit
+                    }
+            })
+        })
+        return totalCredits
+    }
 
     return (
         <Card
@@ -420,7 +437,20 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             }}
         >
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h2>Semester {semesterIndex + 1}</h2>
+                <span style={{ display: "flex", gap: 8 }}>
+                    <h2>Semester {semesterIndex + 1} - Total Credit: </h2>
+                    {countTotalCredits() <= 30 ?
+
+                        <h2 style={{ color:"#5cb85c" }}>{countTotalCredits()}</h2>
+
+                        :
+                        <Tooltip title={WARNING_OUT_OF_CREDITS}>
+                            <h2 style={{ color:"#f7b217" }}>{countTotalCredits()} <WarningOutlined /></h2>
+                        </Tooltip>
+                    }
+
+                </span>
+
                 <div>
                     <Button type="primary" onClick={handleSemesterClick}>
                         Add Subject

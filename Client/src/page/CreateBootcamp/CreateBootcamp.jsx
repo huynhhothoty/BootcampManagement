@@ -19,6 +19,7 @@ import { getAllMajor, getMajorById, updateViewedMajor } from '../../redux/major/
 import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 import { getAllowcatById, updateAllowcate } from '../../redux/allocate/allowcate';
 import { updateAfterImportBootcamp } from '../../redux/subject/subject';
+import ContentModal from '../../components/CreateBootcamp/ContentOfProgram/ContentModal';
 
 
 const text = `
@@ -59,23 +60,41 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const [bootcampNameError, setBootcampNameError] = useState(false)
   const [bootcampCreditError, setBootcampCreditError] = useState(false)
   const [majorSelectList, setMajorSelectList] = useState([])
+  const [contentModalStatus, setContainModalStatus] = useState(false)
+  const [contentModalComponent, setContentModalComponent] = useState(<></>)
+  const [contentModalFieldData, setContentModalFieldData] = useState({index: -1, type: "compulsory"})
 
   const [manageStatus, setManageStatus] = useState('create')
+
+  const closeContentModal = () => {
+    setContainModalStatus(false)
+  }
+  const openContentModal = (fieldIndex,type) => {
+    setContainModalStatus(true)
+    setContentModalFieldData({
+      index: fieldIndex,
+      type: type
+    })
+  }
+  const updateContentModalContent = (component) => {
+    setContentModalComponent(component)
+  }
+  
   const items = [
     {
       key: '1',
       label: 'Allocate of Credits',
-      children: <AllocateField errorMessage={errorMessage.allowcate} confirmModal={confirmModal} />,
+      children: <AllocateField openContentModal={openContentModal} errorMessage={errorMessage.allowcate} confirmModal={confirmModal} />,
     },
     {
       key: '2',
       label: 'Add Composory Subjects',
-      children: <ContentOfProgram confirmModal={confirmModal} errorMessage={errorMessage.compulsory} type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
+      children: <ContentOfProgram chosenFieldData={contentModalFieldData} updateContentFunc={updateContentModalContent} confirmModal={confirmModal} errorMessage={errorMessage.compulsory} type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
       key: '3',
       label: 'Add Elective Subjects',
-      children: <ContentOfProgram confirmModal={confirmModal} groupError={errorMessage.electiveGroup} errorMessage={errorMessage.elective} type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
+      children: <ContentOfProgram chosenFieldData={contentModalFieldData} updateContentFunc={updateContentModalContent} confirmModal={confirmModal} groupError={errorMessage.electiveGroup} errorMessage={errorMessage.elective} type={"Elective"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
       key: '4',
@@ -372,6 +391,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       dispatch(updateLoading(false))
     }
   }
+ 
 
   useEffect(() => {
     if(userData){
@@ -383,7 +403,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     }
      
     // dispatch(getMajorById('651ea4fac9a4c12da715528f'))
-  }, [])
+  }, [userData,dispatch])
   useEffect(() => {
     if(userData){
       if(userData.role === "admin"){
@@ -403,7 +423,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       }
     }
    
-  },[userData])
+  },[userData,majorList])
 
 
   useEffect(() => {
@@ -416,6 +436,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
       <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen} />
       <ImportBootcampModal setErrorMessage={setErrorMessage} isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen} />
+      <ContentModal childComponent={contentModalComponent} isModalOpen={contentModalStatus} handleCancel={closeContentModal}/>
 
       <Row gutter={16}>
         <Col span={12}>
@@ -490,7 +511,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
                 <Col span={24}>
                   <Form.Item>
-                    <Collapse items={items} defaultActiveKey={['1']} />
+                    <Collapse items={items} defaultActiveKey={[1,2,3]} />
                   </Form.Item>
                 </Col>
 

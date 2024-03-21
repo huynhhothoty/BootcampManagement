@@ -7,7 +7,7 @@ import { addBigField, updateTotalCredits } from '../../../redux/CreateBootcamp/c
 import Field from './Field';
 import { NOT_CORRECT_CREDITS } from '../../../util/constants/errorMessage';
 
-const AllocateField = ({ errorMessage, confirmModal }) => {
+const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
 
   const dispatch = useDispatch()
   const { allowcateFields, totalCredits } = useSelector(store => store.createBootCamp)
@@ -18,9 +18,9 @@ const AllocateField = ({ errorMessage, confirmModal }) => {
       if (errorMessage.length > 0) {
         if (errorMessage[0].data)
           if (errorMessage[0].data.errorFieldIndex.includes(index))
-            return <Field confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} />
+            return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} />
       }
-      return <Field confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} />
+      return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} />
 
     })
   }

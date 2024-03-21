@@ -409,18 +409,21 @@ const AddSubjectToSemesterModal = ({ isModalOpen, setIsModalOpen, selectedSemest
             <Modal footer={(a) => (
                 <>
                     {a}
-                    <Dropdown
+                    {selectedSemester >= 4 && 
+                     <Dropdown
 
-                        menu={{
-                            items: createDropdownBranch(),
-                        }}
-                        placement="bottomRight"
-                        trigger={['click']}
-                        arrow
+                     menu={{
+                         items: createDropdownBranch(),
+                     }}
+                     placement="bottomRight"
+                     trigger={['click']}
+                     arrow
 
-                    >
-                        <Button style={{ marginLeft: 10 }} type='primary'>Add to Branch</Button>
-                    </Dropdown>
+                 >
+                     <Button style={{ marginLeft: 10 }} type='primary'>Add to Specialization</Button>
+                 </Dropdown>
+                    } 
+                   
                 </>
             )} okText={"Add"} cancelText={"Cancel"} width={1200} title={`Add Subject to Semester ${selectedSemester + 1}`} open={isModalOpen} onCancel={handleCancel} onOk={handleOk}>
                 <div>

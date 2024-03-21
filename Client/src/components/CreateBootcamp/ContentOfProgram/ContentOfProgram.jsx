@@ -3,8 +3,9 @@ import ContentOfField from "./ContentOfField"
 import { useDispatch, useSelector } from "react-redux"
 import { CaculatePercent } from "../../../util/CaculatePercent/caculatePercent"
 import { updateCompleteTotalCredits } from "../../../redux/CreateBootcamp/createBootCamp"
+import { useEffect } from "react"
 
-const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestModalData, confirmModal,groupError}) => {
+const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type,setIsSubjectModalOpen, setSubjestModalData, confirmModal,groupError}) => {
     const dispatch = useDispatch()
     const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
     const renderFields = () => {
@@ -24,8 +25,10 @@ const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestMo
             }
             firstIndexSubjectCode += field.subjectList.length 
             if(errorMessage.length > 0){
-                if(errorMessage.includes(index))
-                return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+                if(errorMessage.includes(index)){
+                    return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+                }
+                   
             }
             return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
         })
@@ -59,6 +62,48 @@ const ContentOfProgram = ({errorMessage,type,setIsSubjectModalOpen, setSubjestMo
     const getProgressPercentage = () => {
         return CaculatePercent(totalActureCredits(), totalContentCredits())
     }
+    useEffect(() => {
+        console.log(123)
+        let firstIndexSubjectCode = 0
+        allowcateFields.forEach((field,index) => {
+            let newGroupError = false
+            let newField = {}
+            if(groupError){
+                if(groupError.length > 0){
+                    if(groupError.includes(index))
+                    newGroupError = true
+                }
+            }
+            newField = {
+                ...field,
+                firstIndexSubjectCode
+            }
+            firstIndexSubjectCode += field.subjectList.length 
+            if(errorMessage.length > 0){
+                if(errorMessage.includes(index)){
+                    if(chosenFieldData.index !== -1){
+                        if(chosenFieldData.type === type.toLowerCase()){
+                            if(chosenFieldData.index === index){
+                                updateContentFunc(<ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>)
+                            }
+                        }
+                    }
+                   
+                }
+                   
+            }
+            else {
+                if(chosenFieldData.index !== -1){
+                    if(chosenFieldData.type === type.toLowerCase()){
+                        if(chosenFieldData.index === index){
+                            updateContentFunc(<ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>)
+                        }
+                    }
+                }
+              
+            }
+        })
+    },[chosenFieldData])
    return (
     <div>
         <Row style={{marginBottom: 10}}>

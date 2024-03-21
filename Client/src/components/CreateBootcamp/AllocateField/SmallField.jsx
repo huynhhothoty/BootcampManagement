@@ -37,26 +37,26 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
  
     }
     return (
-        <Card size='small' hoverable style={{borderColor:"#1677ff"}}>
+
         <Row>
             <Col span={8}>
                 <Input status={(isError && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldChange}/>
                 { (isError && fieldData.fieldName === "") ? <span style={{color:"red"}}>{MISSING_FIELD_NAME}</span> : ""}
             </Col>
             <Col span={16} style={{display:"flex", justifyContent:"space-evenly"}}>
-                <div>
-                    <span style={{ marginRight: 10 }}>Compulsory Credits</span>
+                <div style={{width:"20%",display:"flex", justifyContent:"center"}}>
+                 
                     <InputNumber min={0} 
                     // max={20} 
                     placeholder="Compulsory Credits" value={fieldData.compulsoryCredits} onChange={handleChangeCompulsoryCredit}/>
                 </div>
-                <div>
-                    <span style={{ marginRight: 10 }}>Elective Credits</span>
+                <div style={{width:"20%",display:"flex", justifyContent:"center"}}>
+                    
                     <InputNumber  min={0} 
                     // max={20} 
                     placeholder="Elective Credits" value={fieldData.electiveCredits} onChange={handleChangeElectiveCredit}/>
                 </div>
-                <div>
+                <div style={{width:"10%"}}>
                     <Button danger onClick={async () => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig)
                         if(confirmed)
@@ -66,7 +66,6 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
                 </div>
             </Col>
         </Row>
-        </Card>
     )
 }
 
