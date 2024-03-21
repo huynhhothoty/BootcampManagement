@@ -1,32 +1,8 @@
-// export const AutogenAllSubjectCode = (allocateFields,semesterList) => {
-//     let firstIndexSubjectCode = 0
-//     let newAllocateFields =  allocateFields.map((field => {
-//         let newField = {
-//             ...field,
-//             firstIndexSubjectCode
-//         }
-        
-//         firstIndexSubjectCode += field.subjectList.length 
-//         return newField
-//     }))
 
-//     let tempNewAllocateFields = JSON.parse(JSON.stringify(newAllocateFields));
-//     semesterList.forEach((semester) => {
-//         semester.forEach((subject) => {
-//             let subjectCode = ''
-//             let subjectInfo = tempNewAllocateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
-//             let indexSubjectCode = padZero(tempNewAllocateFields[subject.fieldIndex].firstIndexSubjectCode + subject.subjectIndex + 1)
-//             let tempLast = '19'
-//             subjectCode = `${subjectInfo.subjectCode}${caculateSemesterYear(subject.semester + 1)}${subjectInfo.credits}${indexSubjectCode}${tempLast}`
-//             tempNewAllocateFields[subject.fieldIndex].subjectList[subject.subjectIndex]['autogenSubjectCode'] = subjectCode
-//         })
-//     })
-//     newAllocateFields = tempNewAllocateFields
-//     return newAllocateFields
-// }
 export const AutogenAllSubjectCode = (subject,index) => {
     let tempLast = '19'
     let tempSemesterYear = '27'
+    console.log(subject)
     return `${subject.shortFormName}${subject.semester ? caculateSemesterYear(subject.semester + 1) : tempSemesterYear}${subject.credits}${subject.indexAutogenSubjectCode ? subject.indexAutogenSubjectCode : index}${tempLast}`
 }
 

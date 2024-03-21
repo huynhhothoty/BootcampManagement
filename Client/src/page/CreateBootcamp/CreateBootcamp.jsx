@@ -15,7 +15,7 @@ import { updateLoading } from '../../redux/loading/Loading';
 import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_SAVE_DRAFT, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_TEMPLATE_SUCCESS } from '../../util/constants/notificationMessage';
 import { getAllBootcamp, getBootcampById, updateBootcamp } from '../../redux/bootcamp/bootcamp';
 import { validateBootcampData } from '../../util/ValidateBootcamp/validateBootcampData';
-import { getAllMajor, getMajorById, updateViewedMajor } from '../../redux/major/major';
+import { getAllMajor, getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../redux/major/major';
 import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 import { getAllowcatById, updateAllowcate } from '../../redux/allocate/allowcate';
 import { updateAfterImportBootcamp } from '../../redux/subject/subject';
@@ -56,14 +56,13 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList, draftID, selectedMajor } = useSelector(store => store.createBootCamp)
   const { importedSubjectsList } = useSelector(store => store.subject)
   const { userData } = useSelector(store => store.authentication)
-  const { majorList } = useSelector(store => store.major)
+  const { majorList, viewedMajor,departmentList } = useSelector(store => store.major)
   const [bootcampNameError, setBootcampNameError] = useState(false)
   const [bootcampCreditError, setBootcampCreditError] = useState(false)
   const [majorSelectList, setMajorSelectList] = useState([])
   const [contentModalStatus, setContainModalStatus] = useState(false)
   const [contentModalComponent, setContentModalComponent] = useState(<></>)
   const [contentModalFieldData, setContentModalFieldData] = useState({index: -1, type: "compulsory"})
-
   const [manageStatus, setManageStatus] = useState('create')
 
   const closeContentModal = () => {
@@ -135,7 +134,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                 "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
                 "type": "major",
                 "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
-                "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode
+                "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
+                "departmentChild": allowcateFields[i].subjectList[j].departmentChild ? allowcateFields[i].subjectList[j].departmentChild : null
               }
               const a = await dispatch(createSubject(subjectData))
               newSubjectList.push(a.payload.data._id)
@@ -143,7 +143,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             else {
               const a = importedSubjectsList[subjectIndex]
               const b = allowcateFields[i].subjectList[j]
-              if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor) || (a.isAutoCreateCode !== b.isAutoCreateCode) || (a.shortFormName !== b.shortFormName)) {
+              if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor) || (a.isAutoCreateCode !== b.isAutoCreateCode) || (a.shortFormName !== b.shortFormName) || a.departmentChild !== b.departmentChild) {
                 let subjectData = {
                   "name": allowcateFields[i].subjectList[j].name,
                   "subjectCode": allowcateFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...allowcateFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : allowcateFields[i].subjectList[j].subjectCode,
@@ -153,7 +153,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                   "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
                   "type": "major",
                   "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
-                  "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode 
+                  "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
+                  "departmentChild": allowcateFields[i].subjectList[j].departmentChild
                 }
                 const a = await dispatch(createSubject(subjectData))
                 newSubjectList.push(a.payload.data._id)
@@ -313,7 +314,13 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       let semesterSubjectList = []
       let semesterList = [[]]
       const tempAllowcateFields = await dispatch(getAllowcatById(newTemplateBootcampData.allocation._id))
-      console.log(tempAllowcateFields.payload.data.detail)
+      // const tempDepartmentList = await getAllMajorDepartment()
+      // let tempDepartmentList = []
+      // for (let i = 0; i < newTemplateBootcampData.major.department.length; i++) {
+      //   const departmentId = newTemplateBootcampData.major.department[i];
+      //   const departmentRes = await dispatch(getDepartmentById(departmentId))
+      //   tempDepartmentList.push(departmentRes.payload.data)
+      // }
       let tempSubjectList = []
       allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
         return {
@@ -347,6 +354,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
               shortFormName: subject.shortFormName ? subject.shortFormName : "",
               isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
+              departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               _id: subject._id
             }
             tempSubjectList.push(subject)
@@ -425,12 +433,25 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
    
   },[userData,majorList])
 
+  const getAllMajorDepartment = async () => {
+    if(viewedMajor){
+      if(viewedMajor.department){
+        let tempDepartmentList = []
+        for (let i = 0; i < viewedMajor.department.length; i++) {
+          const departmentId = viewedMajor.department[i];
+          const departmentRes = await dispatch(getDepartmentById(departmentId))
+          tempDepartmentList.push(departmentRes.payload.data)
+        }
+        dispatch(updateDepartmentList(tempDepartmentList))
+      }
+    }
+  }
 
   useEffect(() => {
-
+    getAllMajorDepartment()
    
 
-  }, [])
+  }, [viewedMajor])
   return (
     <div>
 

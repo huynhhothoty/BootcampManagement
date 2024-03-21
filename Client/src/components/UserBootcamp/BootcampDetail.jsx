@@ -1,6 +1,6 @@
 import { ProCard, ProDescriptions } from '@ant-design/pro-components';
 import { Button, Divider, Input, Tooltip } from 'antd';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { WarningOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import AllowcateDisplay from './AllowcateDisplay';
@@ -19,7 +19,7 @@ import { createSubject } from '../../redux/CreateBootcamp/createBootCamp';
 import { SUBJECT_ADDED_IMPORT, SUBJECT_EDITED } from '../../util/constants/subjectStatus';
 import { useLocation } from 'react-router-dom';
 import DraggableSemesterTable from './DraggableSemesterTable';
-import { getMajorById, updateViewedMajor } from '../../redux/major/major';
+import { getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../redux/major/major';
 import ViewBootcampOnly from './ViewBootcampOnly';
 import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 
@@ -184,7 +184,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                 "type": "major",
                                 "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
-                                "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
+                                "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
+                                "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
                             }
                             const a = await dispatch(createSubject(subjectData))
                             newSubjectList.push(a.payload.data._id)
@@ -197,7 +198,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                     "description": viewedAllowcatedFields[i].subjectList[j].description,
                                     "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                     "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
-                                    "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
+                                    "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
+                                    "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
                                 }
                                 const a = await dispatch(updateSubject({ subjectID: viewedAllowcatedFields[i].subjectList[j]._id, updatedData }))
                                 newSubjectList.push(a.payload.data._id)
@@ -216,7 +218,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                             "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                             "type": "major",
                                             "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
-                                            "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false
+                                            "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
+                                            "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
                                         }
                                         const a = await dispatch(createSubject(subjectData))
                                         newSubjectList.push(a.payload.data._id)
@@ -333,6 +336,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         _id: subject._id,
                         shortFormName: subject.shortFormName ? subject.shortFormName : "",
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
+                        departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                     }
                     tempSubjectList.push(subject)
                     return a
@@ -366,6 +370,26 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         dispatch(updateLoading(false))
         openNotification(NOTI_SUCCESS, NOTI_RESET_SUCCESS_TITLE, NOTI_RESET_SUCCESS_INFO)
     }
+
+    const getAllMajorDepartment = async () => {
+        if(viewedMajor){
+          if(viewedMajor.department){
+            let tempDepartmentList = []
+            for (let i = 0; i < viewedMajor.department.length; i++) {
+              const departmentId = viewedMajor.department[i];
+              const departmentRes = await dispatch(getDepartmentById(departmentId))
+              tempDepartmentList.push(departmentRes.payload.data)
+            }
+            dispatch(updateDepartmentList(tempDepartmentList))
+          }
+        }
+      }
+    
+      useEffect(() => {
+        getAllMajorDepartment()
+       
+    
+      }, [viewedMajor])
     return (
         <div>
             <AddSubjectToSemesterModal setIsUpdated={setIsUpdated} type={"view"} selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />

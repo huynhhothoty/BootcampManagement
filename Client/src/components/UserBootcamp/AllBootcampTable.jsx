@@ -172,6 +172,7 @@ const AllBootcampTable = () => {
                         _id: subject._id,
                         shortFormName: subject.shortFormName ? subject.shortFormName : "",
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
+                        departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                     }
                     tempSubjectList.push(subject)
                     return a

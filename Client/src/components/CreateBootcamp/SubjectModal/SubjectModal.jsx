@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Switch } from 'antd'
+import { Button, Cascader, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Switch } from 'antd'
 import ImportSubjectModal from '../ImportSubjectModal/ImportSubjectModal';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import { addSubjectToViewedSemsterSubjectList, getAllSubject, updateWithNormalImportSubject } from '../../../redux/subject/subject';
 import { addToViewedFields, editSubjestViewedFields } from '../../../redux/allocate/allowcate';
 import { updateCompleteCreditsToViewedBootcamp } from '../../../redux/bootcamp/bootcamp';
+import { getDepartmentIndex } from '../../../util/GetDepartmentIndex/GetDepartmentIndex';
 const { Option } = Select;
 const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpdated }) => {
     const dispatch = useDispatch()
@@ -15,9 +16,11 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
     const [autoIDYear, setAutoIDYear] = useState(dayjs(`${new Date().getFullYear()}/01/01`))
     const [autoID, setAutoID] = useState("")
     const [importedSubject, setImportedSubject] = useState(null)
-    const [isAutogenSubjectCode,setIsAutogenSubjectCode] = useState(true)
+    const [isAutogenSubjectCode, setIsAutogenSubjectCode] = useState(true)
+    const [departmentChooseList, setDepartmentChooseList] = useState([])
 
     const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
+    const { departmentList } = useSelector(store => store.major)
 
     const handleCancel = () => {
         setAutoID("")
@@ -45,7 +48,8 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                     description: a.description,
                     shortFormName: a.shortFormName,
                     isAutoCreateCode: isAutogenSubjectCode,
-                    _id: subjectData._id ? (importedSubject._id === subjectData._id ? subjectData._id : importedSubject._id) : importedSubject._id
+                    departmentChild: a.departmentChild[1],
+                    _id: subjectData._id ? (importedSubject._id === subjectData._id ? subjectData._id : importedSubject._id) : importedSubject._id,
                 }
             }
             else newSubject = {
@@ -55,6 +59,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 credits: a.credits,
                 description: a.description,
                 shortFormName: a.shortFormName,
+                departmentChild: a.departmentChild[1],
                 isAutoCreateCode: isAutogenSubjectCode,
             }
             if (subjectModalData.isCreateBootcamp)
@@ -81,6 +86,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 ...a,
                 isCompulsory: subjectModalData.sujectType === "Compulsory" ? true : false,
                 isAutoCreateCode: isAutogenSubjectCode,
+                departmentChild: a.departmentChild[1],
                 _id: importedSubject ? importedSubject._id : null
             }
             if (subjectModalData.isCreateBootcamp)
@@ -122,9 +128,9 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 credits,
                 description,
                 shortFormName,
-                isAutoCreateCode
+                isAutoCreateCode,
+                departmentChild
             } = subjectModalData.subjectData
-            console.log(subjectModalData.subjectData)
             form.setFieldsValue({
                 subjectCode,
                 name,
@@ -132,6 +138,9 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 description,
                 shortFormName
             })
+            if(departmentChild){
+                form.setFieldValue("departmentChild",getDepartmentIndex(departmentList,departmentChild))
+            }
             setIsAutogenSubjectCode(isAutoCreateCode)
         }
     }, [subjectModalData])
@@ -144,6 +153,25 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
             description: importedSubject?.description,
         })
     }, [importedSubject])
+
+    useEffect(() => {
+        let tempDepartmentChooseList = []
+        if (departmentList) {
+            tempDepartmentChooseList = departmentList.map((department) => {
+                return {
+                    value: department._id,
+                    label: department.name,
+                    children: department.list.map((subDepartment) => {
+                        return {
+                            value: subDepartment._id,
+                            label: subDepartment.name
+                        }
+                    })
+                }
+            })
+        }
+        setDepartmentChooseList(tempDepartmentChooseList)
+    }, [departmentList])
     return (
         <>
             <Modal footer={false} title={subjectModalData.modalName} open={isModalOpen} onCancel={handleCancel}>
@@ -152,20 +180,15 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 <Form form={form} layout="vertical" onFinish={handleSubmit}>
                     <Row gutter={16}>
                         <Col span={24}>
-                            <div style={{alignItems:"center",display:"flex",marginBottom: 10}}>
-                                <Switch checked={isAutogenSubjectCode} onChange={(value) => {setIsAutogenSubjectCode(value)}}/>
-                                <span style={{fontWeight:"bold",marginLeft: 10}}>Auto create Subject Code</span>
+                            <div style={{ alignItems: "center", display: "flex", marginBottom: 10 }}>
+                                <Switch checked={isAutogenSubjectCode} onChange={(value) => { setIsAutogenSubjectCode(value) }} />
+                                <span style={{ fontWeight: "bold", marginLeft: 10 }}>Auto create Subject Code</span>
                             </div>
                             <Form.Item
                                 name="shortFormName"
                                 label="Shortened name"
-                                style={!isAutogenSubjectCode ? {display:"none"} : {}}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter a Subject ID',
-                                    },
-                                ]}
+                                style={!isAutogenSubjectCode ? { display: "none" } : {}}
+                             
                             >
                                 <Input placeholder="Please enter a Subject Shortened name" />
 
@@ -174,15 +197,10 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                             <Form.Item
                                 name="subjectCode"
                                 label="Subject Code"
-                                style={isAutogenSubjectCode ? {display:"none"} : {}}
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter a Subject ID',
-                                    },
-                                ]}
+                                style={isAutogenSubjectCode ? { display: "none" } : {}}
+                                
                             >
-                              
+
                                 <Input placeholder="Please enter a Subject Shortened name" />
 
                             </Form.Item>
@@ -244,6 +262,20 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                     </Row>
                     <Row>
                         <Col span={24}>
+                            <Form.Item name="departmentChild" label="Department" rules={[
+                                {
+                                    required: true,
+                                    message: 'Please choose 1 department',
+                                },
+                            ]}>
+                                <Cascader
+                                    options={departmentChooseList}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
                             <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
                                 <Button style={{ marginRight: 16 }} onClick={handleCancel}>
                                     Cancel
@@ -254,6 +286,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                             </Form.Item>
                         </Col>
                     </Row>
+
                 </Form>
             </Modal>
         </>

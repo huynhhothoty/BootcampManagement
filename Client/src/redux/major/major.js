@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 import axios from "axios";
-import { getAllMajorAPI, getMajorByIdAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
+import { getAllMajorAPI, getDepartmentByIdAPI, getMajorByIdAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
 
 const initialState = {
     loading: false,
     viewedMajor: {},
-    majorList: []
+    majorList: [],
+    departmentList: []
 };
 
 export const getMajorById = createAsyncThunk(
@@ -66,6 +67,25 @@ export const updateMajor = createAsyncThunk(
   }
 );
 
+export const getDepartmentById =  createAsyncThunk(
+  "allowcate/updateMajor",
+  async (departmentId) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(getDepartmentByIdAPI(departmentId), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
 export const majorSlice = createSlice({
     name: "major",
     initialState,
@@ -78,13 +98,16 @@ export const majorSlice = createSlice({
         state.majorList = action.payload.data
       });
 
+
     },
     reducers: {
        updateViewedMajor: (state,action) => {
         state.viewedMajor = action.payload
        },
-
+       updateDepartmentList: (state,action) => {
+        state.departmentList = action.payload
+       }
     }
 })
-export const {updateViewedMajor} = majorSlice.actions;
+export const {updateViewedMajor,updateDepartmentList} = majorSlice.actions;
 export default majorSlice.reducer;

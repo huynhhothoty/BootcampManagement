@@ -91,6 +91,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
               shortFormName: "",
               isAutoCreateCode: false,
+              departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               _id: null
             }
             tempSubjectList.push(subject)
@@ -147,7 +148,6 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
         const tempAllowcateFields = await dispatch(getAllowcatById(selectedRows[0].allocation))
         let tempSubjectList = []
         allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
-          console.log(field.electiveSubjectList)
           return {
             compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
               return accumulator + currentValue.compulsoryCredit;
@@ -177,6 +177,9 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
                 name: subject.name,
                 subjectCode: subject.subjectCode,
                 branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
+                departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
+                shortFormName: subject.shortFormName ? subject.shortFormName : "",
+                isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                 _id: subject._id
               }
               tempSubjectList.push(subject)
