@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const { departmentModel } = require('./departmentModel');
-const CustomError = require('../utils/CustomError');
 
 //
 const subjectSchema = new mongoose.Schema(
