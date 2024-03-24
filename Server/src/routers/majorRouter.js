@@ -11,6 +11,8 @@ majorRouter
     .post(authorize('admin'), majorController.createMajor)
     .get(authorize('admin'), majorController.getAllMajor);
 
+majorRouter.route('/:id/subjects').get(majorController.getAllSubjectOfMajor);
+
 majorRouter
     .route('/:id')
     .get(majorController.getMajor)

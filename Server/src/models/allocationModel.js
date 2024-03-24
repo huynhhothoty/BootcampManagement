@@ -1,6 +1,55 @@
 const mongoose = require('mongoose');
 
 //
+const subjectSnapSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Subject must have a name'],
+    },
+    shortFormName: {
+        type: String,
+    },
+    isAutoCreateCode: {
+        type: Boolean,
+        default: true,
+    },
+    subjectCode: {
+        type: String,
+        default: 'SUBJECTCODE220702',
+    },
+    credit: {
+        type: Number,
+        required: [true, 'Subject must have its credit'],
+        min: [1, 'credit of subject must larger than 0'],
+    },
+    isCompulsory: {
+        type: Boolean,
+        default: true,
+    },
+    description: {
+        type: String,
+        default: '',
+    },
+    type: {
+        type: String,
+        enum: {
+            values: ['general', 'foundation', 'major'],
+            message: 'type of subject must be one of those: general, foundation, major',
+        },
+        required: [true, 'subject must have one of type'],
+    },
+    prerequisite: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Subject',
+    },
+    branchMajor: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'BranchMajor',
+    },
+    departmentChild: {
+        type: mongoose.Schema.ObjectId,
+    },
+});
 const electHolderSchema = new mongoose.Schema({
     credit: {
         type: Number,
@@ -53,12 +102,7 @@ const sectionSchema = new mongoose.Schema({
         default: 0,
     },
     detail: [childSchema],
-    subjectList: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Subject',
-        },
-    ],
+    subjectList: [subjectSnapSchema],
     electiveSubjectList: [electHolderSchema],
 });
 //

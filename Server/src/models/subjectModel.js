@@ -7,17 +7,6 @@ const subjectSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Subject must have a name'],
         },
-        shortFormName: {
-            type: String,
-        },
-        isAutoCreateCode: {
-            type: Boolean,
-            default: true,
-        },
-        subjectCode: {
-            type: String,
-            default: 'SUBJECTCODE220702',
-        },
         credit: {
             type: Number,
             required: [true, 'Subject must have its credit'],
@@ -44,10 +33,6 @@ const subjectSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'Subject',
         },
-        major: {
-            type: mongoose.Schema.ObjectId,
-            ref: 'Major',
-        },
         branchMajor: {
             type: mongoose.Schema.ObjectId,
             ref: 'BranchMajor',
@@ -62,36 +47,36 @@ const subjectSchema = new mongoose.Schema(
 );
 // middleware
 subjectSchema.pre(/^find/, async function (next) {
-    this.select('-createdAt -updatedAt -__v -department');
-    this.populate([{ path: 'branchMajor' }, { path: 'major' }]);
+    this.select('-createdAt -updatedAt -__v');
+    this.populate([{ path: 'branchMajor' }]);
     //
 });
-subjectSchema.pre('save', function (next) {
-    const convert = (str) => {
-        let x = str;
-        const test = x.trim().split(' ');
-        let m = '';
-        if (test.length >= 4) {
-            for (let i = 0; i < 4; i++) {
-                m += test[i][0];
-            }
-        } else {
-            let i = 0;
-            while (m.length < 4) {
-                if (x[i] != ' ') m += x[i];
-                i++;
-            }
-        }
+// subjectSchema.pre('save', function (next) {
+//     const convert = (str) => {
+//         let x = str;
+//         const test = x.trim().split(' ');
+//         let m = '';
+//         if (test.length >= 4) {
+//             for (let i = 0; i < 4; i++) {
+//                 m += test[i][0];
+//             }
+//         } else {
+//             let i = 0;
+//             while (m.length < 4) {
+//                 if (x[i] != ' ') m += x[i];
+//                 i++;
+//             }
+//         }
 
-        return m.toUpperCase();
-    };
-    if (!this.shortFormName) {
-        const subName = this.name;
-        this.shortFormName = convert(subName);
-    }
+//         return m.toUpperCase();
+//     };
+//     if (!this.shortFormName) {
+//         const subName = this.name;
+//         this.shortFormName = convert(subName);
+//     }
 
-    next();
-});
+//     next();
+// });
 //
 const Subject = mongoose.model('Subject', subjectSchema);
 module.exports = Subject;

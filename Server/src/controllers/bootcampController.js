@@ -6,20 +6,67 @@ const ApiFeatures = require('../utils/ApiFeature');
 //
 const createBC = crudFactory.createOne(Bootcamp);
 const updateBC = crudFactory.updateOne(Bootcamp);
-const getBC = crudFactory.getOne(Bootcamp, [
-    { path: 'major' },
-    {
-        path: 'detail',
-        populate: { path: 'subjectList', model: 'Subject' },
-    },
-    {
-        path: 'major',
-        populate: { path: 'branchMajor' },
-    },
-    {
-        path: 'allocation',
-    },
-]);
+// const getBC = crudFactory.getOne(Bootcamp, [
+//     { path: 'major' },
+//     {
+//         path: 'detail',
+//         populate: { path: 'subjectList.$*' },
+//     },
+//     {
+//         path: 'major',
+//         populate: { path: 'branchMajor' },
+//     },
+//     {
+//         path: 'allocation',
+//     },
+// ]);
+const getBC = async (req, res, next) => {
+    try {
+        const doc = await Bootcamp.findById(req.params.id)
+            .lean()
+            .populate([
+                { path: 'major' },
+                {
+                    path: 'major',
+                    populate: { path: 'branchMajor' },
+                },
+                {
+                    path: 'allocation',
+                },
+            ]);
+
+        if (!doc) {
+            return next(new CustomError('No document with this Id', 404));
+        }
+
+        // fill and replace id in subject list by subject info in allocation
+        let alloSubList = [];
+        doc.allocation.detail.map((big) => {
+            alloSubList = [...alloSubList, ...big.subjectList];
+        });
+
+        const populateDetail = doc.detail.map((semester) => {
+            const populateSemester = semester.subjectList.map((subjectId) => {
+                return (
+                    alloSubList.find(
+                        (ele) => ele._id.toString() === subjectId.toString()
+                    ) ?? ''
+                );
+            });
+            semester.subjectList = populateSemester;
+            return semester;
+        });
+        doc.detail = populateDetail;
+
+        res.status(200).send({
+            status: 'ok',
+            data: doc,
+        });
+    } catch (error) {
+        console.log(error);
+        next(new CustomError(error));
+    }
+};
 const getAllBC = crudFactory.getAll(Bootcamp);
 const deleteBC = crudFactory.deleteOne(Bootcamp);
 // function use to check if user's major is legal for operating a bootcamp

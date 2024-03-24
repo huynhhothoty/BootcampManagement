@@ -8,8 +8,8 @@ const semesterSchema = new mongoose.Schema({
         type: String,
         default: 'Semester 1',
     },
-    subjectList: [{ type: mongoose.Schema.ObjectId, ref: 'Subject' }],
-    trackingList: [{ type: mongoose.Schema.ObjectId, ref: 'Subject' }],
+    subjectList: [{ type: mongoose.Schema.ObjectId }],
+    trackingList: [{ type: mongoose.Schema.ObjectId }],
 });
 const bootcampSchema = new mongoose.Schema(
     {
@@ -63,7 +63,7 @@ bootcampSchema.pre('save', function () {
     this.populate('allocation');
     this.populate({
         path: 'detail',
-        populate: { path: 'subjectList', model: 'Subject' },
+        populate: { path: 'subjectList' },
     });
 });
 
