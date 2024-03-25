@@ -46,13 +46,15 @@ const getBC = async (req, res, next) => {
         });
 
         const populateDetail = doc.detail.map((semester) => {
-            const populateSemester = semester.subjectList.map((subjectId) => {
-                return (
-                    alloSubList.find(
-                        (ele) => ele._id.toString() === subjectId.toString()
-                    ) ?? ''
-                );
-            });
+            const populateSemester = semester.subjectList
+                .map((subjectId) => {
+                    return (
+                        alloSubList.find(
+                            (ele) => ele._id.toString() === subjectId.toString()
+                        ) ?? ''
+                    );
+                })
+                .filter((x) => x != '');
             semester.subjectList = populateSemester;
             return semester;
         });

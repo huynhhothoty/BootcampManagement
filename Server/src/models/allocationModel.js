@@ -88,7 +88,6 @@ const childSchema = new mongoose.Schema({
     },
 });
 const sectionSchema = new mongoose.Schema({
-    _id: false,
     name: {
         type: String,
         default: 'big field 1',
