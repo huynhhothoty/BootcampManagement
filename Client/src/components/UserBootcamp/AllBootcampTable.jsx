@@ -137,7 +137,7 @@ const AllBootcampTable = () => {
         let semesterSubjectList = []
         let semesterList = [[]]
         const tempAllowcateFields = await dispatch(getAllowcatById(data.allocation))
-        let tempSubjectList = []
+
         allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
             return {
                 compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
@@ -174,19 +174,21 @@ const AllBootcampTable = () => {
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                         departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                     }
-                    tempSubjectList.push(subject)
+
                     return a
                 }),
                 electiveSubjectList: field.electiveSubjectList
             }
         })
-
+        console.log(data.detail)
         semesterList = data.detail.map((semester, index) => {
             return semester.subjectList.map((subject) => {
                 const semesterSubjectListIndex = semesterSubjectList.findIndex(sSubject => sSubject._id === subject)
+                
                 semesterSubjectList[semesterSubjectListIndex].semester = index
                 const a = semesterSubjectList[semesterSubjectListIndex]
                 allowcateFields[a.fieldIndex].subjectList[a.subjectIndex]['semester'] = index
+              
                 return {
                     ...a,
                     semesterSubjectListIndex
@@ -201,7 +203,6 @@ const AllBootcampTable = () => {
             completeTotalCredits
         }))
         await dispatch(getMajorById(data.major))
-        dispatch(updateViewedSubjectList(tempSubjectList))
         dispatch(updateViewedSemesterList(semesterList))
         dispatch(updateViewedSemesterSubjectLis(semesterSubjectList))
         dispatch(updateLoading(false))

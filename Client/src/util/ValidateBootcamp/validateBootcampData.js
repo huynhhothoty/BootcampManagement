@@ -96,9 +96,6 @@ export const validateBootcampData = (
   }
   let tempRemainWithNormalSubject;
   let tempRemainWithGroupElective;
-  semesterList.forEach((semester, index) => {
-    if (semester.length === 0) tempErrorMessage.planning.push(index);
-  });
   tempRemainWithNormalSubject = semesterSubjectList.some(
     (subject) =>
       subject.semester === null &&

@@ -32,6 +32,7 @@ export const getAllowcatById = createAsyncThunk(
 export const updateAllowcate = createAsyncThunk(
   "allowcate/updateAllowcated",
   async ({allowcateId,fieldData}) => {
+    console.log(fieldData)
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.patch(updateAllowcateAPI(allowcateId),fieldData, {
@@ -102,18 +103,17 @@ export const allowcateSlice = createSlice({
       state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList.push(
         {
           ...action.payload.subject,
-          status: action.payload.subject._id !== null ? [SUBJECT_ADDED_IMPORT] : [SUBJECT_ADDED_NORMAL]
+          status: [SUBJECT_ADDED_NORMAL]
         }
       );
     },
     editSubjestViewedFields: (state, action) => {
-      let newStatusList = [...action.payload.subject.status]
-      if(!newStatusList.includes(SUBJECT_EDITED))
-        newStatusList.push(SUBJECT_EDITED)
-      state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex] = {
-        ...action.payload.subject,
-        status: newStatusList
-      }
+    
+        state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[action.payload.subjectIndex] = {
+          ...action.payload.subject
+        }
+    
+        
     },
     addSmallFieldToViewedFields: (state, action) => {
       state.viewedAllowcatedFields[action.payload].smallField.push({

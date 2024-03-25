@@ -21,9 +21,9 @@ const CourseSubjectViewOnly = ({isCompulsory}) => {
           width:"20%",
           render:(text,row,b) => {
               if(row.isAutoCreateCode){
-                if(row.semester !== undefined){
+               
                     return AutogenAllSubjectCode(row,b)
-                }
+                
               } else return text
           }
         },

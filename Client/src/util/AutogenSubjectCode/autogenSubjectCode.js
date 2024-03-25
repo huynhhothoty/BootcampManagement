@@ -2,7 +2,6 @@
 export const AutogenAllSubjectCode = (subject,index) => {
     let tempLast = '19'
     let tempSemesterYear = '27'
-    console.log(subject)
     return `${subject.shortFormName}${subject.semester ? caculateSemesterYear(subject.semester + 1) : tempSemesterYear}${subject.credits}${subject.indexAutogenSubjectCode ? subject.indexAutogenSubjectCode : index}${tempLast}`
 }
 

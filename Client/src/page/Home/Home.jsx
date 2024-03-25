@@ -11,7 +11,6 @@ import TestComp from "../../components/TestComp";
 const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
-  const [renderBootcampData, setRenderBootcampData] = useState([])
   const [openDrawer, setOpenDrawer] = useState(false);
   const onClose = () => {
     setOpenDrawer(false);
@@ -53,7 +52,7 @@ const Home = () => {
           }}
           onClick={() => {showDrawer(bootcamp)}}
         >
-          <BootcampProgressCard bootcamp={bootcamp} />
+          {/* <BootcampProgressCard bootcamp={bootcamp} /> */}
         </Card>
       </Col>)
     })

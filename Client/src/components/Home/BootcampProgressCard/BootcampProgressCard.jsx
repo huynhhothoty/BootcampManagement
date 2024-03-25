@@ -37,7 +37,7 @@ const BootcampProgressCard = ({bootcamp}) => {
         })
       
         allocation?.detail.forEach(field => {
-            field.electiveSubjectList.forEach((group) => {
+            field?.electiveSubjectList.forEach((group) => {
 
                 if(group.semester !== null){
                     if(group.tracking){

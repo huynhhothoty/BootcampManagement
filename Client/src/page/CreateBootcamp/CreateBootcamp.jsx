@@ -56,19 +56,19 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList, draftID, selectedMajor } = useSelector(store => store.createBootCamp)
   const { importedSubjectsList } = useSelector(store => store.subject)
   const { userData } = useSelector(store => store.authentication)
-  const { majorList, viewedMajor,departmentList } = useSelector(store => store.major)
+  const { majorList, viewedMajor, departmentList } = useSelector(store => store.major)
   const [bootcampNameError, setBootcampNameError] = useState(false)
   const [bootcampCreditError, setBootcampCreditError] = useState(false)
   const [majorSelectList, setMajorSelectList] = useState([])
   const [contentModalStatus, setContainModalStatus] = useState(false)
   const [contentModalComponent, setContentModalComponent] = useState(<></>)
-  const [contentModalFieldData, setContentModalFieldData] = useState({index: -1, type: "compulsory"})
+  const [contentModalFieldData, setContentModalFieldData] = useState({ index: -1, type: "compulsory" })
   const [manageStatus, setManageStatus] = useState('create')
 
   const closeContentModal = () => {
     setContainModalStatus(false)
   }
-  const openContentModal = (fieldIndex,type) => {
+  const openContentModal = (fieldIndex, type) => {
     setContainModalStatus(true)
     setContentModalFieldData({
       index: fieldIndex,
@@ -78,7 +78,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const updateContentModalContent = (component) => {
     setContentModalComponent(component)
   }
-  
+
   const items = [
     {
       key: '1',
@@ -112,6 +112,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const handleCreatebootcamp = async () => {
 
     let tempErrorMessage = validateBootcampData(bootcampName, totalCredits, allowcateFields, semesterList, semesterSubjectList, completeTotalCredits)
+    console.log(tempErrorMessage)
     setBootcampNameError(tempErrorMessage.bootcampName)
     setBootcampCreditError(tempErrorMessage.totalCredits)
     if (bootcampName !== "" && totalCredits > 0 && tempErrorMessage.allowcate.length === 0 && tempErrorMessage.compulsory.length === 0 && tempErrorMessage.elective.length === 0 && tempErrorMessage.planning.length === 0 && tempErrorMessage.remainning === false && tempErrorMessage.electiveGroup.length === 0) {
@@ -123,45 +124,21 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         for (let i = 0; i < allowcateFields.length; i++) {
           const newSubjectList = []
           for (let j = 0; j < allowcateFields[i].subjectList.length; j++) {
-            const subjectIndex = importedSubjectsList.findIndex(subject => subject._id === allowcateFields[i].subjectList[j]._id)
-            if (subjectIndex === -1) {
-              let subjectData = {
-                "name": allowcateFields[i].subjectList[j].name,
-                "subjectCode": allowcateFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...allowcateFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : allowcateFields[i].subjectList[j].subjectCode,
-                "credit": allowcateFields[i].subjectList[j].credits,
-                "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
-                "description": allowcateFields[i].subjectList[j].description,
-                "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
-                "type": "major",
-                "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
-                "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
-                "departmentChild": allowcateFields[i].subjectList[j].departmentChild ? allowcateFields[i].subjectList[j].departmentChild : null
-              }
-              const a = await dispatch(createSubject(subjectData))
-              newSubjectList.push(a.payload.data._id)
+            let subjectData = {
+              "name": allowcateFields[i].subjectList[j].name,
+              "subjectCode": allowcateFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...allowcateFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : allowcateFields[i].subjectList[j].subjectCode,
+              "credit": allowcateFields[i].subjectList[j].credits,
+              "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
+              "description": allowcateFields[i].subjectList[j].description,
+              "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
+              "type": "major",
+              "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
+              "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
+              "departmentChild": allowcateFields[i].subjectList[j].departmentChild
             }
-            else {
-              const a = importedSubjectsList[subjectIndex]
-              const b = allowcateFields[i].subjectList[j]
-              if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor) || (a.isAutoCreateCode !== b.isAutoCreateCode) || (a.shortFormName !== b.shortFormName) || a.departmentChild !== b.departmentChild) {
-                let subjectData = {
-                  "name": allowcateFields[i].subjectList[j].name,
-                  "subjectCode": allowcateFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...allowcateFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : allowcateFields[i].subjectList[j].subjectCode,
-                  "credit": allowcateFields[i].subjectList[j].credits,
-                  "isCompulsory": allowcateFields[i].subjectList[j].isCompulsory,
-                  "description": allowcateFields[i].subjectList[j].description,
-                  "branchMajor": allowcateFields[i].subjectList[j].branchMajor !== undefined ? allowcateFields[i].subjectList[j].branchMajor : null,
-                  "type": "major",
-                  "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
-                  "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
-                  "departmentChild": allowcateFields[i].subjectList[j].departmentChild
-                }
-                const a = await dispatch(createSubject(subjectData))
-                newSubjectList.push(a.payload.data._id)
-              } else if ((a.name === b.name) && (a.credit === b.credits) && (a.subjectCode === b.subjectCode) && (a.isCompulsory === b.isCompulsory) && (a.description === b.description)) {
-                newSubjectList.push(a._id)
-              }
-            }
+            newSubjectList.push(subjectData)
+
+
             subjectInListIndex++
           }
           newFieldList.push({
@@ -187,18 +164,23 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           })
         }
         let created_field_container
-        if(manageStatus === 'create'){
+        if (manageStatus === 'create') {
           created_field_container = await dispatch(createField(fieldData))
-        }else{
+        } else {
           if (selectedMajor.length > 0) {
+            let noData = {
+              "detail": []
+            }
             const selectedMajorData = majorList.find((major) => major._id === selectedMajor)
             if (selectedMajorData.templateBootcamp) {
+              await dispatch(updateAllowcate({ allowcateId: allowcateFields[0]._id, fieldData:noData }))
               created_field_container = await dispatch(updateAllowcate({ allowcateId: allowcateFields[0]._id, fieldData }))
-            }else {
+            } else {
               created_field_container = await dispatch(createField(fieldData))
             }
           }
         }
+        created_field_container = created_field_container.payload.data
         const bootcampData = {
           "major": selectedMajor,
           "author": userData.id,
@@ -206,33 +188,34 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           "year": 2023,
           "totalCredit": totalCredits,
           "draft": false,
-          "allocation": created_field_container.payload.data._id,
+          "allocation": created_field_container._id,
           "detail": semesterList.map((semester, index) => {
             return {
               semester: `Semester ${index + 1}`,
               subjectList: semester.map((subject) => {
-                return newFieldList[subject.fieldIndex].subjectList[subject.subjectIndex]
+                return created_field_container.detail[subject.fieldIndex].subjectList[subject.subjectIndex]._id
               })
             }
           })
         }
-        if(manageStatus === 'create'){
+        if (manageStatus === 'create') {
           await dispatch(createFirstBootcamp(bootcampData))
           dispatch(resetAll())
-          await dispatch(deleteDraft(draftID))
+          if (draftID)
+            await dispatch(deleteDraft(draftID))
           openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_CREATE_BOOTCAMP_SUCCESS)
-        }else{
+        } else {
           if (selectedMajor.length > 0) {
             const selectedMajorData = majorList.find((major) => major._id === selectedMajor)
             if (selectedMajorData.templateBootcamp) {
               await dispatch(updateBootcamp({ bootcampID: selectedMajorData.templateBootcamp, bootcampData }))
               openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_TEMPLATE_SUCCESS)
-            }else {
+            } else {
               await dispatch(createTemplateBootcamp(bootcampData))
             }
           }
         }
-        
+
         dispatch(updateLoading(false))
       } catch (e) {
         dispatch(updateLoading(false))
@@ -288,17 +271,17 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const handleSelectMajor = (value) => {
     dispatch(updateSelectedMajor(value))
 
-      if(userData){
-        if(userData.role === "admin"){
-          const selectedMajorData = majorList.find((major) => major._id === value)
-          if (selectedMajorData.templateBootcamp) {
-            handleAddTemplate(selectedMajorData.templateBootcamp)
-          }
-        }else if(userData.role === "leader"){
-          handleAddTemplate(userData.major.templateBootcamp)
+    if (userData) {
+      if (userData.role === "admin") {
+        const selectedMajorData = majorList.find((major) => major._id === value)
+        if (selectedMajorData.templateBootcamp) {
+          handleAddTemplate(selectedMajorData.templateBootcamp)
         }
+      } else if (userData.role === "leader") {
+        handleAddTemplate(userData.major.templateBootcamp)
       }
-     
+    }
+
   }
 
   const handleAddTemplate = async (bootcampId) => {
@@ -313,7 +296,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       let allowcateFields = []
       let semesterSubjectList = []
       let semesterList = [[]]
-      const tempAllowcateFields = await dispatch(getAllowcatById(newTemplateBootcampData.allocation._id))
+      const tempAllowcateFields = newTemplateBootcampData.allocation
       // const tempDepartmentList = await getAllMajorDepartment()
       // let tempDepartmentList = []
       // for (let i = 0; i < newTemplateBootcampData.major.department.length; i++) {
@@ -321,8 +304,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       //   const departmentRes = await dispatch(getDepartmentById(departmentId))
       //   tempDepartmentList.push(departmentRes.payload.data)
       // }
-      let tempSubjectList = []
-      allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
+      allowcateFields = tempAllowcateFields.detail.map((field, index) => {
         return {
           compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.compulsoryCredit;
@@ -357,7 +339,6 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               _id: subject._id
             }
-            tempSubjectList.push(subject)
             return a
           }),
           electiveSubjectList: field.electiveSubjectList,
@@ -380,7 +361,6 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         })
       })
       dispatch(updateViewedMajor(newTemplateBootcampData.major))
-      dispatch(updateAfterImportBootcamp(tempSubjectList))
       dispatch(importBootcamp({
         totalCredits,
         completeTotalCredits,
@@ -399,22 +379,22 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       dispatch(updateLoading(false))
     }
   }
- 
+
 
   useEffect(() => {
-    if(userData){
-      if(userData.role === "admin"){
+    if (userData) {
+      if (userData.role === "admin") {
         dispatch(getAllMajor())
-      }else if(userData.role === "leader"){
+      } else if (userData.role === "leader") {
         dispatch(updateSelectedMajor(userData.major._id))
       }
     }
-     
+
     // dispatch(getMajorById('651ea4fac9a4c12da715528f'))
-  }, [userData,dispatch])
+  }, [userData, dispatch])
   useEffect(() => {
-    if(userData){
-      if(userData.role === "admin"){
+    if (userData) {
+      if (userData.role === "admin") {
         const newMajorList = majorList.map((major) => {
           return {
             value: major._id,
@@ -422,7 +402,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           }
         })
         setMajorSelectList(newMajorList)
-      }else if(userData.role === "leader"){
+      } else if (userData.role === "leader") {
         const newMajorList = [{
           value: userData.major._id,
           label: userData.major.name
@@ -430,17 +410,26 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         setMajorSelectList(newMajorList)
       }
     }
-   
-  },[userData,majorList])
+
+  }, [userData, majorList])
 
   const getAllMajorDepartment = async () => {
-    if(viewedMajor){
-      if(viewedMajor.department){
+ 
+    if (viewedMajor) {
+      if (viewedMajor.department) {
         let tempDepartmentList = []
+  
         for (let i = 0; i < viewedMajor.department.length; i++) {
           const departmentId = viewedMajor.department[i];
-          const departmentRes = await dispatch(getDepartmentById(departmentId))
-          tempDepartmentList.push(departmentRes.payload.data)
+
+          if (typeof departmentId === 'string') {
+            const departmentRes = await dispatch(getDepartmentById(departmentId))
+       
+            tempDepartmentList.push(departmentRes.payload.data)
+          }else {
+            tempDepartmentList.push(departmentId)
+          }
+
         }
         dispatch(updateDepartmentList(tempDepartmentList))
       }
@@ -449,7 +438,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
   useEffect(() => {
     getAllMajorDepartment()
-   
+
 
   }, [viewedMajor])
   return (
@@ -457,7 +446,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
       <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen} />
       <ImportBootcampModal setErrorMessage={setErrorMessage} isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen} />
-      <ContentModal childComponent={contentModalComponent} isModalOpen={contentModalStatus} handleCancel={closeContentModal}/>
+      <ContentModal childComponent={contentModalComponent} isModalOpen={contentModalStatus} handleCancel={closeContentModal} />
 
       <Row gutter={16}>
         <Col span={12}>
@@ -477,15 +466,15 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             onChange={handleSelectMajor}
           />
           {
-            userData?.role === "admin" ? 
-            <Radio.Group style={{ marginLeft: 20 }} defaultValue="create" buttonStyle="solid" onChange={(e) => setManageStatus(e.target.value)}>
-              <Radio.Button value="template">Template Manage</Radio.Button>
-              <Radio.Button value="create">Create Bootcamp</Radio.Button>
-            </Radio.Group>
-            :
-            <Button style={{ marginLeft: 20 }} type='primary' onClick={() => {handleAddTemplate(userData.major.templateBootcamp)}}>Reload Template</Button>
+            userData?.role === "admin" ?
+              <Radio.Group style={{ marginLeft: 20 }} defaultValue="create" buttonStyle="solid" onChange={(e) => setManageStatus(e.target.value)}>
+                <Radio.Button value="template">Template Manage</Radio.Button>
+                <Radio.Button value="create">Create Bootcamp</Radio.Button>
+              </Radio.Group>
+              :
+              <Button style={{ marginLeft: 20 }} type='primary' onClick={() => { handleAddTemplate(userData.major.templateBootcamp) }}>Reload Template</Button>
           }
-          
+
         </Col>
         <Col span={12} style={{ display: "flex", justifyContent: "flex-end" }}>
 
@@ -532,7 +521,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
                 <Col span={24}>
                   <Form.Item>
-                    <Collapse items={items} defaultActiveKey={[1,2,3]} />
+                    <Collapse items={items} defaultActiveKey={[1, 2, 3]} />
                   </Form.Item>
                 </Col>
 

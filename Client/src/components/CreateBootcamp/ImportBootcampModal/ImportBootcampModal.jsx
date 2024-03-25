@@ -146,7 +146,6 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
         let semesterSubjectList = []
         let semesterList = [[]]
         const tempAllowcateFields = await dispatch(getAllowcatById(selectedRows[0].allocation))
-        let tempSubjectList = []
         allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
           return {
             compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
@@ -182,7 +181,6 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
                 isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                 _id: subject._id
               }
-              tempSubjectList.push(subject)
               return a
             }),
             electiveSubjectList: field.electiveSubjectList
@@ -202,7 +200,6 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
           })
         })
         await dispatch(getMajorById(selectedRows[0].major))
-        dispatch(updateAfterImportBootcamp(tempSubjectList))
         dispatch(importBootcamp({
           totalCredits,
           completeTotalCredits,

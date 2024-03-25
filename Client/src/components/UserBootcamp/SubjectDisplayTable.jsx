@@ -18,7 +18,7 @@ import { updateCompleteCreditsToViewedBootcamp } from '../../redux/bootcamp/boot
 import { VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS, VIEW_NOT_EQUAL_CREDITS_IN_SUBJECTLIST } from '../../util/constants/errorMessage';
 import { AutogenAllSubjectCode, padZero } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 
-const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectList, totalCredits, confirmModal, setIsUpdated, error, electiveSubjectList, firstIndex }) => {
+const SubjectDisplayTable = ({ addToDeletedList, groupError, type, fieldName, fieldIndex, subjectList, totalCredits, confirmModal, setIsUpdated, error, electiveSubjectList, firstIndex }) => {
   const formRef = useRef();
   const dispatch = useDispatch()
   const [searchText, setSearchText] = useState('');
@@ -146,28 +146,27 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
       dataIndex: 'subjectCode',
       key: 'subjectCode',
       width: '15%',
-      render: (text,row) => {
-        if(row.semester !== undefined){
-          if(row.isAutoCreateCode){
-            if(row.semester !== undefined){
-                return AutogenAllSubjectCode(row)
-            }
-        } else return text
+      render: (text, row) => {
+        if (type === 'elective') {
+          if (row.isAutoCreateCode) {
+            return AutogenAllSubjectCode(row)
+
+          } else return text
+        } else {
+
+          if (row.semester !== undefined) {
+     
+            if (row.isAutoCreateCode) {
+             
+              return AutogenAllSubjectCode(row)
+
+            } else return text
+          }
         }
         return ''
       }
-  },
-  {
-    title: 'Is Autogen',
-    dataIndex: 'isAutoCreateCode',
-    key: 'isAutoCreateCode',
-    width: '8%',
-    render: (text,row) => {
-        if(row.isAutoCreateCode){
-            return <Tag color="green">True</Tag> 
-        } else return <Tag color="volcano">False</Tag>
-    }
-},
+    },
+
     {
       title: 'Subject Name',
       dataIndex: 'name',
@@ -232,10 +231,10 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
           onClick={async () => {
             const confirmed = await confirmModal.confirm(deleteConfirmConfig);
             if (confirmed) {
-              dispatch(removeImportedSubject(row._id))
               dispatch(removeSubjectFromField({ fieldIndex, subjectIndex: row.fieldSubjectListIndex }))
               dispatch(deleteSubjectFromViewedFields({ fieldIndex, subjectIndex: row.fieldSubjectListIndex }))
-              dispatch(updateCompleteCreditsToViewedBootcamp(row.credits * -1))
+              if (type === "compulsory") dispatch(updateCompleteCreditsToViewedBootcamp(row.credits * -1))
+              if (row._id) addToDeletedList(row._id)
               setIsUpdated(true)
             }
 
@@ -307,7 +306,7 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
           onClick={async () => {
             const confirmed = await confirmModal.confirm(deleteConfirmConfig);
             if (confirmed) {
-              dispatch(deleteElectiveGroupToViewedField({fieldIndex, groupIndex: row.key}))
+              dispatch(deleteElectiveGroupToViewedField({ fieldIndex, groupIndex: row.key }))
               setIsUpdated(true)
             }
 
@@ -339,7 +338,7 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
         >
           {
             type === "elective" ?
-              <ProCard subTitle={groupError ? <div style={{color:"red"}}>**{VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS}</div> : <></>} collapsible={true} title={<h3 style={{ marginRight: 20 }} >Elective Subject Group</h3>}>
+              <ProCard subTitle={groupError ? <div style={{ color: "red" }}>**{VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS}</div> : <></>} collapsible={true} title={<h3 style={{ marginRight: 20 }} >Elective Subject Group</h3>}>
                 <ProForm
 
                   formRef={formRef}
@@ -467,13 +466,13 @@ const SubjectDisplayTable = ({groupError, type, fieldName, fieldIndex, subjectLi
               </ProFormDependency>
               <Table columns={columns} dataSource={
                 subjectList.map((subject, index) => {
-                  return { 
+                  return {
                     ...subject,
-                    index, 
+                    index: subject.fieldSubjectListIndex,
                     key: index,
                     indexAutogenSubjectCode: padZero(firstIndex + index + 1)
                   }
-              })} 
+                })}
               />
             </ProForm>
           </ProCard>

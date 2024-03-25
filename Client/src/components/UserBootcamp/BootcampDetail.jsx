@@ -16,7 +16,7 @@ import { updateLoading } from '../../redux/loading/Loading';
 import { NOT_CORRECT_CREDITS, NO_BOOTCAMP_NAME, NO_BOOTCAMP_TOTAL_CREDITS, SUBJECT_STILL_REMAIN, VIEW_NOT_EQUAL_TOTAL_CREDITS } from '../../util/constants/errorMessage';
 import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_RESET_SUCCESS_INFO, NOTI_RESET_SUCCESS_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_MISS_INFO, NOTI_UPDATE_BOOTCAMP_SUCCESS } from '../../util/constants/notificationMessage';
 import { createSubject } from '../../redux/CreateBootcamp/createBootCamp';
-import { SUBJECT_ADDED_IMPORT, SUBJECT_EDITED } from '../../util/constants/subjectStatus';
+import { SUBJECT_ADDED_IMPORT, SUBJECT_ADDED_NORMAL, SUBJECT_EDITED } from '../../util/constants/subjectStatus';
 import { useLocation } from 'react-router-dom';
 import DraggableSemesterTable from './DraggableSemesterTable';
 import { getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../redux/major/major';
@@ -36,6 +36,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     const { viewedMajor } = useSelector(store => store.major)
     const { userData } = useSelector(store => store.authentication)
     const [addBigFieldIndex, setAddBigFieldIndex] = useState(null)
+    const [deletedSubjectListId, setDeletedSubjectListId] = useState([])
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedSemester, setSelectedSemester] = useState(-1)
@@ -51,6 +52,12 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         remainning: false,
         completeTotalCredits: false
     })
+
+    const addToDeletedList = (id) => {
+        let tempDeletedList = [...deletedSubjectListId]
+        tempDeletedList.push(id)
+        setDeletedSubjectListId(tempDeletedList)
+    }
 
     const [isUpdated, setIsUpdated] = useState(false)
     const sumTotalAllowcatedCredits = () => {
@@ -91,7 +98,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
+                return <SubjectDisplayTable addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
             } else if (type === "elective") {
                 const subjectList = []
                 let newFirstIndex = firstIndexSubjectCode
@@ -109,7 +116,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+                return <SubjectDisplayTable addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
     }
@@ -125,7 +132,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     isBranch: false,
                     isGroup: false,
                     key: sindex,
-                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex,subject.subjectIndex,viewedAllowcatedFields)
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex, subject.subjectIndex, viewedAllowcatedFields)
                 }
             })
             viewedAllowcatedFields.forEach((field, fIndex) => {
@@ -146,15 +153,17 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
             })
-
-            viewedMajor.branchMajor?.forEach((branch, index) => {
-                subjectList.unshift({
-                    ...branch,
-                    key: branch._id,
-                    isBranch: true,
-                    isGroup: false,
+            if (semester >= 4) {
+                viewedMajor.branchMajor?.forEach((branch, index) => {
+                    subjectList.unshift({
+                        ...branch,
+                        key: branch._id,
+                        isBranch: true,
+                        isGroup: false,
+                    })
                 })
-            })
+            }
+
             return {
                 component: <SemesterTableDisplay totalSemester={viewedSemesterList.length} setIsUpdated={setIsUpdated} setIsModalOpen={setIsModalOpen} setSelectedSemester={setSelectedSemester} confirmModal={confirmModal} key={index} semesterIndex={index} subjectList={subjectList} />,
                 key: index,
@@ -174,10 +183,10 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 for (let i = 0; i < viewedAllowcatedFields.length; i++) {
                     const newSubjectList = []
                     for (let j = 0; j < viewedAllowcatedFields[i].subjectList.length; j++) {
-                        if (viewedAllowcatedFields[i].subjectList[j]._id === null) {
+                        if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_ADDED_NORMAL)) {
                             let subjectData = {
                                 "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...viewedAllowcatedFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                 "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                 "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
                                 "description": viewedAllowcatedFields[i].subjectList[j].description,
@@ -187,57 +196,43 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
                                 "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
                             }
-                            const a = await dispatch(createSubject(subjectData))
-                            newSubjectList.push(a.payload.data._id)
-                        } else {
-                            if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_EDITED)) {
-                                const updatedData = {
-                                    "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                    "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
-                                    "credit": viewedAllowcatedFields[i].subjectList[j].credits,
-                                    "description": viewedAllowcatedFields[i].subjectList[j].description,
-                                    "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
-                                    "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
-                                    "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
-                                    "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
-                                }
-                                const a = await dispatch(updateSubject({ subjectID: viewedAllowcatedFields[i].subjectList[j]._id, updatedData }))
-                                newSubjectList.push(a.payload.data._id)
-                            } else {
-                                const subjectIndex = importedSubjectsList.findIndex(subject => subject._id === viewedAllowcatedFields[i].subjectList[j]._id)
-                                if (subjectIndex !== -1) {
-                                    const a = importedSubjectsList[subjectIndex]
-                                    const b = viewedAllowcatedFields[i].subjectList[j]
-                                    if ((a.name !== b.name) || (a.credit !== b.credits) || (a.subjectCode !== b.subjectCode) || (a.isCompulsory !== b.isCompulsory) || (a.description !== b.description) || (a.branchMajor !== b.branchMajor) || (a.isAutoCreateCode !== b.isAutoCreateCode) || (a.shortFormName !== b.shortFormName)) {
-                                        let subjectData = {
-                                            "name": viewedAllowcatedFields[i].subjectList[j].name,
-                                            "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({...viewedAllowcatedFields[i].subjectList[j],indexAutogenSubjectCode:subjectInListIndex}) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
-                                            "credit": viewedAllowcatedFields[i].subjectList[j].credits,
-                                            "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
-                                            "description": viewedAllowcatedFields[i].subjectList[j].description,
-                                            "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
-                                            "type": "major",
-                                            "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
-                                            "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
-                                            "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
-                                        }
-                                        const a = await dispatch(createSubject(subjectData))
-                                        newSubjectList.push(a.payload.data._id)
-                                    } else if ((a.name === b.name) && (a.credit === b.credits) && (a.subjectCode === b.subjectCode) && (a.isCompulsory === b.isCompulsory) && (a.description === b.description)) {
-                                        newSubjectList.push(a._id)
-                                    }
-                                }
-                                else newSubjectList.push(viewedAllowcatedFields[i].subjectList[j]._id)
-                            }
+                            newSubjectList.push(subjectData)
                         }
+                        else if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_EDITED)) {
+                            const updatedData = {
+                                "name": viewedAllowcatedFields[i].subjectList[j].name,
+                                "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...viewedAllowcatedFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
+                                "credit": viewedAllowcatedFields[i].subjectList[j].credits,
+                                "description": viewedAllowcatedFields[i].subjectList[j].description,
+                                "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
+                                "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
+                                "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
+                                "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null,
+                                "type": "major",
+                                "_id": viewedAllowcatedFields[i].subjectList[j]._id
+                            }
+                            newSubjectList.push(updatedData)
+                        } else{
+                            deletedSubjectListId.forEach(deletedId => {
+                                const updatedData = {
+                                    "isDelete": true,
+                                    "_id": deletedId
+                                }
+                                newSubjectList.push(updatedData)
+                            })
+                          
+                        }
+                        
+            
                         subjectInListIndex++
                     }
+                   
                     newFieldList.push({
                         ...viewedAllowcatedFields[i],
                         subjectList: newSubjectList
                     })
                 }
-
+          
                 const fieldData = {
                     "detail": newFieldList.map((field) => {
                         return {
@@ -254,7 +249,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         }
                     })
                 }
-
+                console.log(fieldData)
                 const update_field_conatainer = await dispatch(updateAllowcate({ allowcateId: viewedAllowcatedFieldsID, fieldData }))
                 const bootcampData = {
                     "major": "651ea4fac9a4c12da715528f",
@@ -268,7 +263,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         return {
                             semester: `Semester ${index + 1}`,
                             subjectList: semester.map((subject) => {
-                                return newFieldList[subject.fieldIndex].subjectList[subject.subjectIndex]
+                                return update_field_conatainer.payload.data.detail[subject.fieldIndex].subjectList[subject.subjectIndex]
                             })
                         }
                     })
@@ -277,9 +272,9 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 await dispatch(updateBootcamp({ bootcampID: viewedBootcamp.id, bootcampData }))
                 openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_SUCCESS)
                 dispatch(updateLoading(false))
-                setIsUpdated(false)
+                // setIsUpdated(false)
                 // dispatch(resetAll())
-
+                setDeletedSubjectListId([])
             } catch (e) {
                 dispatch(updateLoading(false))
             }
@@ -301,7 +296,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         let semesterSubjectList = []
         let semesterList = [[]]
         const tempAllowcateFields = await dispatch(getAllowcatById(data.allocation))
-        let tempSubjectList = []
+
         allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
             return {
                 compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
@@ -338,7 +333,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                         departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                     }
-                    tempSubjectList.push(subject)
+
                     return a
                 }),
                 electiveSubjectList: field.electiveSubjectList
@@ -363,8 +358,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             totalCredits,
             completeTotalCredits
         }))
+        setDeletedSubjectListId([])
         await dispatch(getMajorById(data.major))
-        dispatch(updateViewedSubjectList(tempSubjectList))
         dispatch(updateViewedSemesterList(semesterList))
         dispatch(updateViewedSemesterSubjectLis(semesterSubjectList))
         dispatch(updateLoading(false))
@@ -372,24 +367,28 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     }
 
     const getAllMajorDepartment = async () => {
-        if(viewedMajor){
-          if(viewedMajor.department){
-            let tempDepartmentList = []
-            for (let i = 0; i < viewedMajor.department.length; i++) {
-              const departmentId = viewedMajor.department[i];
-              const departmentRes = await dispatch(getDepartmentById(departmentId))
-              tempDepartmentList.push(departmentRes.payload.data)
+        if (viewedMajor) {
+            if (viewedMajor.department) {
+                let tempDepartmentList = []
+                for (let i = 0; i < viewedMajor.department.length; i++) {
+                    const departmentId = viewedMajor.department[i];
+                    if (typeof departmentId === 'string') {
+                        const departmentRes = await dispatch(getDepartmentById(departmentId))
+                        tempDepartmentList.push(departmentRes.payload.data)
+                    } else {
+                        tempDepartmentList.push(departmentId)
+                    }
+                }
+                dispatch(updateDepartmentList(tempDepartmentList))
             }
-            dispatch(updateDepartmentList(tempDepartmentList))
-          }
         }
-      }
-    
-      useEffect(() => {
+    }
+
+    useEffect(() => {
         getAllMajorDepartment()
-       
-    
-      }, [viewedMajor])
+
+
+    }, [viewedMajor])
     return (
         <div>
             <AddSubjectToSemesterModal setIsUpdated={setIsUpdated} type={"view"} selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
@@ -400,17 +399,17 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 dataSource={viewedBootcamp}
                 editable={
                     history.state.viewType === "view" ? false :
-                    {
-                    onSave: (updatedField, data) => {
+                        {
+                            onSave: (updatedField, data) => {
 
-                        if (updatedField === "bootcampName") {
-                            dispatch(updateViewedBootcampName(data.bootcampName))
-                        } else if (updatedField === "totalCredits") {
-                            dispatch(updateViewedBootcampTotalCredits(parseInt(data.totalCredits)))
-                        }
-                        setIsUpdated(true)
-                    }
-                }}
+                                if (updatedField === "bootcampName") {
+                                    dispatch(updateViewedBootcampName(data.bootcampName))
+                                } else if (updatedField === "totalCredits") {
+                                    dispatch(updateViewedBootcampTotalCredits(parseInt(data.totalCredits)))
+                                }
+                                setIsUpdated(true)
+                            }
+                        }}
                 columns={[
                     {
                         title: 'Bootcamp Name',
@@ -480,7 +479,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             </ProDescriptions>
             {
                 history.state.viewType === "view" ?
-                    (<ViewBootcampOnly/>)
+                    (<ViewBootcampOnly />)
                     :
                     (
                         <>

@@ -8,6 +8,7 @@ import { addSubjectToViewedSemsterSubjectList, getAllSubject, updateWithNormalIm
 import { addToViewedFields, editSubjestViewedFields } from '../../../redux/allocate/allowcate';
 import { updateCompleteCreditsToViewedBootcamp } from '../../../redux/bootcamp/bootcamp';
 import { getDepartmentIndex } from '../../../util/GetDepartmentIndex/GetDepartmentIndex';
+import { SUBJECT_EDITED } from '../../../util/constants/subjectStatus';
 const { Option } = Select;
 const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpdated }) => {
     const dispatch = useDispatch()
@@ -39,20 +40,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
         if (subjectModalData.type === "edit") {
             const { subjectData } = subjectModalData
             let newSubject = {}
-            if (importedSubject) {
-                newSubject = {
-                    ...subjectData,
-                    name: a.name,
-                    subjectCode: a.subjectCode,
-                    credits: a.credits,
-                    description: a.description,
-                    shortFormName: a.shortFormName,
-                    isAutoCreateCode: isAutogenSubjectCode,
-                    departmentChild: a.departmentChild[1],
-                    _id: subjectData._id ? (importedSubject._id === subjectData._id ? subjectData._id : importedSubject._id) : importedSubject._id,
-                }
-            }
-            else newSubject = {
+            newSubject = {
                 ...subjectData,
                 name: a.name,
                 subjectCode: a.subjectCode,
@@ -69,13 +57,17 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                     subject: newSubject
                 }))
             else if (subjectModalData.isViewBootcamp) {
+                if(newSubject['status']){
+                    if(!newSubject['status'].includes(SUBJECT_EDITED)) newSubject['status'] = [...newSubject['status'],SUBJECT_EDITED]
+                }else newSubject['status'] = [SUBJECT_EDITED]
                 dispatch(editSubjestViewedFields({
                     fieldIndex: subjectModalData.fieldIndex,
                     subjectIndex: subjectModalData.subjectData.index,
                     subject: newSubject
                 }))
-
+           
                 if (subjectModalData.sujectType === "Compulsory") {
+                    console.log(123)
                     dispatch(updateCompleteCreditsToViewedBootcamp(subjectData.credits * - 1))
                     dispatch(updateCompleteCreditsToViewedBootcamp(a.credits))
                 }
@@ -87,7 +79,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 isCompulsory: subjectModalData.sujectType === "Compulsory" ? true : false,
                 isAutoCreateCode: isAutogenSubjectCode,
                 departmentChild: a.departmentChild[1],
-                _id: importedSubject ? importedSubject._id : null
+
             }
             if (subjectModalData.isCreateBootcamp)
                 dispatch(addSubject({
@@ -106,11 +98,15 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                     semester: null,
                     subjectIndex: viewedAllowcatedFields[subjectModalData.fieldIndex].subjectList.length
                 }))
-                dispatch(updateCompleteCreditsToViewedBootcamp(a.credits))
+                if (subjectModalData.sujectType === "Compulsory") {
+                    dispatch(updateCompleteCreditsToViewedBootcamp(a.credits))
+                }
+                
                 setIsUpdated(true)
             }
         }
-        if (importedSubject) dispatch(updateWithNormalImportSubject(importedSubject))
+
+     
         setImportedSubject(null)
         form.resetFields()
         setAutoID("")
@@ -118,8 +114,6 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
         setIsModalOpen(false)
 
     }
-
-
     useEffect(() => {
         if (subjectModalData.type === "edit") {
             const {
@@ -138,8 +132,8 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                 description,
                 shortFormName
             })
-            if(departmentChild){
-                form.setFieldValue("departmentChild",getDepartmentIndex(departmentList,departmentChild))
+            if (departmentChild) {
+                form.setFieldValue("departmentChild", getDepartmentIndex(departmentList, departmentChild))
             }
             setIsAutogenSubjectCode(isAutoCreateCode)
         }
@@ -188,7 +182,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                                 name="shortFormName"
                                 label="Shortened name"
                                 style={!isAutogenSubjectCode ? { display: "none" } : {}}
-                             
+
                             >
                                 <Input placeholder="Please enter a Subject Shortened name" />
 
@@ -198,7 +192,7 @@ const SubjectModal = ({ isModalOpen, setIsModalOpen, subjectModalData, setIsUpda
                                 name="subjectCode"
                                 label="Subject Code"
                                 style={isAutogenSubjectCode ? { display: "none" } : {}}
-                                
+
                             >
 
                                 <Input placeholder="Please enter a Subject Shortened name" />
