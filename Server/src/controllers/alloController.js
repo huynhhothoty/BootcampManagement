@@ -22,19 +22,20 @@ const updateAllo = async (req, res, next) => {
                 if (index > updateDoc.detail.length - 1) return big;
 
                 let newSubList = big.subjectList;
-                let oldSubList = updateInfo.detail[index].subjectList;
+                let oldSubList = updateDoc.detail[index].subjectList;
+
                 newSubList.forEach((sub) => {
                     if (sub?.isDelete) {
                         oldSubList = oldSubList.filter(
                             (x) => x._id.toString() !== sub._id.toString()
                         );
                     } else {
-                        if (!sub?._id) oldSubList = [...oldSubList, sub];
-                        else
+                        if (sub?._id)
                             oldSubList = oldSubList.map((oldSub) => {
                                 if (oldSub._id.toString() === sub._id) return sub;
                                 return oldSub;
                             });
+                        else oldSubList = [...oldSubList, sub];
                     }
                 });
                 updateInfo.detail[index].subjectList = oldSubList;
