@@ -1,7 +1,7 @@
 const Bootcamp = require('../models/bootcampModel');
 const crudFactory = require('./crudFactory');
 const CustomError = require('../utils/CustomError');
-const ApiFeatures = require('../utils/ApiFeature');
+const ApiFeature = require('../utils/ApiFeature');
 
 //
 const createBC = crudFactory.createOne(Bootcamp);
@@ -177,22 +177,49 @@ const getBootcampStats = async (req, res, next) => {
 
 const getAllWithDetail = async (req, res, next) => {
     try {
-        const initQuery = Bootcamp.find()
-            .populate('author')
-            .populate('major')
-            .populate({
-                path: 'major',
-                populate: { path: 'branchMajor' },
-            })
-            .populate('allocation')
-            .populate({
-                path: 'detail',
-                populate: { path: 'subjectList', model: 'Subject' },
-            });
-        const apiFeat = new ApiFeatures(initQuery, req.query);
+        //
+
+        const query = Bootcamp.find()
+            .lean()
+            .populate([
+                { path: 'major' },
+                {
+                    path: 'major',
+                    populate: { path: 'branchMajor' },
+                },
+                {
+                    path: 'allocation',
+                },
+                {
+                    path: 'author',
+                },
+            ]);
+        const apiFeat = new ApiFeature(query, req.query);
         apiFeat.filter().sorting().pagination();
 
         const docs = await apiFeat.myQuery;
+
+        docs.forEach((doc) => {
+            let alloSubList = [];
+            doc.allocation.detail.map((big) => {
+                alloSubList = [...alloSubList, ...big.subjectList];
+            });
+
+            const populateDetail = doc.detail.map((semester) => {
+                const populateSemester = semester.subjectList
+                    .map((subjectId) => {
+                        return (
+                            alloSubList.find(
+                                (ele) => ele._id.toString() === subjectId.toString()
+                            ) ?? ''
+                        );
+                    })
+                    .filter((x) => x != '');
+                semester.subjectList = populateSemester;
+                return semester;
+            });
+            doc.detail = populateDetail;
+        });
 
         res.status(200).send({
             status: 'ok',
