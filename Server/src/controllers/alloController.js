@@ -23,6 +23,7 @@ const updateAllo = async (req, res, next) => {
 
                 let newSubList = big.subjectList;
                 let oldSubList = updateDoc.detail[index].subjectList;
+                let newAddSub = [];
 
                 newSubList.forEach((sub) => {
                     if (sub?.isDelete) {
@@ -35,9 +36,10 @@ const updateAllo = async (req, res, next) => {
                                 if (oldSub._id.toString() === sub._id) return sub;
                                 return oldSub;
                             });
-                        else oldSubList = [...oldSubList, sub];
+                        else newAddSub.push(sub);
                     }
                 });
+                oldSubList = [...oldSubList, ...newAddSub];
                 updateInfo.detail[index].subjectList = oldSubList;
 
                 return updateInfo.detail[index];
