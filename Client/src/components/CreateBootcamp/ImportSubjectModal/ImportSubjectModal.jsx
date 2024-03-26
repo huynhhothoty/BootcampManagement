@@ -4,16 +4,13 @@ import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 
-
-  
-
-const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) => {
+const ImportSubjectModal = ({ isModalOpen, setIsModalOpen, setImportedSubject }) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [selectedSubject, setSelectedSubject] = useState(null)
-    const [selectedRowKeys, setSelectedRowKeys] = useState("")
-    const [error,setError] = useState(false)
-    const { allSubjectList } = useSelector(store => store.subject)
+    const [selectedSubject, setSelectedSubject] = useState(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState('');
+    const [error, setError] = useState(false);
+    const { allSubjectList } = useSelector((store) => store.subject);
     const searchInput = useRef(null);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -25,7 +22,13 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
         setSearchText('');
     };
     const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+        filterDropdown: ({
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
+            close,
+        }) => (
             <div
                 style={{
                     padding: 8,
@@ -36,7 +39,9 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
                     ref={searchInput}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onChange={(e) =>
+                        setSelectedKeys(e.target.value ? [e.target.value] : [])
+                    }
                     onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
                     style={{
                         marginBottom: 8,
@@ -45,10 +50,10 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
                 />
                 <Space>
                     <Button
-                        type="primary"
+                        type='primary'
                         onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
                         icon={<SearchOutlined />}
-                        size="small"
+                        size='small'
                         style={{
                             width: 90,
                         }}
@@ -57,7 +62,7 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
                     </Button>
                     <Button
                         onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
+                        size='small'
                         style={{
                             width: 90,
                         }}
@@ -65,8 +70,8 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
                         Reset
                     </Button>
                     <Button
-                        type="link"
-                        size="small"
+                        type='link'
+                        size='small'
                         onClick={() => {
                             confirm({
                                 closeDropdown: false,
@@ -78,8 +83,8 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
                         Filter
                     </Button>
                     <Button
-                        type="link"
-                        size="small"
+                        type='link'
+                        size='small'
                         onClick={() => {
                             close();
                         }}
@@ -137,8 +142,7 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
             title: 'Credits',
             dataIndex: 'credit',
             key: 'credit',
-            width: '5%',
-
+            width: '10%',
         },
         {
             title: 'Type',
@@ -147,67 +151,81 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen,setImportedSubject}) =
             width: '10%',
             render: (_, { isCompulsory }) => (
                 <>
-                    {isCompulsory ? (<Tag color={"volcano"} >
-                                Compusory
-                            </Tag>):(<Tag color={"green"}>
-                            Elective
-                            </Tag>)}
-                    
+                    {isCompulsory ? (
+                        <Tag color={'volcano'}>Compusory</Tag>
+                    ) : (
+                        <Tag color={'green'}>Elective</Tag>
+                    )}
                 </>
             ),
         },
         {
             title: 'Description',
             dataIndex: 'description',
-            key: 'description'
+            key: 'description',
+            ellipsis: true,
         },
-    ]
+    ];
 
     const rowSelection = {
         selectedRowKeys: selectedRowKeys,
         onChange: (selectedRowKeys, selectedRows) => {
             setSelectedRowKeys(selectedRowKeys);
-            setSelectedSubject(selectedRows)
-            setError(false)
+            setSelectedSubject(selectedRows);
+            setError(false);
         },
-      };
+    };
 
     const handleCancel = () => {
         setIsModalOpen(false);
-        setSelectedRowKeys('')
-        setSelectedSubject(null)
-        setError(false)
-      };
+        setSelectedRowKeys('');
+        setSelectedSubject(null);
+        setError(false);
+    };
 
     const handleImportSubject = () => {
-        if(selectedSubject) {
-            setImportedSubject(selectedSubject[0])
-        }setError(true)
+        if (selectedSubject) {
+            setImportedSubject(selectedSubject[0]);
+        }
+        setError(true);
         setIsModalOpen(false);
-        setSelectedRowKeys('')
-        setSelectedSubject(null)
-    }
-      return (
+        setSelectedRowKeys('');
+        setSelectedSubject(null);
+    };
+    return (
         <>
-          <Modal width={1000} okText={"Ok"} cancelText={"Cancel"} onOk={handleImportSubject} title="Import a Subject" open={isModalOpen} onCancel={handleCancel}>
-          <div>
-         
-            {error ? <div style={{color:"red"}}>** You need to choose a subject</div> : ""}
-          <Divider />
-    
-          <Table
-            rowSelection={{
-              type: "radio",
-              ...rowSelection,
-            }}
-            columns={columns}
-            dataSource={allSubjectList}
-          />
-        </div>
-    
-          </Modal>
-        </>
-      )
-}
+            <Modal
+                centered
+                width={1000}
+                okText={'Ok'}
+                cancelText={'Cancel'}
+                onOk={handleImportSubject}
+                title='Import a Subject'
+                open={isModalOpen}
+                onCancel={handleCancel}
+            >
+                <div>
+                    {error ? (
+                        <div style={{ color: 'red' }}>
+                            ** You need to choose a subject
+                        </div>
+                    ) : (
+                        ''
+                    )}
+                    <Divider />
 
-export default ImportSubjectModal
+                    <Table
+                        rowSelection={{
+                            type: 'radio',
+                            ...rowSelection,
+                        }}
+                        columns={columns}
+                        dataSource={allSubjectList}
+                    />
+                </div>
+            </Modal>
+        </>
+    );
+};
+
+export default ImportSubjectModal;

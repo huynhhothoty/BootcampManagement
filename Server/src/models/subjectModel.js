@@ -43,6 +43,8 @@ const subjectSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
     }
 );
 // middleware
@@ -50,6 +52,28 @@ subjectSchema.pre(/^find/, async function (next) {
     this.select('-createdAt -updatedAt -__v');
     this.populate([{ path: 'branchMajor' }]);
     //
+});
+subjectSchema.virtual('shortFormName').get(function () {
+    const convert = (str) => {
+        let x = str;
+        const test = x.trim().split(' ');
+        let m = '';
+        if (test.length >= 4) {
+            for (let i = 0; i < 4; i++) {
+                m += test[i][0];
+            }
+        } else {
+            let i = 0;
+            while (m.length < 4) {
+                if (x[i] != ' ') m += x[i];
+                i++;
+            }
+        }
+
+        return m.toUpperCase();
+    };
+
+    return convert(this.name);
 });
 // subjectSchema.pre('save', function (next) {
 //     const convert = (str) => {

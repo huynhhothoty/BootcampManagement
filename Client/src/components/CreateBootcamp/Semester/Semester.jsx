@@ -3,17 +3,34 @@ import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col, Tooltip } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteSemester, editGroup, removeSubjectFromSemester } from '../../../redux/CreateBootcamp/createBootCamp';
-import { MISSING_SUBJECT_IN_SEMESTER, WARNING_OUT_OF_CREDITS } from '../../../util/constants/errorMessage';
+import {
+    deleteSemester,
+    editGroup,
+    removeSubjectFromSemester,
+} from '../../../redux/CreateBootcamp/createBootCamp';
+import {
+    MISSING_SUBJECT_IN_SEMESTER,
+    WARNING_OUT_OF_CREDITS,
+} from '../../../util/constants/errorMessage';
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig';
-import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
+import {
+    AutogenAllSubjectCode,
+    getFirstAutogenSubjectIndex,
+} from '../../../util/AutogenSubjectCode/autogenSubjectCode';
 
-const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterIndex, setSelectedSemester, confirmModal }) => {
-
-    const dispatch = useDispatch()
+const Semester = ({
+    error,
+    totalSemester,
+    setIsModalOpen,
+    subjectList,
+    semesterIndex,
+    setSelectedSemester,
+    confirmModal,
+}) => {
+    const dispatch = useDispatch();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [data, setData] = useState([])
+    const [data, setData] = useState([]);
     const searchInput = useRef(null);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -25,7 +42,13 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
         setSearchText('');
     };
     const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+        filterDropdown: ({
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
+            close,
+        }) => (
             <div
                 style={{
                     padding: 8,
@@ -36,7 +59,9 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     ref={searchInput}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onChange={(e) =>
+                        setSelectedKeys(e.target.value ? [e.target.value] : [])
+                    }
                     onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
                     style={{
                         marginBottom: 8,
@@ -45,10 +70,10 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                 />
                 <Space>
                     <Button
-                        type="primary"
+                        type='primary'
                         onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
                         icon={<SearchOutlined />}
-                        size="small"
+                        size='small'
                         style={{
                             width: 90,
                         }}
@@ -57,7 +82,7 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     </Button>
                     <Button
                         onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
+                        size='small'
                         style={{
                             width: 90,
                         }}
@@ -65,8 +90,8 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                         Reset
                     </Button>
                     <Button
-                        type="link"
-                        size="small"
+                        type='link'
+                        size='small'
                         onClick={() => {
                             confirm({
                                 closeDropdown: false,
@@ -78,8 +103,8 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                         Filter
                     </Button>
                     <Button
-                        type="link"
-                        size="small"
+                        type='link'
+                        size='small'
                         onClick={() => {
                             close();
                         }}
@@ -128,11 +153,11 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                 if (!row.isGroup && !row.isBranch) {
                     if (row.isAutoCreateCode) {
                         if (row.semester !== undefined) {
-                            return AutogenAllSubjectCode(row)
+                            return AutogenAllSubjectCode(row);
                         }
-                    } else return text
-                } else return ''
-            }
+                    } else return text;
+                } else return '';
+            },
         },
         {
             title: 'Subject Name',
@@ -142,17 +167,16 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             ...getColumnSearchProps('name'),
             render: (text, record) => {
                 if (record.isBranch) {
-                    return <span style={{ fontWeight: "bold" }}>{text}</span>
+                    return <span style={{ fontWeight: 'bold' }}>{text}</span>;
                 }
-                return text
-            }
+                return text;
+            },
         },
         {
             title: 'Credits',
             dataIndex: 'credits',
             key: 'credits',
-            width: '5%',
-
+            width: '8%',
         },
         {
             title: 'Type',
@@ -161,25 +185,24 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             width: '10%',
             render: (_, { isCompulsory, isBranch }) => {
                 if (isBranch) {
-                    return ""
+                    return '';
                 }
-                return <>
-                    {isCompulsory ? (<Tag color={"volcano"} >
-                        Compusory
-                    </Tag>) : (<Tag color={"green"}>
-                        Elective
-                    </Tag>)}
-
-                </>
-
-            }
-
-            ,
+                return (
+                    <>
+                        {isCompulsory ? (
+                            <Tag color={'volcano'}>Compusory</Tag>
+                        ) : (
+                            <Tag color={'green'}>Elective</Tag>
+                        )}
+                    </>
+                );
+            },
         },
         {
             title: 'Description',
             dataIndex: 'description',
-            key: 'description'
+            key: 'description',
+            ellipsis: true,
         },
 
         {
@@ -187,33 +210,49 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
             width: '8%',
             render: (_, data) => {
                 if (data.isBranch) {
-                    return <></>
+                    return <></>;
                 }
-                return <Row>
-                    <Col span={12}>
-                        <Button type='default' danger
-                            onClick={async () => {
-                                const confirmed = await confirmModal.confirm(deleteConfirmConfig)
-                                if (confirmed)
-                                    if (data.isGroup) {
-                                        const groupData = {
-                                            credit: data.credits,
-                                            semester: null,
-                                            branchMajor: null
-                                        }
-                                        dispatch(editGroup({ fieldIndex: data.fieldIndex, groupData, groupIndex: data.groupIndex }))
-                                    }
-                                    else dispatch(removeSubjectFromSemester({ subjestIndex: data.key, semesterIndex, semesterSubjectListIndex: data.semesterSubjectListIndex }))
-                            }}
-                        >
-                            <DeleteOutlined />
-                        </Button>
-                    </Col>
-                    <Col span={12}>
-
-                    </Col>
-                </Row>
-
+                return (
+                    <Row>
+                        <Col span={12}>
+                            <Button
+                                type='default'
+                                danger
+                                onClick={async () => {
+                                    const confirmed = await confirmModal.confirm(
+                                        deleteConfirmConfig
+                                    );
+                                    if (confirmed)
+                                        if (data.isGroup) {
+                                            const groupData = {
+                                                credit: data.credits,
+                                                semester: null,
+                                                branchMajor: null,
+                                            };
+                                            dispatch(
+                                                editGroup({
+                                                    fieldIndex: data.fieldIndex,
+                                                    groupData,
+                                                    groupIndex: data.groupIndex,
+                                                })
+                                            );
+                                        } else
+                                            dispatch(
+                                                removeSubjectFromSemester({
+                                                    subjestIndex: data.key,
+                                                    semesterIndex,
+                                                    semesterSubjectListIndex:
+                                                        data.semesterSubjectListIndex,
+                                                })
+                                            );
+                                }}
+                            >
+                                <DeleteOutlined />
+                            </Button>
+                        </Col>
+                        <Col span={12}></Col>
+                    </Row>
+                );
             },
         },
     ];
@@ -228,11 +267,11 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                     if (!row.isGroup && !row.isBranch) {
                         if (row.isAutoCreateCode) {
                             if (row.semester !== undefined) {
-                                return AutogenAllSubjectCode(row)
+                                return AutogenAllSubjectCode(row);
                             }
-                        } else return text
-                    } else return ''
-                }
+                        } else return text;
+                    } else return '';
+                },
             },
             {
                 title: 'Subject Name',
@@ -248,57 +287,74 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                 key: 'isCompulsory',
                 width: '10%',
                 render: (value) => {
-                    return <Tag color={value ? "volcano" : "green"}>{value ? "Compulsory" : "Elective"}</Tag>
-                }
+                    return (
+                        <Tag color={value ? 'volcano' : 'green'}>
+                            {value ? 'Compulsory' : 'Elective'}
+                        </Tag>
+                    );
+                },
             },
             {
                 title: 'Credits',
                 dataIndex: 'credits',
                 key: 'credits',
                 ...getColumnSearchProps('credits'),
-
             },
             {
                 title: 'Description',
                 dataIndex: 'description',
-                key: 'description'
-
+                key: 'description',
             },
 
             {
                 title: '',
-                width: "8%",
+                width: '8%',
                 dataIndex: '',
                 key: '',
                 render: (_, row) => {
-                    return <div>
-                        <Button
-                            danger
-                            style={{ color: "red" }}
-                            onClick={async () => {
-                                const confirmed = await confirmModal.confirm(deleteConfirmConfig);
-                                if (confirmed) {
-                                    if (row.isGroup) {
-                                        const groupData = {
-                                            credit: row.credits,
-                                            semester: null,
-                                            branchMajor: null
+                    return (
+                        <div>
+                            <Button
+                                danger
+                                style={{ color: 'red' }}
+                                onClick={async () => {
+                                    const confirmed = await confirmModal.confirm(
+                                        deleteConfirmConfig
+                                    );
+                                    if (confirmed) {
+                                        if (row.isGroup) {
+                                            const groupData = {
+                                                credit: row.credits,
+                                                semester: null,
+                                                branchMajor: null,
+                                            };
+                                            dispatch(
+                                                editGroup({
+                                                    fieldIndex: row.fieldIndex,
+                                                    groupData,
+                                                    groupIndex: row.groupIndex,
+                                                })
+                                            );
+                                        } else {
+                                            dispatch(
+                                                removeSubjectFromSemester({
+                                                    subjestIndex: row.key,
+                                                    semesterIndex,
+                                                    semesterSubjectListIndex:
+                                                        row.semesterSubjectListIndex,
+                                                })
+                                            );
                                         }
-                                        dispatch(editGroup({ fieldIndex: row.fieldIndex, groupData, groupIndex: row.groupIndex }))
-                                    } else {
-                                        dispatch(removeSubjectFromSemester({ subjestIndex: row.key, semesterIndex, semesterSubjectListIndex: row.semesterSubjectListIndex }))
                                     }
-
-                                }
-
-                            }}
-                        >
-                            <DeleteOutlined />
-                        </Button>
-                    </div>
-                }
+                                }}
+                            >
+                                <DeleteOutlined />
+                            </Button>
+                        </div>
+                    );
+                },
             },
-        ]
+        ];
         const data = [];
         allowcateFields.forEach((field, fIndex) => {
             field.electiveSubjectList.forEach((group, gIndex) => {
@@ -307,21 +363,21 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                         if (group.branchMajor._id) {
                             if (group.branchMajor._id === branch._id) {
                                 if (group.semester === semesterIndex) {
-
                                     data.unshift({
                                         name: `${field.fieldName} ${gIndex + 1}`,
                                         isCompulsory: false,
                                         credits: group.credit,
                                         isBranch: false,
                                         isGroup: true,
-                                        branchMajor: group.branchMajor?._id ? group.branchMajor._id : group.branchMajor,
+                                        branchMajor: group.branchMajor?._id
+                                            ? group.branchMajor._id
+                                            : group.branchMajor,
                                         semester: group.semester,
                                         fieldIndex: fIndex,
                                         groupIndex: gIndex,
-                                    })
+                                    });
                                 }
                             }
-
                         } else {
                             if (group.branchMajor === branch._id) {
                                 if (group.semester === semesterIndex) {
@@ -331,53 +387,69 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                                         credits: group.credit,
                                         isBranch: false,
                                         isGroup: true,
-                                        branchMajor: group.branchMajor?._id ? group.branchMajor._id : group.branchMajor,
+                                        branchMajor: group.branchMajor?._id
+                                            ? group.branchMajor._id
+                                            : group.branchMajor,
                                         semester: group.semester,
                                         fieldIndex: fIndex,
                                         groupIndex: gIndex,
-                                    })
+                                    });
                                 }
                             }
                         }
-
                 }
-
-            })
-        })
+            });
+        });
         subjectList.forEach((subject, index) => {
-            if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === branch._id) {
+            if (
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === branch._id
+            ) {
                 data.push({
-                    ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
+                    ...allowcateFields[subject.fieldIndex].subjectList[
+                        subject.subjectIndex
+                    ],
                     semesterSubjectListIndex: subject.semesterSubjectListIndex,
-                    key: index
-                })
+                    key: index,
+                });
             }
-        })
+        });
         return <Table columns={columns} dataSource={data} pagination={false} />;
     };
     const handleSemesterClick = () => {
-        setSelectedSemester(semesterIndex)
-        setIsModalOpen(true)
-    }
+        setSelectedSemester(semesterIndex);
+        setIsModalOpen(true);
+    };
 
-    const { allowcateFields } = useSelector(store => store.createBootCamp)
-    const { viewedMajor } = useSelector(store => store.major)
+    const { allowcateFields } = useSelector((store) => store.createBootCamp);
+    const { viewedMajor } = useSelector((store) => store.major);
 
     const getSemesterData = () => {
         let newSubjectArray = [];
 
         subjectList.forEach((subject, index) => {
-            if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === undefined || allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === null) {
+            if (
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === undefined ||
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === null
+            ) {
                 newSubjectArray.push({
-                    ...allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex],
+                    ...allowcateFields[subject.fieldIndex].subjectList[
+                        subject.subjectIndex
+                    ],
                     semesterSubjectListIndex: subject.semesterSubjectListIndex,
                     isBranch: false,
                     isGroup: false,
                     key: index,
-                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex, subject.subjectIndex, allowcateFields)
-                })
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(
+                        subject.fieldIndex,
+                        subject.subjectIndex,
+                        allowcateFields
+                    ),
+                });
             }
-        })
+        });
         allowcateFields.forEach((field, fIndex) => {
             field.electiveSubjectList.forEach((group, gIndex) => {
                 if (group.branchMajor === undefined || group.branchMajor === null)
@@ -388,14 +460,16 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                             credits: group.credit,
                             isBranch: false,
                             isGroup: true,
-                            branchMajor: group.branchMajor?._id ? group.branchMajor._id : group.branchMajor,
+                            branchMajor: group.branchMajor?._id
+                                ? group.branchMajor._id
+                                : group.branchMajor,
                             semester: group.semester,
                             fieldIndex: fIndex,
                             groupIndex: gIndex,
-                        })
+                        });
                     }
-            })
-        })
+            });
+        });
         if (semesterIndex >= 4)
             if (viewedMajor) {
                 viewedMajor.branchMajor.forEach((branch, index) => {
@@ -404,83 +478,100 @@ const Semester = ({ error, totalSemester, setIsModalOpen, subjectList, semesterI
                         key: branch._id,
                         isBranch: true,
                         isGroup: false,
-                    })
-                })
+                    });
+                });
             }
 
-        return newSubjectArray
-    }
+        return newSubjectArray;
+    };
 
     const countTotalCredits = () => {
-        let totalCredits = 0
+        let totalCredits = 0;
         subjectList.forEach((subject, index) => {
-            if (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === undefined || allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor === null) {
-                totalCredits += allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex].credits
+            if (
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === undefined ||
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === null
+            ) {
+                totalCredits +=
+                    allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                        .credits;
             }
-        })
+        });
         allowcateFields.forEach((field, fIndex) => {
             field.electiveSubjectList.forEach((group, gIndex) => {
                 if (group.branchMajor === undefined || group.branchMajor === null)
                     if (group.semester === semesterIndex) {
-                        totalCredits += group.credit
+                        totalCredits += group.credit;
                     }
-            })
-        })
-        return totalCredits
-    }
+            });
+        });
+        return totalCredits;
+    };
 
     return (
         <Card
             hoverable
             style={{
-                width: "100%",
+                width: '100%',
             }}
         >
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ display: 'flex', gap: 8 }}>
                     <h2>Semester {semesterIndex + 1} - Total Credit: </h2>
-                    {countTotalCredits() <= 30 ?
-
-                        <h2 style={{ color:"#5cb85c" }}>{countTotalCredits()}</h2>
-
-                        :
+                    {countTotalCredits() <= 30 ? (
+                        <h2 style={{ color: '#5cb85c' }}>{countTotalCredits()}</h2>
+                    ) : (
                         <Tooltip title={WARNING_OUT_OF_CREDITS}>
-                            <h2 style={{ color:"#f7b217" }}>{countTotalCredits()} <WarningOutlined /></h2>
+                            <h2 style={{ color: '#f7b217' }}>
+                                {countTotalCredits()} <WarningOutlined />
+                            </h2>
                         </Tooltip>
-                    }
-
+                    )}
                 </span>
 
                 <div>
-                    <Button type="primary" onClick={handleSemesterClick}>
+                    <Button type='primary' onClick={handleSemesterClick}>
                         Add Subject
                     </Button>
-                    {
-                        totalSemester > 1 ?
-                            <Button style={{ marginLeft: 16 }} type='default' danger
-                                onClick={async () => {
-                                    const confirmed = await confirmModal.confirm(deleteConfirmConfig)
-                                    if (confirmed)
-                                        dispatch(deleteSemester(semesterIndex))
-                                }}
-                            >
-                                Delete Semester
-                            </Button>
-                            :
-                            <></>
-                    }
-
+                    {totalSemester > 1 ? (
+                        <Button
+                            style={{ marginLeft: 16 }}
+                            type='default'
+                            danger
+                            onClick={async () => {
+                                const confirmed = await confirmModal.confirm(
+                                    deleteConfirmConfig
+                                );
+                                if (confirmed) dispatch(deleteSemester(semesterIndex));
+                            }}
+                        >
+                            Delete Semester
+                        </Button>
+                    ) : (
+                        <></>
+                    )}
                 </div>
             </div>
-            {(error) ? <div style={{ color: "red", marginTop: 10 }}>**{MISSING_SUBJECT_IN_SEMESTER}</div> : ""}
+            {error ? (
+                <div style={{ color: 'red', marginTop: 10 }}>
+                    **{MISSING_SUBJECT_IN_SEMESTER}
+                </div>
+            ) : (
+                ''
+            )}
             <Divider />
-            <Table expandable={{
-                expandedRowRender,
-                rowExpandable: record => record.branchCode !== undefined
-
-            }} columns={columns} dataSource={getSemesterData()} />;
+            <Table
+                expandable={{
+                    expandedRowRender,
+                    rowExpandable: (record) => record.branchCode !== undefined,
+                }}
+                columns={columns}
+                dataSource={getSemesterData()}
+            />
         </Card>
-    )
-}
+    );
+};
 
-export default Semester
+export default Semester;
