@@ -270,7 +270,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
   const handleSelectMajor = (value) => {
     dispatch(updateSelectedMajor(value))
-
+    dispatch(getMajorById(value))
     if (userData) {
       if (userData.role === "admin") {
         const selectedMajorData = majorList.find((major) => major._id === value)
