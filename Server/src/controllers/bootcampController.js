@@ -6,20 +6,7 @@ const ApiFeature = require('../utils/ApiFeature');
 //
 const createBC = crudFactory.createOne(Bootcamp);
 const updateBC = crudFactory.updateOne(Bootcamp);
-// const getBC = crudFactory.getOne(Bootcamp, [
-//     { path: 'major' },
-//     {
-//         path: 'detail',
-//         populate: { path: 'subjectList.$*' },
-//     },
-//     {
-//         path: 'major',
-//         populate: { path: 'branchMajor' },
-//     },
-//     {
-//         path: 'allocation',
-//     },
-// ]);
+
 const getBC = async (req, res, next) => {
     try {
         const doc = await Bootcamp.findById(req.params.id)

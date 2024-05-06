@@ -79,10 +79,11 @@ const getAll = (Model) => async (req, res, next) => {
         apiFeat.filter().sorting().pagination();
 
         const docs = await apiFeat.myQuery;
+        const total = await Model.countDocuments({});
 
         res.status(200).send({
             status: 'ok',
-            total: docs.length,
+            total: total,
             data: docs,
         });
     } catch (error) {
