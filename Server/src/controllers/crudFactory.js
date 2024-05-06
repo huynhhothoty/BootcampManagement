@@ -76,14 +76,16 @@ const getOne = (Model, populateOptions) => async (req, res, next) => {
 const getAll = (Model) => async (req, res, next) => {
     try {
         const apiFeat = new ApiFeature(Model.find(), req.query);
+        const apiFeat2 = new ApiFeature(Model.find(), req.query);
         apiFeat.filter().sorting().pagination();
+        apiFeat2.filter();
 
         const docs = await apiFeat.myQuery;
-        const total = await Model.countDocuments({});
+        const docsOnlyFilter = await apiFeat2.myQuery;
 
         res.status(200).send({
             status: 'ok',
-            total: total,
+            total: docsOnlyFilter.length,
             data: docs,
         });
     } catch (error) {
