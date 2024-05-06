@@ -12,6 +12,7 @@ const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [bootcampCardList,setBootcampCardList] = useState([])
   const onClose = () => {
     setOpenDrawer(false);
   };
@@ -36,7 +37,6 @@ const Home = () => {
   }
   const renderBootcampStatic = () => {
     return userTrackingBootcampList.map((bootcamp) => {
-      console.log(bootcamp)
       return (<Col
         xxl={8}
         xl={8}
@@ -52,7 +52,7 @@ const Home = () => {
           }}
           onClick={() => {showDrawer(bootcamp)}}
         >
-          {/* <BootcampProgressCard bootcamp={bootcamp} /> */}
+          <BootcampProgressCard bootcamp={bootcamp} />
         </Card>
       </Col>)
     })
@@ -67,12 +67,16 @@ const Home = () => {
     
   },[])
 
+  useEffect(() => {
+    setBootcampCardList(renderBootcampStatic())
+  },[userTrackingBootcampList])
+
   return (
     <div className="bootcamp-progress">
       <TestComp/>
       <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData}/>
       <Row gutter={[16, 16]}>
-       {renderBootcampStatic()}
+       {bootcampCardList}
       </Row>
     </div>
   )

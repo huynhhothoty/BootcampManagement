@@ -11,6 +11,7 @@ import { createContext } from 'react'
 import UserBootcamp from './page/UserBootcamp/UserBootcamp'
 import AllBootcampTable from './components/UserBootcamp/AllBootcampTable'
 import BootcampDetail from './components/UserBootcamp/BootcampDetail'
+import AllSubject from './page/Subject/AllSubject'
 
 
 const ReachableContext = createContext(null);
@@ -43,6 +44,7 @@ function App() {
         <Route element={<Main />}>
           <Route path="" element={<Home />} />
           <Route path="/createbootcamp" element={<CreateBootcamp  openNotification={openNotification} confirmModal={modal}/>} />
+          <Route path="/subject" element={<AllSubject  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/userbootcamp" element={<UserBootcamp  openNotification={openNotification} confirmModal={modal}/>} >
             <Route path="" element={<AllBootcampTable/>}/>
             <Route path="viewbootcamp" element={<BootcampDetail openNotification={openNotification} confirmModal={modal}/>}/>

@@ -11,6 +11,7 @@ import { updateLoading } from '../../redux/loading/Loading';
 const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
     const { viewedMajor } = useSelector(store => store.major)
     const { checkSubjectList } = useSelector(store => store.subject)
+    const [subjectData, setSubjectData] = useState([])
     const [loading,setLoading] = useState(false)
     const dispatch = useDispatch()
     const generateData = () => {
@@ -204,8 +205,11 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
       
     }
     useEffect(() => {
-
-        generateTrackingDataData()
+        if(open){
+            generateTrackingDataData()
+            setSubjectData(generateData)
+        }
+        
     },[open])
 
     const saveTracking = async () => {
@@ -263,7 +267,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
               </Button>
             </Space>
           }>
-            {generateData()}
+            {subjectData}
             {/* <CheckingSemesterList/> */}
         </Drawer>
     )

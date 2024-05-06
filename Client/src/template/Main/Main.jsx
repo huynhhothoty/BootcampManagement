@@ -6,7 +6,7 @@ import {
   UnorderedListOutlined,
   HomeOutlined,
   PlusCircleOutlined,
-  UserOutlined, 
+  UserOutlined,
   DownOutlined,
   LogoutOutlined
 } from '@ant-design/icons';
@@ -61,6 +61,10 @@ const Main = () => {
         navigate('/userbootcamp')
         setheaderTitle('My Bootcamp')
         break;
+      case '4':
+        navigate('/subject')
+        setheaderTitle('All Subject')
+        break;
 
       default:
         break;
@@ -76,7 +80,7 @@ const Main = () => {
         let userData = sessionStorage.getItem(USER_DATA)
         userData = JSON.parse(userData)
         dispatch(setFirstUserData(userData))
-        if(draftID !== "")
+        if (draftID !== "")
           await dispatch(getUserDraft(userData.id))
 
       }
@@ -114,6 +118,11 @@ const Main = () => {
               key: '3',
               icon: <UnorderedListOutlined />,
               label: 'My Bootcamp',
+            },
+            {
+              key: '4',
+              icon: <UnorderedListOutlined />,
+              label: 'Subject',
             },
           ]}
         />

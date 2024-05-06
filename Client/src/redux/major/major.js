@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 import axios from "axios";
-import { getAllMajorAPI, getDepartmentByIdAPI, getMajorByIdAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
+import { getAllMajorAPI, getDepartmentByIdAPI, getMajorByIdAPI, queryAllDepartmentAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
 
 const initialState = {
     loading: false,
@@ -73,6 +73,25 @@ export const getDepartmentById =  createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.get(getDepartmentByIdAPI(departmentId), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const queryAllDepartment =  createAsyncThunk(
+  "allowcate/queryAllDepartment",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(queryAllDepartmentAPI(query), {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",

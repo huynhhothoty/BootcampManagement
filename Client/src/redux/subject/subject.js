@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { tempJWTToken } from "../../util/api/host";
 import { getAllowcateByIdAPI } from "../../util/api/allowcate/allowcateApi";
-import { getAllSubjectAPI, updateSubjectAPI } from "../../util/api/subjects/subjectsApi";
+import { deleteSubjectAPI, getAllSubjectAPI, updateSubjectAPI, querySubjectAPI } from "../../util/api/subjects/subjectsApi";
 import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
@@ -38,6 +38,44 @@ export const updateSubject = createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.patch(updateSubjectAPI(subjectID),updatedData, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const querySubject = createAsyncThunk(
+  "subject/querySubject",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(querySubjectAPI(query), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const deleteSubject = createAsyncThunk(
+  "subject/deleteSubject",
+  async (subjectId) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.delete(deleteSubjectAPI(subjectId), {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",
