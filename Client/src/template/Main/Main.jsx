@@ -65,6 +65,11 @@ const Main = () => {
         navigate('/subject')
         setheaderTitle('All Subject')
         break;
+      
+      case '5':
+        navigate('/department')
+        setheaderTitle('All Department')
+        break;
 
       default:
         break;
@@ -123,6 +128,11 @@ const Main = () => {
               key: '4',
               icon: <UnorderedListOutlined />,
               label: 'Subject',
+            },
+            {
+              key: '5',
+              icon: <UnorderedListOutlined />,
+              label: 'Department',
             },
           ]}
         />

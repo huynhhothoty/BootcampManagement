@@ -153,7 +153,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
             })
-            if (semester >= 4) {
+            if (index >= 4) {
                 viewedMajor.branchMajor?.forEach((branch, index) => {
                     subjectList.unshift({
                         ...branch,
