@@ -4,6 +4,8 @@ import { Button, Input, Space, Table } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { useDispatch } from 'react-redux';
 import { queryAllDepartment } from '../../redux/major/major';
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import DepartmentModal from '../../components/Department/DepartmentModal';
 
 
 const AllDepartment = () => {
@@ -128,7 +130,9 @@ const AllDepartment = () => {
             children: department.list.map((child) => {
               return {
                 ...child,
-                key: child._id
+                key: child._id,
+                isChild:true,
+                root: department
               }
             }),
             key: department._id
@@ -149,20 +153,53 @@ const AllDepartment = () => {
           dataIndex: 'code',
           key: 'code',
           width: '15%',
+          align:'center',
           ...getColumnSearchProps('code'),
         },
         {
           title: 'Action',
           key: 'action',
-          width: '10%'
+          width: '13%',
+          align:'center',
+          render: (_,rows) => {
+            return (<div style={{display:'flex', justifyContent:"center", gap: 10}}>
+              <Button onClick={() => handleOpenModal(rows)} type='primary'>Edit</Button>
+              {!rows.isChild ? <Button onClick={() => handleOpenModal({...rows,rootId: rows._id})}>Add</Button> : <></>}
+              
+            </div>)
+          }
         },
       ];
+
+      const [openModal, setOpentModal] = useState(false)
+      const [modalData, setModalData] = useState(null)
+      const [modalType, setModalType] = useState('add')
+
+      const handleOpenModal = (data) => {
+        if(data){
+          setModalData(data)
+          if(data.rootId && !data.isChild) setModalType('add')
+          else setModalType('edit')
+        }else{
+          setModalData(null)
+          setModalType('add')
+        }
+        setOpentModal(true)
+      }
+
+      const handleCloseModal = () => {
+        setOpentModal(false)
+      }
     
       useEffect(() => {
         getTableData()
       },[])
 
-    return <Table columns={columns} dataSource={data} bordered/>;
+    return <div style={{display:'flex', flexDirection:"column", gap: 10, }}>
+      <DepartmentModal open={openModal} onClose={handleCloseModal} modalData={modalData} modalType={modalType} reloadTable={getTableData}/>
+      <Button style={{alignSelf:'flex-end'}} icon={<PlusOutlined/>} type='primary' onClick={() => handleOpenModal()}>Add Department</Button>
+      <Table columns={columns} dataSource={data} bordered />
+    </div>;
 }
 
 export default AllDepartment

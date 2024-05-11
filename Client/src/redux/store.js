@@ -6,7 +6,7 @@ import allowcate from './allocate/allowcate'
 import subject from './subject/subject'
 import authentication from './authentication/authentication'
 import major from './major/major'
-
+import department from './department/department'
 
 
 export const store = configureStore({
@@ -17,6 +17,7 @@ export const store = configureStore({
     allowcate,
     subject,
     authentication,
-    major
+    major,
+    department
   },
 })

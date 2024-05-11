@@ -68,7 +68,7 @@ export const updateMajor = createAsyncThunk(
 );
 
 export const getDepartmentById =  createAsyncThunk(
-  "allowcate/updateMajor",
+  "allowcate/getDepartmentById",
   async (departmentId) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
