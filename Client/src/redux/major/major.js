@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
 import axios from "axios";
-import { getAllMajorAPI, getDepartmentByIdAPI, getMajorByIdAPI, queryAllDepartmentAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
+import { addBranchMajorAPI, createMajorAPI, getAllMajorAPI, getBranchMajorByIdAPI, getDepartmentByIdAPI, getMajorByIdAPI, queryAllDepartmentAPI, queryAllMajorAPI, updateBranchMajorAPI, updateMajorAPI } from "../../util/api/major/majorAPI";
 
 const initialState = {
     loading: false,
@@ -92,6 +92,101 @@ export const queryAllDepartment =  createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.get(queryAllDepartmentAPI(query), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const queryAllMajor = createAsyncThunk(
+  "allowcate/queryAllMajor",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(queryAllMajorAPI(query), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const getBranchMajorById =  createAsyncThunk(
+  "allowcate/getBranchMajorById",
+  async (branchId) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(getBranchMajorByIdAPI(branchId), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const updateBranchMajor = createAsyncThunk(
+  "allowcate/updateBranchMajor",
+  async ({branchId,data}) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.patch(updateBranchMajorAPI(branchId), data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const addBranchMajor = createAsyncThunk(
+  "allowcate/addBranchMajor",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.post(addBranchMajorAPI(), data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const createMajor = createAsyncThunk(
+  "allowcate/createMajor",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.post(createMajorAPI(), data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",

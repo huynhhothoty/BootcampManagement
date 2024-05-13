@@ -13,6 +13,7 @@ import AllBootcampTable from './components/UserBootcamp/AllBootcampTable'
 import BootcampDetail from './components/UserBootcamp/BootcampDetail'
 import AllSubject from './page/Subject/AllSubject'
 import AllDepartment from './page/Department/AllDepartment'
+import AllMajor from './page/Major/AllMajor'
 
 
 const ReachableContext = createContext(null);
@@ -47,6 +48,7 @@ function App() {
           <Route path="/createbootcamp" element={<CreateBootcamp  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/subject" element={<AllSubject  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/department" element={<AllDepartment  openNotification={openNotification} confirmModal={modal}/>} />
+          <Route path="/major" element={<AllMajor  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/userbootcamp" element={<UserBootcamp  openNotification={openNotification} confirmModal={modal}/>} >
             <Route path="" element={<AllBootcampTable/>}/>
             <Route path="viewbootcamp" element={<BootcampDetail openNotification={openNotification} confirmModal={modal}/>}/>

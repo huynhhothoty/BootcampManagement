@@ -70,6 +70,10 @@ const Main = () => {
         navigate('/department')
         setheaderTitle('All Department')
         break;
+      case '6':
+        navigate('/major')
+        setheaderTitle('All Major')
+        break;
 
       default:
         break;
@@ -133,6 +137,11 @@ const Main = () => {
               key: '5',
               icon: <UnorderedListOutlined />,
               label: 'Department',
+            },
+            {
+              key: '6',
+              icon: <UnorderedListOutlined />,
+              label: 'Major',
             },
           ]}
         />
