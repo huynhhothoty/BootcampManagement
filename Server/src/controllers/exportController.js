@@ -297,18 +297,57 @@ const createSubjectList = (subjectWS, allocation) => {
 
 const exportFileExcel = async (req, res, next) => {
     try {
-        const bootcamp = await Bootcamp.findById(req.params.id)
-            .select('allocation detail')
+        // const bootcamp = await Bootcamp.findById(req.params.id)
+        //     .select('allocation detail')
+        //     .populate([
+        //         { path: 'detail.subjectList' },
+        //         {
+        //             path: 'allocation',
+        //             populate: {
+        //                 path: 'detail.subjectList',
+        //                 populate: { path: 'branchMajor' },
+        //             },
+        //         },
+        //     ]);
+        const doc = await Bootcamp.findById(req.params.id)
+            .lean()
             .populate([
-                { path: 'detail.subjectList' },
+                { path: 'major' },
+                {
+                    path: 'major',
+                    populate: { path: 'branchMajor' },
+                },
                 {
                     path: 'allocation',
-                    populate: {
-                        path: 'detail.subjectList',
-                        populate: { path: 'branchMajor' },
-                    },
                 },
             ]);
+
+        if (!doc) {
+            return next(new CustomError('No document with this Id', 404));
+        }
+
+        // fill and replace id in subject list by subject info in allocation
+        let alloSubList = [];
+        doc.allocation.detail.map((big) => {
+            alloSubList = [...alloSubList, ...big.subjectList];
+        });
+
+        const populateDetail = doc.detail.map((semester) => {
+            const populateSemester = semester.subjectList
+                .map((subjectId) => {
+                    return (
+                        alloSubList.find(
+                            (ele) => ele._id.toString() === subjectId.toString()
+                        ) ?? ''
+                    );
+                })
+                .filter((x) => x != '');
+            semester.subjectList = populateSemester;
+            return semester;
+        });
+        doc.detail = populateDetail;
+
+        const bootcamp = doc;
 
         const allocation = bootcamp.allocation.detail;
         const semesterList = bootcamp.detail;
@@ -350,7 +389,7 @@ const exportFileExcel = async (req, res, next) => {
         const electiveSubjectList = new Array(20).fill([]);
         allocation.forEach((ele) => {
             ele.electiveSubjectList.forEach((sub, index) => {
-                let subject = sub.toObject();
+                let subject = sub;
                 subject = {
                     ...subject,
                     name: `${ele.name.split('(')[0].trim()} Elective ${index + 1}`,
