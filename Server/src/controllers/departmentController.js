@@ -1,16 +1,16 @@
-const { departmentModel } = require('../models/departmentModel');
+const Department = require('../models/departmentModel');
 const crudFactory = require('../controllers/crudFactory');
 const CustomError = require('../utils/CustomError');
 
-const createDepartment = crudFactory.createOne(departmentModel);
-const updateDepartment = crudFactory.updateOne(departmentModel);
-const getDepartment = crudFactory.getOne(departmentModel, null);
-const getAllDepartment = crudFactory.getAll(departmentModel);
-const deleteDepartment = crudFactory.deleteOne(departmentModel);
+const createDepartment = crudFactory.createOne(Department);
+const updateDepartment = crudFactory.updateOne(Department);
+const getDepartment = crudFactory.getOne(Department, null);
+const getAllDepartment = crudFactory.getAll(Department);
+const deleteDepartment = crudFactory.deleteOne(Department);
 const getDepartmentChild = async (req, res, next) => {
     try {
         const childId = req.params.id;
-        const department = await departmentModel.findOne({
+        const department = await Department.findOne({
             list: { $elemMatch: { _id: childId } },
         });
         if (!department)

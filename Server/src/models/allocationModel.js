@@ -109,6 +109,10 @@ const mainSchema = new mongoose.Schema({
     name: {
         type: String,
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     detail: [sectionSchema],
 });
 // middleware

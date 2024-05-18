@@ -11,6 +11,10 @@ const draftSchema = new mongoose.Schema(
             type: Object,
             required: [true, 'You need to save something!'],
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
     {
         timestamps: true,

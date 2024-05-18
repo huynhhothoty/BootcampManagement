@@ -6,6 +6,10 @@ const branchSchema = new mongoose.Schema({
         required: [true, 'BranchMajor must have name'],
         unique: [true, 'BranchMajor must be unique value'],
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     branchCode: {
         type: String,
         required: [true, 'BranchMajor must have Branchmajor code'],
@@ -13,8 +17,7 @@ const branchSchema = new mongoose.Schema({
     },
     summary: {
         type: String,
-        default:
-            'This is a description of a Branchmajor, you can custom this field',
+        default: 'This is a description of a Branchmajor, you can custom this field',
     },
 });
 

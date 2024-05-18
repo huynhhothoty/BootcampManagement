@@ -75,8 +75,8 @@ const getOne = (Model, populateOptions) => async (req, res, next) => {
 
 const getAll = (Model) => async (req, res, next) => {
     try {
-        const apiFeat = new ApiFeature(Model.find(), req.query);
-        const apiFeat2 = new ApiFeature(Model.find(), req.query);
+        const apiFeat = new ApiFeature(Model.find({ isActive: true }), req.query);
+        const apiFeat2 = new ApiFeature(Model.find({ isActive: true }), req.query);
         apiFeat.filter().sorting().pagination();
         apiFeat2.filter();
 

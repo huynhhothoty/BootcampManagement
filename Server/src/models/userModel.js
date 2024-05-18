@@ -9,6 +9,10 @@ const UserSchema = new Schema({
         type: String,
         required: [true, 'Please tell your name'],
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     email: {
         type: String,
         required: [true, 'Please provide your email'],
@@ -64,10 +68,7 @@ UserSchema.pre('save', async function (next) {
 // method to check if password change after jwt generate
 UserSchema.methods.changePasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
-        const changedTimestamp = parseInt(
-            this.passwordChangedAt.getTime() / 1000,
-            10
-        );
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
 
         // false = not change = the last time password change is before jwt generate
         return JWTTimestamp < changedTimestamp;
@@ -84,7 +85,7 @@ UserSchema.methods.comparePassword = function (typePass, dbPass) {
 
 // generate reset token use for reset password if user forget it
 UserSchema.methods.createResetPasswordToken = function () {
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetToken = crypto.randomBytes(4).toString('hex');
 
     this.passwordResetToken = crypto
         .createHash('sha256')

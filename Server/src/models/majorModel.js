@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const BranchMajor = require('../models/branchMajorModel');
+const Bootcamp = require('./bootcampModel');
+const User = require('./userModel');
 
 const majorSchema = new mongoose.Schema(
     {
@@ -7,6 +9,10 @@ const majorSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Major must have name'],
             unique: [true, 'Major must be unique value'],
+        },
+        isActive: {
+            type: Boolean,
+            default: true,
         },
         majorCode: {
             type: String,
@@ -45,6 +51,16 @@ majorSchema.pre(/^find/, function () {
 
 majorSchema.post('findOneAndDelete', async function (doc) {
     await BranchMajor.deleteMany({ _id: { $in: doc.branchMajor } });
+});
+
+majorSchema.post('findOneAndUpdate', async function (doc, next) {
+    if (!('isActive' in this.getUpdate().$set)) next();
+
+    const isActive = this.getUpdate().$set.isActive;
+
+    await Bootcamp.updateMany({ major: doc._id }, { isActive }).lean();
+    await User.updateMany({ major: doc._id }, { isActive }).lean();
+    await BranchMajor.updateMany({ _id: { $in: doc.branchMajor } }, { isActive }).lean();
 });
 
 //

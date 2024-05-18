@@ -7,6 +7,10 @@ const subjectSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Subject must have a name'],
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         credit: {
             type: Number,
             required: [true, 'Subject must have its credit'],

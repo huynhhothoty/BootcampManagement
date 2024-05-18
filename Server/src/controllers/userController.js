@@ -1,13 +1,12 @@
 const User = require('../models/userModel');
 const CustomError = require('../utils/CustomError');
 const jwt = require('jsonwebtoken');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 const crypto = require('crypto');
-const crudFactory = require('./crudFactory');
 
 const getAllUser = async (req, res, next) => {
     try {
-        const userList = await User.find();
+        const userList = await User.find({ isActive: true });
         res.status(200).send({
             status: 'ok',
             data: userList,
@@ -92,29 +91,24 @@ const forgetPassoword = async (req, res, next) => {
         const resetToken = thisUser.createResetPasswordToken();
         await thisUser.save({ validateBeforeSave: false });
 
-        const resetURL = `${req.protocol}://${req.get(
-            'host'
-        )}/api/user/resetpassword/${resetToken}`;
-        let message = `send PATCH request with body is your new passoword to this link\n${resetURL}`;
-
         try {
-            await sendEmail({
-                email: thisUser.email,
-                subject: 'Reset password token (only valid for 5 mins)',
-                message: resetToken,
-            });
+            const emailInstance = new Email(thisUser);
+            await emailInstance.sendResetPasswordMail(resetToken);
 
             res.status(200).send({
                 status: 'ok',
                 message:
                     'Please access link is sent via your email by PATCH request to reset password',
+                userId: thisUser._id,
             });
         } catch (error) {
             thisUser.passwordResetToken = undefined;
             thisUser.resetTokenExpire = undefined;
             await thisUser.save({ validateBeforeSave: false });
             console.log(error);
-            return next(new CustomError('Error occurs when sending email, please try again', 500));
+            return next(
+                new CustomError('Error occurs when sending email, please try again', 500)
+            );
         }
     } catch (error) {
         return next(error);
@@ -124,7 +118,10 @@ const forgetPassoword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
     try {
         // get user base on token
-        const hashToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+        const hashToken = crypto
+            .createHash('sha256')
+            .update(req.params.token)
+            .digest('hex');
         const thisUser = await User.findOne({ passwordResetToken: hashToken });
 
         // if token is not expire + this user is exist, set the new password for this user
@@ -160,7 +157,9 @@ const updatePassword = async (req, res, next) => {
         // check typed password is correct
         const { oldPassword, newPassword } = req.body;
         if (!oldPassword || !newPassword)
-            return next(new CustomError('Please enter your password and new password', 400));
+            return next(
+                new CustomError('Please enter your password and new password', 400)
+            );
         if (!thisUser.comparePassword(oldPassword, thisUser.password)) {
             return next(new CustomError('Your password you enter is incorrect', 401));
         }

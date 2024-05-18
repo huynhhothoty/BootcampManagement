@@ -7,6 +7,10 @@ const departmentSchema = new Schema({
     code: {
         type: String,
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     list: [
         {
             name: {
@@ -22,7 +26,5 @@ const departmentSchema = new Schema({
 });
 
 //
-const departmentModel = model('Department', departmentSchema);
-module.exports = {
-    departmentModel,
-};
+const Department = model('Department', departmentSchema);
+module.exports = Department;

@@ -17,6 +17,14 @@ const bootcampSchema = new mongoose.Schema(
             type: String,
             default: 'My new bootcamp',
         },
+        branchMajorSemester: {
+            type: Number,
+            default: 4,
+        },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
         major: {
             type: mongoose.Schema.ObjectId,
             ref: 'Major',
