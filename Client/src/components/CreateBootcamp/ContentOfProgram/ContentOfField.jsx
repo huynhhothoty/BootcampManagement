@@ -223,9 +223,14 @@ const ContentOfField = ({
             width: '15%',
             render: (text, row) => {
                 if (row.isAutoCreateCode) {
-                    if (row.semester || type === 'Elective') {
+                    if(type === 'Elective'){
                         return AutogenAllSubjectCode(row);
+                    }else {
+                        if (row.semester !== null && row.semester !== undefined ){
+                          return AutogenAllSubjectCode(row);
+                        }
                     }
+                    
                 } else return text;
             },
         },

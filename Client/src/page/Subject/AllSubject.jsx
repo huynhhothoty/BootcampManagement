@@ -12,7 +12,7 @@ import SubjectDetailModal from '../../components/Subject/SubjectDetailModal';
 import { deleteConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 import { NOTI_SUCCESS, NOTI_SUCCESS_DELETE_SUBJECT, NOTI_SUCCESS_TITLE } from '../../util/constants/notificationMessage';
 
-const AllSubject = ({ openNotification, confirmModal }) => {
+const AllSubject = ({ openNotification, confirmModal, isSelect, importingType, setSelectedSubject, selectedRowKeys, setSelectedRowKeys }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate();
     const actionRef = useRef();
@@ -48,7 +48,7 @@ const AllSubject = ({ openNotification, confirmModal }) => {
                     status: "Success"
                 }
             },
-            initialValue: "true"
+            initialValue: importingType ? importingType === 'Compulsory' ? "true" : "false" : "true"
         },
         {
             title: 'Deparment',
@@ -92,7 +92,8 @@ const AllSubject = ({ openNotification, confirmModal }) => {
                         }
                     }} />
                 </div>
-            }
+            },
+            hideInTable: isSelect ? true : false
         }
 
     ];
@@ -100,6 +101,7 @@ const AllSubject = ({ openNotification, confirmModal }) => {
     const [openModal, setOpenModal] = useState(false)
     const [modalData, setModalData] = useState(null)
     const [modalType, setModalType] = useState('create')
+
 
     const handleOpenModal = (subjectData) => {
         if (subjectData) {
@@ -120,6 +122,19 @@ const AllSubject = ({ openNotification, confirmModal }) => {
         actionRef?.current.reload()
     }
 
+    const rowSelection = {
+        selectedRowKeys: selectedRowKeys,
+        onChange: (selectedRowKeys, selectedRows) => {
+            setSelectedRowKeys(selectedRowKeys);
+            setSelectedSubject(selectedRows);
+        },
+    };
+
+    useEffect(() => {
+        actionRef?.current.reset()
+       
+    },[importingType])
+
     return (
         <>
             <SubjectDetailModal openNotification={openNotification} departmentList={departmentList} open={openModal} onClose={handleCloseModal} modalType={modalType} modalData={modalData} reloadTable={reloadTable} />
@@ -128,6 +143,10 @@ const AllSubject = ({ openNotification, confirmModal }) => {
                 actionRef={actionRef}
                 cardBordered
                 tableAlertRender={false}
+                rowSelection={{
+                    type: 'radio',
+                    ...rowSelection,
+                }}
                 // rowSelection={isAddModal ? {
                 //     selectedRowKeys,
                 //     onChange: onSelectChange,
@@ -139,6 +158,7 @@ const AllSubject = ({ openNotification, confirmModal }) => {
 
                 request={async (params) => {
                     let newParams = copyObjectWithKeyRename(params)
+                    
                     let departmentChildParams = null
                     if (newParams.departmentChild) {
                         departmentChildParams = {
@@ -146,10 +166,16 @@ const AllSubject = ({ openNotification, confirmModal }) => {
                         }
                         delete newParams.departmentChild
                     }
+                    if(importingType){
+                        if(!('isCompulsory' in newParams)){
+                            newParams['isCompulsory'] = importingType === 'Compulsory' ? true : false
+                        }
+                    }
                     let queryString = objectToQueryString(newParams)
                     if (departmentChildParams !== null) {
                         queryString += `&departmentChild=${departmentChildParams['1']}`
                     }
+                    
                     const res = await dispatch(querySubject(queryString))
                     let newData = res.payload.data.map((student) => {
                         return {
@@ -163,6 +189,7 @@ const AllSubject = ({ openNotification, confirmModal }) => {
                         total: res.payload.total,
                     }
                 }}
+
                 columnsState={{
                     persistenceKey: 'pro-table-singe-demos',
                     persistenceType: 'localStorage',
