@@ -179,6 +179,27 @@ const updatePassword = async (req, res, next) => {
     }
 };
 
+const updatePasswordByAdmin = async (req, res, next) => {
+    try {
+        const { newPassword, userId } = req.body;
+        if (!newPassword)
+            return next(new CustomError('Please enter new password and userId', 400));
+        const thisUser = await User.findById(userId);
+        if (!thisUser) return next(new CustomError('No user with this id', 404));
+
+        // change password
+        thisUser.password = newPassword;
+        await thisUser.save({ validateBeforeSave: false });
+
+        res.status(200).send({
+            status: 'ok',
+            message: 'change password successfully',
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
 const filterObject = (obj, ...allowField) => {
     const newObject = {};
     Object.keys(obj).forEach((ele) => {
@@ -239,4 +260,5 @@ module.exports = {
     updateInfo,
     getAllUser,
     getOneUser,
+    updatePasswordByAdmin,
 };
