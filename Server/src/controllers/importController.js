@@ -1,5 +1,6 @@
 const exceljs = require('exceljs');
 const CustomError = require('../utils/CustomError');
+const Major = require('../models/majorModel');
 
 const defaultFieldArray = ['military education'];
 
@@ -8,6 +9,12 @@ const importBC = async (req, res, next) => {
         if (!req.file) {
             return next(new CustomError('Please choose a file from your device!', 400));
         }
+
+        const { majorId } = req.query;
+        if (!majorId) return next(new CustomError('Please provide Major Id', 400));
+
+        const major = await Major.findById(majorId).populate('branchMajor').lean();
+        if (!major) return next(new CustomError('This major not found', 400));
 
         const fileBuffer = req.file.buffer;
 
@@ -82,6 +89,8 @@ const importBC = async (req, res, next) => {
         });
 
         // read semester
+        let branchMajorSemester = null;
+        let currentBranch = null;
         let currentSemester = 0;
         let planData = [];
         let tempSubjectList = [];
@@ -92,15 +101,23 @@ const importBC = async (req, res, next) => {
             };
         });
         planWs.eachRow((row) => {
+            if (row.getCell(2).isMerged && !row.getCell(1).isMerged) {
+                if (branchMajorSemester === null) branchMajorSemester = currentSemester;
+                currentBranch = major.branchMajor.find(
+                    (x) => x.name.toLowerCase() === row.getCell(2).value.toLowerCase()
+                );
+            }
+
             const fieldData = {
                 name: row.getCell(3).value,
                 subjectCode: row.getCell(2).value,
                 credit: row.getCell(4).value ?? 0,
                 isCompulsory: row.getCell(2).value ? true : false,
+                branchMajor: currentBranch ? currentBranch._id : null,
             };
 
             if (isNaN(Number(row.getCell(1).value))) {
-                if (tempSubjectList.length > 0) {
+                if (tempSubjectList.length > 0 && row.getCell(1).isMerged) {
                     const semester = {
                         semester: currentSemester,
                         subjectList: [...tempSubjectList],
@@ -108,6 +125,7 @@ const importBC = async (req, res, next) => {
                     planData = [...planData, semester];
                     currentSemester++;
                     tempSubjectList = [];
+                    currentBranch = null;
                 }
             } else if (fieldData.name.toLowerCase().includes('elective')) {
                 tempElectList = tempElectList.map((ele) => {
@@ -123,7 +141,7 @@ const importBC = async (req, res, next) => {
                         };
                     return ele;
                 });
-            } else {
+            } else if (row.getCell(1).value) {
                 tempSubjectList = [...tempSubjectList, fieldData];
             }
         });
@@ -202,6 +220,8 @@ const importBC = async (req, res, next) => {
                 detail: fullAllo,
             },
             detail: planData,
+            branchMajorSemester,
+            major,
         };
 
         res.status(200).send({

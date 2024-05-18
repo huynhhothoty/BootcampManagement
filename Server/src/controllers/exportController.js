@@ -86,13 +86,12 @@ const createAlloSheet = (alloWS, allocation) => {
     }
 };
 
-const createPlanSheet = (planWS, semesterList, electList) => {
+const createPlanSheet = (planWS, semesterList, electList, major) => {
     planWS.getColumn(1).width = 5;
-    planWS.getColumn(1).alignment = { horizontal: 'center' };
+
     planWS.getColumn(2).width = 16;
-    planWS.getColumn(3).width = 40;
+    planWS.getColumn(3).width = 55;
     planWS.getColumn(4).width = 9;
-    planWS.getColumn(4).alignment = { horizontal: 'center' };
     planWS.getColumn(5).width = 18;
 
     let curRow = 1;
@@ -103,14 +102,20 @@ const createPlanSheet = (planWS, semesterList, electList) => {
         planWS.mergeCells(`A${startRow}:E${startRow}`);
         planWS.getCell(curRow, 1).value = currentSemester;
         planWS.getCell(curRow, 1).alignment = {
+            ...planWS.getCell(curRow, 1).alignment,
             horizontal: 'center',
-            vertical: 'middle',
         };
-        planWS.getCell(curRow, 1).font = { bold: true };
+        planWS.getCell(curRow, 1).font = {
+            ...planWS.getCell(curRow, 1).font,
+            bold: true,
+        };
         planWS.getRow(curRow).height = 40;
         curRow++;
 
-        planWS.getRow(curRow).alignment = { horizontal: 'center' };
+        planWS.getRow(curRow).alignment = {
+            ...planWS.getRow(curRow).alignment,
+            horizontal: 'center',
+        };
         planWS.getRow(curRow).font = { bold: true };
 
         planWS.getCell(curRow, 1).value = 'No.';
@@ -122,14 +127,22 @@ const createPlanSheet = (planWS, semesterList, electList) => {
 
         let index = 1;
         let sumCredit = 0;
+        const branchMajorSubjectList = {};
         semester.subjectList.forEach((subject) => {
-            planWS.getCell(curRow, 1).value = index;
-            planWS.getCell(curRow, 2).value = subject.subjectCode;
-            planWS.getCell(curRow, 3).value = subject.name;
-            planWS.getCell(curRow, 4).value = subject.credit;
-            curRow++;
-            index++;
-            sumCredit += subject.credit;
+            // get specialize subject list: is subject that has branchMajor field
+            if (subject.branchMajor) {
+                const temp = subject.branchMajor.toString();
+                if (!(temp in branchMajorSubjectList)) branchMajorSubjectList[temp] = [];
+                branchMajorSubjectList[temp].push(subject);
+            } else {
+                planWS.getCell(curRow, 1).value = index;
+                planWS.getCell(curRow, 2).value = subject.subjectCode;
+                planWS.getCell(curRow, 3).value = subject.name;
+                planWS.getCell(curRow, 4).value = subject.credit;
+                curRow++;
+                index++;
+                sumCredit += subject.credit;
+            }
         });
 
         // write elective subject to semester
@@ -146,10 +159,34 @@ const createPlanSheet = (planWS, semesterList, electList) => {
             });
         }
 
+        // write branch major section
+        for (let key in branchMajorSubjectList) {
+            planWS.mergeCells(`B${curRow}:C${curRow}`);
+            const branch = major.branchMajor.find((x) => x._id.toString() === key);
+            planWS.getCell(curRow, 2).value = branch.name;
+            planWS.getRow(curRow).font = {
+                bold: true,
+            };
+
+            curRow++;
+            branchMajorSubjectList[key].forEach((x) => {
+                planWS.getCell(curRow, 1).value = index;
+                planWS.getCell(curRow, 2).value = x.subjectCode;
+                planWS.getCell(curRow, 3).value = x.name;
+                planWS.getCell(curRow, 4).value = x.credit;
+                curRow++;
+                index++;
+                sumCredit += x.credit;
+            });
+        }
+
         planWS.mergeCells(`A${curRow}:C${curRow}`);
         planWS.getCell(curRow, 1).value = 'Total';
         planWS.getRow(curRow).font = { bold: true };
-        planWS.getRow(curRow).alignment = { horizontal: 'center', vertical: 'middle' };
+        planWS.getRow(curRow).alignment = {
+            ...planWS.getRow(curRow).alignment,
+            horizontal: 'center',
+        };
         planWS.getRow(curRow).height = 30;
         planWS.getCell(curRow, 4).value = sumCredit;
 
@@ -195,6 +232,34 @@ const createPlanSheet = (planWS, semesterList, electList) => {
         }
 
         curRow += 3;
+
+        // config
+        planWS.getRows(1, curRow).forEach((row) => {
+            row.height = 28;
+            row.font = {
+                ...row.font,
+                size: 13,
+                name: 'Times New Roman',
+            };
+            row.alignment = {
+                ...row.alignment,
+                vertical: 'middle',
+                wrapText: true,
+            };
+        });
+        planWS.getColumn(1).alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+        };
+        planWS.getColumn(2).alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+        };
+        planWS.getColumn(4).alignment = {
+            vertical: 'middle',
+            wrapText: true,
+            horizontal: 'center',
+        };
     });
 };
 
@@ -351,9 +416,11 @@ const exportFileExcel = async (req, res, next) => {
 
         const allocation = bootcamp.allocation.detail;
         const semesterList = bootcamp.detail;
+        const major = bootcamp.major;
 
         // handle excel
         const workbook = new ExcelJS.Workbook();
+
         const alloWS = workbook.addWorksheet('Allocation');
         const planWS = workbook.addWorksheet('Planning');
         const compulsoryWS = workbook.addWorksheet('Compulsory Subjects');
@@ -402,7 +469,7 @@ const exportFileExcel = async (req, res, next) => {
 
         // create excel sheet for each domain we need
         createAlloSheet(alloWS, allocation);
-        createPlanSheet(planWS, semesterList, electiveSubjectList);
+        createPlanSheet(planWS, semesterList, electiveSubjectList, major);
         createSubjectList(compulsoryWS, allocationWithCompulsory);
         createSubjectList(electiveWS, allocationWithElective);
 
