@@ -152,7 +152,7 @@ const Semester = ({
             render: (text, row) => {
                 if (!row.isGroup && !row.isBranch) {
                     if (row.isAutoCreateCode) {
-                        if (row.semester !== undefined) {
+                        if (row.semester !== undefined && row.semester !== null ) {
                             return AutogenAllSubjectCode(row);
                         }
                     } else return text;
@@ -266,7 +266,7 @@ const Semester = ({
                 render: (text, row) => {
                     if (!row.isGroup && !row.isBranch) {
                         if (row.isAutoCreateCode) {
-                            if (row.semester !== undefined) {
+                            if (row.semester !== undefined && row.semester !== null) {
                                 return AutogenAllSubjectCode(row);
                             }
                         } else return text;

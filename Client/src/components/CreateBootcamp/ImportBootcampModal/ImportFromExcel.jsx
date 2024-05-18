@@ -6,7 +6,7 @@ const userToken = sessionStorage.getItem(USER_TOKEN);
 const ImportFromExcel = ({importFunc,style}) => {
     const props = {
         name: 'excelFile',
-        multiple: false,
+        multiple: true,
         action: importBootcampFromExcelFile,
         headers: {
           Authorization: `Bearer ${userToken}`,

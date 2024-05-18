@@ -10,6 +10,7 @@ import { getBranchMajorById, getDepartmentById, queryAllMajor } from '../../redu
 import DepartmentModal from '../../components/Major/DepartmentModal';
 import BranchMajorModal from '../../components/Major/BranchMajorModal';
 import CreateMajorModal from '../../components/Major/CreateMajorModal';
+import EditMajorModal from '../../components/Major/EditMajorModal';
 
 const AllMajor = ({confirmModal}) => {
     const dispatch = useDispatch()
@@ -61,7 +62,7 @@ const AllMajor = ({confirmModal}) => {
             width: 100,
             render: (text, record, _, action) => {
                 return <div style={{ display: 'flex', justifyContent: "space-between" }}>
-                    <Button icon={<EditOutlined />} />
+                    <Button icon={<EditOutlined />} onClick={() => {handleOpenEditMajorModal(record)}}/>
                     <Button icon={<DeleteOutlined />} danger/>
                 </div>
             }
@@ -78,6 +79,9 @@ const AllMajor = ({confirmModal}) => {
     const [branchMajorModalMajorId,setbranchMajorModalMajorId] = useState('')
 
     const [createMajorModalOpen,setCreateMajorModalOpen] = useState(false)
+
+    const [editMajorModalOpen, setEditMajorModalOpen] = useState(false)
+    const [editMajorModalData, setEditMajorModalData] = useState(null)
 
     const handleOpenDepartmentModal = async (departments,majorId) => {
         let tempDepartmentList = []
@@ -129,6 +133,16 @@ const AllMajor = ({confirmModal}) => {
     const handleCloseCreateMajorModal = () => {
         setCreateMajorModalOpen(false)
     }
+
+    const handleOpenEditMajorModal = (data) => {
+        setEditMajorModalData(data)
+        setEditMajorModalOpen(true)
+    }
+
+    const handleCloseEditMajorModal = () => {
+        setEditMajorModalData(null)
+        setEditMajorModalOpen(false)
+    }
     
 
     const reloadTable = () => {
@@ -140,6 +154,7 @@ const AllMajor = ({confirmModal}) => {
             <DepartmentModal open={departmentModalOpen} departments={departmentModalData} handleClose={handleCloseDepartmentModal} confirmModal={confirmModal} majorId={departmentModalMajorId} reloadTable={reloadTable}/>
             <BranchMajorModal branchList={branchMajorModalData} open={branchMajorModalOpen} handleClose={handleClosebranchMajorModal} majorId={branchMajorModalMajorId} handleUpdate={handleUpdateBranchList} reloadTable={reloadTable}/>
             <CreateMajorModal open={createMajorModalOpen} handleClose={handleCloseCreateMajorModal} confirmModal={confirmModal}  reloadTable={reloadTable}/>
+            <EditMajorModal open={editMajorModalOpen} handleCancel={handleCloseEditMajorModal} modalData={editMajorModalData} reloadTable={reloadTable}/>
               <ProTable
                 columns={columns}
                 actionRef={actionRef}

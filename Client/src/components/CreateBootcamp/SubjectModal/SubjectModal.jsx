@@ -220,6 +220,7 @@ const SubjectModal = ({
                     setImportedSubject={setImportedSubject}
                     isModalOpen={isImportSubjectModalOpen}
                     setIsModalOpen={setIsImportSubjectModalOpen}
+                    importingType={subjectModalData.sujectType}
                 />
                 <Button
                     onClick={handleOpenImportModal}
