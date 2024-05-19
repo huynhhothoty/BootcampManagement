@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { loginApi } from "../../util/api/authentication/authenticationApi";
+import { changeUserPasswordAPI, loginApi, queryAllUserAPI, updateUserAPI } from "../../util/api/authentication/authenticationApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
@@ -20,6 +20,63 @@ export const login = createAsyncThunk(
       return res.data;
     } catch (error) {
       return error.response.data;
+    }
+  }
+);
+
+export const queryAllUser = createAsyncThunk(
+  "authentication/queryAllUser",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(queryAllUserAPI(query), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  "authentication/updateUser",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.patch(updateUserAPI(),data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const changeUserPassword = createAsyncThunk(
+  "authentication/changeUserPassword",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.patch(changeUserPasswordAPI(),data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
     }
   }
 );
@@ -48,8 +105,13 @@ export const authenticationSlice = createSlice({
   reducers: {
     setFirstUserData: (state, action) => {
         state.userData = action.payload
+    },
+    editUserData: (state,action) => {
+      const newUserData = action.payload
+      state.userData = newUserData
+      sessionStorage.setItem(USER_DATA,JSON.stringify(newUserData))
     }
   },
 });
-export const {setFirstUserData} = authenticationSlice.actions;
+export const {setFirstUserData,editUserData} = authenticationSlice.actions;
 export default authenticationSlice.reducer;

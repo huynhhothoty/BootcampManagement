@@ -277,7 +277,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         if (selectedMajorData.templateBootcamp) {
           handleAddTemplate(selectedMajorData.templateBootcamp)
         }
-      } else if (userData.role === "leader") {
+      } else if (userData.role === "teacher") {
         handleAddTemplate(userData.major.templateBootcamp)
       }
     }
@@ -385,7 +385,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     if (userData) {
       if (userData.role === "admin") {
         dispatch(getAllMajor())
-      } else if (userData.role === "leader") {
+      } else if (userData.role === "teacher") {
         dispatch(updateSelectedMajor(userData.major._id))
       }
     }
@@ -402,7 +402,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           }
         })
         setMajorSelectList(newMajorList)
-      } else if (userData.role === "leader") {
+      } else if (userData.role === "teacher") {
         const newMajorList = [{
           value: userData.major._id,
           label: userData.major.name
@@ -461,7 +461,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               width: 240,
               marginLeft: 20
             }}
-            defaultValue={selectedMajor.length > 0 ? selectedMajor : null}
+            value={selectedMajor}
             options={majorSelectList}
             onChange={handleSelectMajor}
           />

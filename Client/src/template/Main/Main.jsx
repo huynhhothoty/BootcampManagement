@@ -8,7 +8,9 @@ import {
   PlusCircleOutlined,
   UserOutlined,
   DownOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  ProfileOutlined,
+  KeyOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Dropdown } from 'antd';
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +18,7 @@ import { getUserDraft } from "../../redux/CreateBootcamp/createBootCamp";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 import { setFirstUserData } from "../../redux/authentication/authentication";
 import { Avatar, Space } from 'antd';
+import ProfileDrawer from "../../components/User/ProfileDrawer";
 const { Header, Sider, Content } = Layout;
 
 
@@ -27,6 +30,8 @@ const Main = () => {
   const { draftID } = useSelector(store => store.createBootCamp)
   const [collapsed, setCollapsed] = useState(false);
   const [headerTitle, setheaderTitle] = useState("Home");
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerType, setDrawerType] = useState('')
 
   const handleLogout = () => {
     sessionStorage.removeItem(USER_TOKEN)
@@ -34,12 +39,29 @@ const Main = () => {
     navigate("/login")
   }
 
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false)
+  }
+
+  const handleOpenDrawer = (type) => {
+    setDrawerType(type)
+    setDrawerOpen(true)
+  }
+
   const items = [
     {
-      label: <span onClick={handleLogout} style={{ color: "red" }}><LogoutOutlined style={{ marginRight: 20 }} /> Logout</span>,
+      label: <span onClick={() => handleOpenDrawer('profile')}><ProfileOutlined style={{ marginRight: 20 }} /> Profile</span>,
       key: '0',
     },
-
+    {
+      label: <span onClick={() => handleOpenDrawer('password')}><KeyOutlined  style={{ marginRight: 20 }} /> Change Password</span>,
+      key: '1',
+    },
+    {
+      label: <span onClick={handleLogout} style={{ color: "red" }}><LogoutOutlined style={{ marginRight: 20 }} /> Logout</span>,
+      key: '2',
+    },
+  
   ]
 
   const {
@@ -74,6 +96,10 @@ const Main = () => {
         navigate('/major')
         setheaderTitle('All Major')
         break;
+      case '7':
+        navigate('/user')
+        setheaderTitle('All User Account')
+        break;
 
       default:
         break;
@@ -85,7 +111,7 @@ const Main = () => {
       const userToken = sessionStorage.getItem(USER_TOKEN)
 
       if (userToken) {
-
+   
         let userData = sessionStorage.getItem(USER_DATA)
         userData = JSON.parse(userData)
         dispatch(setFirstUserData(userData))
@@ -99,10 +125,65 @@ const Main = () => {
     })()
   }, [])
 
+  const adminOptions = [
+    {
+      key: '1',
+      icon: <HomeOutlined />,
+      label: 'Home',
+    },
+    {
+      key: '2',
+      icon: <PlusCircleOutlined />,
+      label: 'Create Bootcamp',
+    },
+    {
+      key: '3',
+      icon: <UnorderedListOutlined />,
+      label: 'My Bootcamp',
+    },
+    {
+      key: '4',
+      icon: <UnorderedListOutlined />,
+      label: 'Subject',
+    },
+    {
+      key: '5',
+      icon: <UnorderedListOutlined />,
+      label: 'Department',
+    },
+    {
+      key: '6',
+      icon: <UnorderedListOutlined />,
+      label: 'Major',
+    },
+    {
+      key: '7',
+      icon: <UnorderedListOutlined />,
+      label: 'User',
+    },
+  ]
+  const teacherOptions = [
+    {
+      key: '1',
+      icon: <HomeOutlined />,
+      label: 'Home',
+    },
+    {
+      key: '2',
+      icon: <PlusCircleOutlined />,
+      label: 'Create Bootcamp',
+    },
+    {
+      key: '3',
+      icon: <UnorderedListOutlined />,
+      label: 'My Bootcamp',
+    },
+  ]
 
   return (
 
     <Layout id="main-container">
+      <ProfileDrawer open={drawerOpen} onClose={handleCloseDrawer} drawerType={drawerType}/>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         {/* <div className="demo-logo-vertical">
           <img src={require("./../assets/logo.png")}/>
@@ -112,38 +193,7 @@ const Main = () => {
           mode="inline"
           defaultSelectedKeys={['1']}
           onSelect={handleMenuSelect}
-          items={[
-            {
-              key: '1',
-              icon: <HomeOutlined />,
-              label: 'Home',
-            },
-            {
-              key: '2',
-              icon: <PlusCircleOutlined />,
-              label: 'Create Bootcamp',
-            },
-            {
-              key: '3',
-              icon: <UnorderedListOutlined />,
-              label: 'My Bootcamp',
-            },
-            {
-              key: '4',
-              icon: <UnorderedListOutlined />,
-              label: 'Subject',
-            },
-            {
-              key: '5',
-              icon: <UnorderedListOutlined />,
-              label: 'Department',
-            },
-            {
-              key: '6',
-              icon: <UnorderedListOutlined />,
-              label: 'Major',
-            },
-          ]}
+          items={userData?.role === "admin" ? adminOptions : teacherOptions}
         />
       </Sider>
       <Layout>
@@ -175,6 +225,7 @@ const Main = () => {
             menu={{
               items,
             }}
+            
             trigger={['click']}
           >
             <div style={{ marginRight: 20, cursor: "pointer" }}>

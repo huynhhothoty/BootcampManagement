@@ -82,6 +82,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               subjectCode: subject.subjectCode,
               _id: null
             })
+          
             const a = {
               credits: subject.credit,
               description: "",
@@ -94,6 +95,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               _id: null
             }
+            if(a.name === "Object-Oriented Software Engineering")
             tempSubjectList.push(subject)
             return a
           }),
@@ -109,6 +111,9 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
             semesterSubjectList[semesterSubjectListIndex].semester = index
             const a = semesterSubjectList[semesterSubjectListIndex]
             allowcateFields[a.fieldIndex].subjectList[a.subjectIndex]['semester'] = index
+            if(subject.branchMajor !== null){
+              allowcateFields[a.fieldIndex].subjectList[a.subjectIndex].branchMajor = subject.branchMajor
+            }
             newSubjectList.push({
               ...a,
               semesterSubjectListIndex
