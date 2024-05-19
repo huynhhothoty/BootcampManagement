@@ -6,10 +6,7 @@ const CustomError = require('./utils/CustomError');
 const ErrorHandler = require('./middlewares/Error/ErrorHandler');
 
 // Init
-const dotenv = require('dotenv');
-dotenv.config();
 const app = express();
-const port = process.env.PORT || 3000;
 
 // connect database
 db.connect();
@@ -18,8 +15,12 @@ db.connect();
 app.use(express.json());
 
 // Setting cors
+const feLink =
+    process.env.NODE_ENV === 'development'
+        ? 'http://localhost:5173'
+        : process.env.FE_LINK;
 const corsOptions = {
-    origin: '*',
+    origin: feLink,
     credentials: true, //access-control-allow-credentials:true
     optionSuccessStatus: 200,
 };
@@ -36,7 +37,6 @@ app.all('*', (req, res, next) => {
 // middleware use to handle error
 app.use(ErrorHandler);
 
-// listening
-app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
-});
+module.exports = {
+    app,
+};

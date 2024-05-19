@@ -11,6 +11,11 @@ const departmentRouter = require('./departmentRouter');
 
 const rootRouter = express.Router();
 
+// health check api
+rootRouter.use('/helloworld', (req, res) => {
+    res.status(200).send('Hello World!');
+});
+
 rootRouter.use('/user', userRouter);
 rootRouter.use('/major', majorRouter);
 rootRouter.use('/subject', subjectRouter);

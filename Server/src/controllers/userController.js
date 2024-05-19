@@ -176,7 +176,7 @@ const updatePassword = async (req, res, next) => {
                 new CustomError('Please enter your password and new password', 400)
             );
         if (!thisUser.comparePassword(oldPassword, thisUser.password)) {
-            return next(new CustomError('Your password you enter is incorrect', 401));
+            return next(new CustomError('Your password you enter is incorrect', 400));
         }
 
         // change password
