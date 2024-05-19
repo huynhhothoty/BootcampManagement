@@ -9,15 +9,14 @@ majorRouter.use(authenticate);
 majorRouter
     .route('/')
     .post(authorize('admin'), majorController.createMajor)
-    .get(authorize('admin'), majorController.getAllMajor);
+    .get(majorController.getAllMajor);
 
 majorRouter.route('/:id/subjects').get(majorController.getAllSubjectOfMajor);
 
 majorRouter
     .route('/:id')
     .get(majorController.getMajor)
-    .patch(authorize('admin'), majorController.updateMajor)
-    .delete(authorize('admin'), majorController.deleteMajor);
+    .patch(majorController.updateMajor);
 
 //
 module.exports = majorRouter;
