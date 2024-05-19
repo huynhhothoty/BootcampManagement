@@ -5,6 +5,7 @@ import {
     exportBootcamp,
     getAllBootcamp,
     getBootcampsByUserID,
+    queryAllBootcamp,
     updateViewedBootcamp,
 } from '../../redux/bootcamp/bootcamp';
 import Highlighter from 'react-highlight-words';
@@ -21,129 +22,19 @@ import {
 } from '../../redux/subject/subject';
 import { updateLoading } from '../../redux/loading/Loading';
 import { SUBJECT_ADDED_IMPORT } from '../../util/constants/subjectStatus';
-import { getMajorById, updateViewedMajor } from '../../redux/major/major';
+import { getMajorById, queryAllMajor, updateViewedMajor } from '../../redux/major/major';
 import { DownloadOutlined } from '@ant-design/icons';
+import { ProTable } from '@ant-design/pro-components';
+import { copyObjectWithKeyRename, objectToQueryString } from '../../util/TableParamHandle/tableParamHandle';
 
 const AllBootcampTable = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { userData } = useSelector((store) => store.authentication);
     const { loading, userBootcampList } = useSelector((store) => store.bootcamp);
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
     const [error, setError] = useState(false);
-    const searchInput = useRef(null);
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-    const getColumnSearchProps = (dataIndex) => ({
-        filterDropdown: ({
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-            close,
-        }) => (
-            <div
-                style={{
-                    padding: 8,
-                }}
-                onKeyDown={(e) => e.stopPropagation()}
-            >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                    }
-                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
-                <Space>
-                    <Button
-                        type='primary'
-                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                        icon={<SearchOutlined />}
-                        size='small'
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size='small'
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        type='link'
-                        size='small'
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type='link'
-                        size='small'
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered) => (
-            <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
-            />
-        ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-        onFilterDropdownOpenChange: (visible) => {
-            if (visible) {
-                setTimeout(() => searchInput.current?.select(), 100);
-            }
-        },
-        render: (text) =>
-            searchedColumn === dataIndex ? (
-                <Highlighter
-                    highlightStyle={{
-                        backgroundColor: '#ffc069',
-                        padding: 0,
-                    }}
-                    searchWords={[searchText]}
-                    autoEscape
-                    textToHighlight={text ? text.toString() : ''}
-                />
-            ) : (
-                text
-            ),
-    });
+
+
 
     const { setBreadCrumbList } = useOutletContext();
 
@@ -267,22 +158,44 @@ const AllBootcampTable = () => {
         {
             title: 'BootCamp Name',
             dataIndex: 'name',
-            ...getColumnSearchProps('name'),
+            copyable: true,
+            ellipsis: true,
         },
         {
             title: 'Total Credits',
             dataIndex: 'totalCredit',
-            ...getColumnSearchProps('totalCredit'),
+            ellipsis: true,
         },
         {
             title: 'Created Year',
             dataIndex: 'year',
-            ...getColumnSearchProps('year'),
+            ellipsis: true,
+            valueType:'dateYear',
+            render: (text,row) => {
+                return row.year
+            }
+        },
+        {
+            title: 'Major',
+            dataIndex: 'major',
+            valueType:'select',
+            hideInTable:true,
+            request: async () => {
+                const majorRes = await dispatch(queryAllMajor('isActive=true'))
+                let dataList = majorRes.payload.data.map((major) => {
+                    return {
+                        label: major.name,
+                        value: major._id
+                    }
+                })
+                return dataList
+            }
         },
         {
             title: '',
-            dataIndex: 'year',
+            dataIndex: '',
             width: '17%',
+            hideInSearch: true,
             render: (_, data) => (
                 <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button
@@ -323,7 +236,51 @@ const AllBootcampTable = () => {
     useEffect(() => {
         dispatch(getBootcampsByUserID());
     }, []);
-    return <Table loading={loading} columns={columns} dataSource={userBootcampList} />;
+    return <div>
+        <ProTable
+            cardBordered
+            tableAlertRender={false}
+            columnsState={{
+                persistenceKey: 'pro-table-singe-demos',
+                persistenceType: 'localStorage',
+                defaultValue: {
+                    option: { fixed: 'right', disable: true },
+                },
+            }}
+            rowKey="key"
+            search={{
+                labelWidth: 'auto',
+
+            }} 
+            columns={columns} 
+            request={async (params) => {
+                let newParams = copyObjectWithKeyRename(params)
+                let queryString = objectToQueryString(newParams)
+             
+                const res = await dispatch(queryAllBootcamp(queryString))
+                let newData = res.payload.data.map((bootcamp) => {
+                    return {
+                        ...bootcamp,
+                        key: bootcamp._id
+                    }
+                })
+                return {
+                    data: newData,
+                    success: true,
+                    total: res.payload.total,
+                }
+            }}
+            options={{
+                setting: {
+                    listsHeight: 400,
+                },
+            }}
+            pagination={{
+                pageSize: 10,
+            }}
+            dateFormatter="string"
+            />
+    </div>;
 };
 
 export default AllBootcampTable;

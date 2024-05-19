@@ -9,6 +9,7 @@ const ImportSubjectModal = ({ isModalOpen, setIsModalOpen, setImportedSubject, i
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [error, setError] = useState(false);
+    
 
     const handleCancel = () => {
         setIsModalOpen(false);

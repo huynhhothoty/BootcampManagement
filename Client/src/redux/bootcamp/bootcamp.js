@@ -7,6 +7,7 @@ import {
   getBootcampByIdAPI,
   getBootcampByUserIDAPI,
   getBootcampsForTrackingByUserIDAPI,
+  queryAllBootcampAPI,
   updateBootcampAPI,
 } from "../../util/api/bootcamp/bootcampApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
@@ -65,6 +66,27 @@ export const getBootcampsByUserID = createAsyncThunk(
       let userData = sessionStorage.getItem(USER_DATA);
       userData = JSON.parse(userData)
       let res = await axios.get(getBootcampByUserIDAPI(userData.id), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const queryAllBootcamp = createAsyncThunk(
+  "bootcamp/queryAllBootcamp",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let userData = sessionStorage.getItem(USER_DATA);
+      userData = JSON.parse(userData)
+      let res = await axios.get(queryAllBootcampAPI(query,userData.id), {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",

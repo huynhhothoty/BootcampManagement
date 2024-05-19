@@ -73,7 +73,6 @@ const Home = () => {
 
   return (
     <div className="bootcamp-progress">
-      <TestComp/>
       <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData}/>
       <Row gutter={[16, 16]}>
        {bootcampCardList}
