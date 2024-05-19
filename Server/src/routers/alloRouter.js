@@ -5,7 +5,7 @@ const authorize = require('../middlewares/auth/authorize');
 
 const alloRouter = express.Router();
 alloRouter.use(authenticate);
-alloRouter.use(authorize('leader', 'admin'));
+alloRouter.use(authorize('teacher', 'admin'));
 //
 alloRouter.route('/').post(alloController.createAllo);
 

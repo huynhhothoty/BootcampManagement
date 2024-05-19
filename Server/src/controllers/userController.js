@@ -3,13 +3,28 @@ const CustomError = require('../utils/CustomError');
 const jwt = require('jsonwebtoken');
 const Email = require('../utils/email');
 const crypto = require('crypto');
+const ApiFeatures = require('../utils/ApiFeature');
 
 const getAllUser = async (req, res, next) => {
     try {
-        const userList = await User.find({ isActive: true });
+        const apiFeat = new ApiFeatures(
+            User.find({ isActive: true }).select('-password -__v').lean(),
+            req.query
+        );
+        const apiFeat2 = new ApiFeatures(
+            User.find({ isActive: true }).select('-password -__v').lean(),
+            req.query
+        );
+        apiFeat.filter().sorting().pagination();
+        apiFeat2.filter();
+
+        const docs = await apiFeat.myQuery;
+        const docsOnlyFilter = await apiFeat2.myQuery;
+
         res.status(200).send({
             status: 'ok',
-            data: userList,
+            total: docsOnlyFilter.length,
+            data: docs,
         });
     } catch (error) {
         return next(error);
@@ -181,20 +196,29 @@ const updatePassword = async (req, res, next) => {
 
 const updatePasswordByAdmin = async (req, res, next) => {
     try {
-        const { newPassword, userId } = req.body;
-        if (!newPassword)
-            return next(new CustomError('Please enter new password and userId', 400));
+        const { userId } = req.body;
+        if (!userId) return next(new CustomError('Please enter userId', 400));
         const thisUser = await User.findById(userId);
         if (!thisUser) return next(new CustomError('No user with this id', 404));
+
+        // gen random password
+        const newPassword = crypto.randomBytes(4).toString('hex');
 
         // change password
         thisUser.password = newPassword;
         await thisUser.save({ validateBeforeSave: false });
 
-        res.status(200).send({
-            status: 'ok',
-            message: 'change password successfully',
-        });
+        try {
+            const mail = new Email(thisUser);
+            await mail.sendNewPasswordMail(newPassword);
+
+            res.status(200).send({
+                status: 'ok',
+                message: 'change password successfully, please check mail for more info',
+            });
+        } catch (error) {
+            return next(new CustomError('Error when sending email, try again'));
+        }
     } catch (error) {
         return next(error);
     }

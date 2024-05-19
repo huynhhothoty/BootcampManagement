@@ -1,5 +1,30 @@
 const nodemailer = require('nodemailer');
 
+const mailType = {
+    reset: 'reset',
+    newPassword: 'newPassword',
+};
+
+const htmlResetPasswordMail = (name, token) => {
+    return `
+        <h1>Hello, ${name}</h1>
+        <h3>Use this code to set your new Password, only valid for 5 mins</h3>
+        <strong>${token}</strong>
+        <br>
+        <mark>Dont share this code to anyone, or they can take your account permantly!</mark>
+    `;
+};
+
+const htmlnewPasswordMail = (name, newPassword) => {
+    return `
+        <h1>Hello, ${name}</h1>
+        <h3>Your new password of your account is below:</h3>
+        <mark><strong>${newPassword}</strong></mark>
+        <br>
+        <mark>Dont share this to anyone, or they can take your account permantly!</mark>
+    `;
+};
+
 module.exports = class Email {
     constructor(user) {
         this.to = user.email;
@@ -26,26 +51,33 @@ module.exports = class Email {
         // });
     }
 
-    async send(subject, message) {
-        const htmlResetPasswordMail = `
-            <h1>Hello, ${this.firstName}</h1>
-            <h3>Use this code to set your new Password, only valid for 5 mins</h3>
-            <strong>${message}</strong>
-            <br>
-            <mark>Dont share this code to anyone, or they can take your account permantly!</mark>
-        `;
-
+    async send(subject, type, message) {
+        let htmlMail = '';
+        switch (type) {
+            case mailType.reset:
+                htmlMail = htmlResetPasswordMail(this.firstName, message);
+                break;
+            case mailType.newPassword:
+                htmlMail = htmlnewPasswordMail(this.firstName, message);
+                break;
+            default:
+                throw new Error('Invalid type case');
+        }
         const mailOption = {
             from: this.from,
             to: this.to,
             subject: subject,
-            html: htmlResetPasswordMail,
+            html: htmlMail,
         };
 
         await this.newTransport().sendMail(mailOption);
     }
 
     async sendResetPasswordMail(token) {
-        await this.send('Reset password', token);
+        await this.send('Reset password', mailType.reset, token);
+    }
+
+    async sendNewPasswordMail(newPassword) {
+        await this.send('New Password', mailType.newPassword, newPassword);
     }
 };

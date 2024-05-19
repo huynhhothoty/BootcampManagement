@@ -5,7 +5,7 @@ const authorize = require('../middlewares/auth/authorize');
 
 const departmentRouter = express.Router();
 departmentRouter.use(authenticate);
-departmentRouter.use(authorize('leader', 'admin'));
+departmentRouter.use(authorize('teacher', 'admin'));
 
 departmentRouter
     .route('/')

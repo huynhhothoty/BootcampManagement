@@ -5,7 +5,7 @@ const BranchController = require('../controllers/branchMajorController');
 
 const branchRouter = express.Router();
 branchRouter.use(authenticate);
-branchRouter.use(authorize('leader', 'admin'));
+branchRouter.use(authorize('teacher', 'admin'));
 
 branchRouter
     .route('/')

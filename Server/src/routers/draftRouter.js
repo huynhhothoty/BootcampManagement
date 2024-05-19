@@ -5,13 +5,10 @@ const authorize = require('../middlewares/auth/authorize');
 
 const draftRouter = express.Router();
 draftRouter.use(authenticate);
-draftRouter.use(authorize('leader', 'admin'));
+draftRouter.use(authorize('teacher', 'admin'));
 draftRouter.use(draftController.getUserInfo);
 
-draftRouter
-    .route('/')
-    .post(draftController.createDraft)
-    .get(draftController.getAllDraft);
+draftRouter.route('/').post(draftController.createDraft).get(draftController.getAllDraft);
 
 draftRouter
     .route('/:id')

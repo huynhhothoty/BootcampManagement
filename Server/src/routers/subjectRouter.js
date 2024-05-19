@@ -9,22 +9,22 @@ const subjectRouter = express.Router();
 subjectRouter.use(authenticate);
 subjectRouter
     .route('/')
-    .post(authorize('leader', 'admin'), subjectController.createSubject)
+    .post(authorize('teacher', 'admin'), subjectController.createSubject)
     .get(subjectController.getAllSubject);
 
 subjectRouter
     .route('/suggest')
-    .get(authorize('leader', 'admin'), subjectController.getSuggestCode);
+    .get(authorize('teacher', 'admin'), subjectController.getSuggestCode);
 
 subjectRouter
     .route('/many')
-    .patch(authorize('leader', 'admin'), subjectController.updateManySubject);
+    .patch(authorize('teacher', 'admin'), subjectController.updateManySubject);
 
 subjectRouter
     .route('/:id')
     .get(subjectController.getSubject)
-    .patch(authorize('leader', 'admin'), subjectController.updateSubject)
-    .delete(authorize('leader', 'admin'), subjectController.deleteSubject);
+    .patch(authorize('teacher', 'admin'), subjectController.updateSubject)
+    .delete(authorize('teacher', 'admin'), subjectController.deleteSubject);
 
 //
 module.exports = subjectRouter;
