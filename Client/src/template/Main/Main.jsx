@@ -10,7 +10,10 @@ import {
   DownOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  KeyOutlined
+  KeyOutlined,
+  BookOutlined,
+  BlockOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Dropdown } from 'antd';
 import { useDispatch, useSelector } from "react-redux";
@@ -143,22 +146,22 @@ const Main = () => {
     },
     {
       key: '4',
-      icon: <UnorderedListOutlined />,
+      icon: <BookOutlined />,
       label: 'Subject',
     },
     {
       key: '5',
-      icon: <UnorderedListOutlined />,
+      icon: <BlockOutlined />,
       label: 'Department',
     },
     {
       key: '6',
-      icon: <UnorderedListOutlined />,
+      icon: <CalendarOutlined />,
       label: 'Major',
     },
     {
       key: '7',
-      icon: <UnorderedListOutlined />,
+      icon: <UserOutlined />,
       label: 'User',
     },
   ]
