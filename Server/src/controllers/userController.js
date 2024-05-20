@@ -38,6 +38,9 @@ const register = async (req, res, next) => {
         if (!name || !email || !major)
             return next(new CustomError('Please fill name, email and major', 400));
 
+        const checkUser = await User.find({ email }).lean();
+        if (checkUser) return next(new CustomError('This email is already exist', 400));
+
         const newPassword = crypto.randomBytes(4).toString('hex');
 
         const newUser = new User({
