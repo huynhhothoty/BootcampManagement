@@ -33,18 +33,33 @@ const getAllUser = async (req, res, next) => {
 
 const register = async (req, res, next) => {
     try {
-        const data = req.body;
+        const { name, email, major } = req.body;
+
+        if (!name || !email || !major)
+            return next(new CustomError('Please fill name, email and major', 400));
+
+        const newPassword = crypto.randomBytes(4).toString('hex');
+
         const newUser = new User({
-            name: data.name,
-            email: data.email,
-            password: data.password,
+            name: name,
+            email: email,
+            password: newPassword,
+            major: major,
         });
         await newUser.save();
 
-        res.status(201).send({
-            status: 'ok',
-            data: newUser,
-        });
+        try {
+            const mail = new Email(newUser);
+            await mail.sendWelcomeMail(newPassword);
+
+            res.status(200).send({
+                status: 'ok',
+                message: 'User has been created, please check your mail',
+                newUser,
+            });
+        } catch (error) {
+            return next(new CustomError('Error when sending email, try again'));
+        }
     } catch (error) {
         next(error);
     }

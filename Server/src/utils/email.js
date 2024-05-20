@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const mailType = {
     reset: 'reset',
     newPassword: 'newPassword',
+    welcome: 'welcome',
 };
 
 const htmlResetPasswordMail = (name, token) => {
@@ -20,6 +21,15 @@ const htmlnewPasswordMail = (name, newPassword) => {
         <h1>Hello, ${name}</h1>
         <h3>Your new password of your account is below:</h3>
         <mark><strong>${newPassword}</strong></mark>
+        <br>
+        <mark>Dont share this to anyone, or they can take your account permantly!</mark>
+    `;
+};
+const htmlWelcomeMail = (name, password) => {
+    return `
+        <h1>Welcome Welcome, ${name}</h1>
+        <h3>Your account has been created, below is your init password, please login as quick as and change password to yours</h3>
+        <strong>${password}</strong>
         <br>
         <mark>Dont share this to anyone, or they can take your account permantly!</mark>
     `;
@@ -60,6 +70,9 @@ module.exports = class Email {
             case mailType.newPassword:
                 htmlMail = htmlnewPasswordMail(this.firstName, message);
                 break;
+            case mailType.welcome:
+                htmlMail = htmlWelcomeMail(this.firstName, message);
+                break;
             default:
                 throw new Error('Invalid type case');
         }
@@ -79,5 +92,9 @@ module.exports = class Email {
 
     async sendNewPasswordMail(newPassword) {
         await this.send('New Password', mailType.newPassword, newPassword);
+    }
+
+    async sendWelcomeMail(password) {
+        await this.send('Welcome!', mailType.welcome, password);
     }
 };

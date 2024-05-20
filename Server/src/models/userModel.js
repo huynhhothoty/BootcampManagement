@@ -35,6 +35,7 @@ const UserSchema = new Schema({
     major: {
         type: mongoose.Schema.ObjectId,
         ref: 'Major',
+        required: [true, 'Please provide your major'],
     },
     passwordResetToken: {
         type: String,
