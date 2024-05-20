@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { changeUserPasswordAPI, loginApi, queryAllUserAPI, updateUserAPI } from "../../util/api/authentication/authenticationApi";
+import { changeUserPasswordAPI, createUserAPI, loginApi, queryAllUserAPI, resetPasswordAPI, updateUserAPI } from "../../util/api/authentication/authenticationApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
@@ -68,6 +68,44 @@ export const changeUserPassword = createAsyncThunk(
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.patch(changeUserPasswordAPI(),data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "authentication/resetPassword",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.patch(resetPasswordAPI(),data, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
+export const createUser = createAsyncThunk(
+  "authentication/createUser",
+  async (data) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.post(createUserAPI(),data, {
         headers: {
           Authorization: `Bearer ${userToken}`,
           "Content-Type": "application/json",

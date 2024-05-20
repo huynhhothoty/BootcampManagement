@@ -387,6 +387,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         dispatch(getAllMajor())
       } else if (userData.role === "teacher") {
         dispatch(updateSelectedMajor(userData.major._id))
+        handleSelectMajor(userData.major._id)
       }
     }
 
