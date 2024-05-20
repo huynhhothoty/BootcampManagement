@@ -17,8 +17,9 @@ const ProfileForm = () => {
             rules={[
                 {
                     required: true,
-                    message: 'Please input your email!',
-                },
+                    type: 'email',
+                    message: 'This is not an email!',
+                }
             ]}
         />
     </>
