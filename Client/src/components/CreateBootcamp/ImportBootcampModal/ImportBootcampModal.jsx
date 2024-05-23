@@ -52,6 +52,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
     if (data.type === 'bootcamp') {
       setIsModalOpen(false);
       let bootcampName = ''
+      let branchMajorSemester = data.branchMajorSemester
       let totalCredits = data.totalCredit
       let completeTotalCredits = data.totalCredit
       let allowcateFields = []
@@ -130,7 +131,8 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
         allowcateFields,
         semesterSubjectList,
         semesterList,
-        bootcampName
+        bootcampName,
+        branchMajorSemester
       }))
       setErrorMessage({
         allowcate: [],
@@ -145,6 +147,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
         setIsModalOpen(false);
 
         let bootcampName = selectedRows[0].name
+        let branchMajorSemester = selectedRows[0].branchMajorSemester
         let totalCredits = selectedRows[0].totalCredit
         let completeTotalCredits = selectedRows[0].totalCredit
         let allowcateFields = []
@@ -211,7 +214,8 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
           allowcateFields,
           semesterSubjectList,
           semesterList,
-          bootcampName
+          bootcampName,
+          branchMajorSemester
         }))
         setErrorMessage({
           allowcate: [],

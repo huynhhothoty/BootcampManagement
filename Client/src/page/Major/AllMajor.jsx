@@ -6,11 +6,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { copyObjectWithKeyRename, objectToQueryString } from '../../util/TableParamHandle/tableParamHandle';
-import { getBranchMajorById, getDepartmentById, queryAllMajor } from '../../redux/major/major';
+import { getBranchMajorById, getDepartmentById, queryAllMajor, updateMajor } from '../../redux/major/major';
 import DepartmentModal from '../../components/Major/DepartmentModal';
 import BranchMajorModal from '../../components/Major/BranchMajorModal';
 import CreateMajorModal from '../../components/Major/CreateMajorModal';
 import EditMajorModal from '../../components/Major/EditMajorModal';
+import { activateMajorConfirmConfig, deactivateMajorConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 
 const AllMajor = ({confirmModal}) => {
     const dispatch = useDispatch()
@@ -31,7 +32,24 @@ const AllMajor = ({confirmModal}) => {
             copyable: true,
 
         },
-
+        {
+            title: 'Active',
+            dataIndex: 'isActive',
+            ellipsis: true,
+            copyable: true,
+            valueType: 'select',
+            valueEnum: {
+                true: {
+                    text: "Active",
+                    status: "Success"
+                },
+                false: {
+                    text: "Inactive",
+                    status: "Error"
+                }
+            },
+            initialValue: 'true',
+        },
         {
             title: 'Department',
             dataIndex: 'department',
@@ -54,16 +72,25 @@ const AllMajor = ({confirmModal}) => {
             },
             hideInSearch: true,
         },
+       
         {
             title: 'Action',
             valueType: 'option',
             key: 'option',
             align: "center",
-            width: 100,
+            width: 170,
             render: (text, record, _, action) => {
                 return <div style={{ display: 'flex', justifyContent: "space-between" }}>
                     <Button icon={<EditOutlined />} onClick={() => {handleOpenEditMajorModal(record)}}/>
-                    <Button icon={<DeleteOutlined />} danger/>
+                    <Button  danger={record.isActive} type='primary' onClick={async () => {
+                         const confirmed = await confirmModal.confirm(
+                            record.isActive ? deactivateMajorConfirmConfig : activateMajorConfirmConfig
+                        );
+                        if(confirmed){
+                            const res = await dispatch(updateMajor({majorId: record._id, data: {isActive: !record.isActive}}))
+                            reloadTable()
+                        }
+                    }}>{record.isActive ? 'Deactivate' : 'Activate'}</Button>
                 </div>
             }
         }

@@ -255,6 +255,10 @@ const AllBootcampTable = () => {
             columns={columns} 
             request={async (params) => {
                 let newParams = copyObjectWithKeyRename(params)
+                newParams = {
+                    ...newParams,
+                    isActive: true
+                }
                 let queryString = objectToQueryString(newParams)
              
                 const res = await dispatch(queryAllBootcamp(queryString))

@@ -20,7 +20,8 @@ const initialState = {
   semesterSubjectList: [],
   semesterList: [[]],
   draftID: "",
-  selectedMajor: ''
+  selectedMajor: '',
+  branchMajorSemester: 0
 };
 
 export const createSubject = createAsyncThunk(
@@ -434,6 +435,7 @@ export const createBootcampSlice = createSlice({
       state.semesterSubjectList = [];
       state.semesterList = [[]];
       state.bootcampName = "";
+      state.branchMajorSemester = 0
 
       state.totalCredits = action.payload.totalCredits;
       state.completeTotalCredits = action.payload.completeTotalCredits;
@@ -441,6 +443,7 @@ export const createBootcampSlice = createSlice({
       state.semesterSubjectList = action.payload.semesterSubjectList;
       state.semesterList = action.payload.semesterList;
       state.bootcampName = action.payload.bootcampName;
+      state.branchMajorSemester = action.payload.branchMajorSemester;
     },
     addNewGroup: (state,action) => {
       state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.push(action.payload.groupData)
@@ -464,7 +467,13 @@ export const createBootcampSlice = createSlice({
     },
     updateSelectedMajor: (state,action) => {
       state.selectedMajor = action.payload
-    }
+    },
+    updateBranchMajorSemester: (state,action) => {
+      
+      // console.log(state.allowcateFields[0].subjectList[0].branchMajor)
+      state.branchMajorSemester = action.payload.newData
+    },
+
   },
 });
 
@@ -495,7 +504,8 @@ export const {
   deleteGroup,
   editSubjectBranchMajor,
   updateAutogenSubjectCode,
-  updateSelectedMajor
+  updateSelectedMajor,
+  updateBranchMajorSemester
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

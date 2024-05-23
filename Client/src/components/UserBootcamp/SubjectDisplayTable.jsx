@@ -5,7 +5,7 @@ import {
     ProFormDependency,
     ProFormDigit,
 } from '@ant-design/pro-components';
-import { Button, Input, Space, Table, Tag, Popconfirm, InputNumber } from 'antd';
+import { Button, Input, Space, Table, Tag, Popconfirm, InputNumber, Tooltip } from 'antd';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SearchOutlined } from '@ant-design/icons';
@@ -235,6 +235,11 @@ const SubjectDisplayTable = ({
                 placeholder: 'Description',
             },
             ellipsis: true,
+            render: (text) => (
+                <Tooltip title={text} placement="topLeft">
+                    {text}
+                </Tooltip>
+            )
         },
 
         {

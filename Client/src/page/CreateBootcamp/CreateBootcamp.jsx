@@ -53,7 +53,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   })
 
   const [isImportBootcampModalOpen, setIsImportBootcampModalOpen] = useState(false)
-  const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList, draftID, selectedMajor } = useSelector(store => store.createBootCamp)
+  const { totalCredits, completeTotalCredits, allowcateFields, bootcampName, semesterList, semesterSubjectList, draftID, selectedMajor, branchMajorSemester } = useSelector(store => store.createBootCamp)
   const { importedSubjectsList } = useSelector(store => store.subject)
   const { userData } = useSelector(store => store.authentication)
   const { majorList, viewedMajor, departmentList } = useSelector(store => store.major)
@@ -98,7 +98,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     {
       key: '4',
       label: 'Semester Planning',
-      children: <SemesterList confirmModal={confirmModal} planningError={errorMessage.planning} remainning={errorMessage.remainning} />
+      children: <SemesterList confirmModal={confirmModal} planningError={errorMessage.planning} remainning={errorMessage.remainning} />,
     },
   ];
 
@@ -189,6 +189,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           "totalCredit": totalCredits,
           "draft": false,
           "allocation": created_field_container._id,
+          "branchMajorSemester": branchMajorSemester,
           "detail": semesterList.map((semester, index) => {
             return {
               semester: `Semester ${index + 1}`,
@@ -241,7 +242,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           bootcampName,
           semesterList,
           semesterSubjectList,
-          selectedMajor
+          selectedMajor,
+          branchMajorSemester
         }
       }
       await dispatch(createDraft(draftData))
@@ -290,6 +292,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
     if (templateBootcampData.payload.status === 'ok') {
       let newTemplateBootcampData = templateBootcampData.payload.data
+      let branchMajorSemester = newTemplateBootcampData.branchMajorSemester
       let bootcampName = newTemplateBootcampData.name
       let totalCredits = newTemplateBootcampData.totalCredit
       let completeTotalCredits = newTemplateBootcampData.totalCredit
@@ -304,6 +307,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       //   const departmentRes = await dispatch(getDepartmentById(departmentId))
       //   tempDepartmentList.push(departmentRes.payload.data)
       // }
+  
       allowcateFields = tempAllowcateFields.detail.map((field, index) => {
         return {
           compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
@@ -347,11 +351,12 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       })
 
       semesterList = newTemplateBootcampData.detail.map((semester) => {
+        let semesterIndex = Number(semester.semester.split(" ")[1]) - 1
         return semester.subjectList.map((subject, index) => {
           const semesterSubjectListIndex = semesterSubjectList.findIndex(sSubject => sSubject._id === subject._id)
-          semesterSubjectList[semesterSubjectListIndex].semester = index
+          semesterSubjectList[semesterSubjectListIndex].semester = semesterIndex
           const a = semesterSubjectList[semesterSubjectListIndex]
-          allowcateFields[a.fieldIndex].subjectList[a.subjectIndex]['semester'] = index
+          allowcateFields[a.fieldIndex].subjectList[a.subjectIndex]['semester'] = semesterIndex
           return {
             ...a,
             semesterSubjectListIndex
@@ -367,7 +372,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         allowcateFields,
         semesterSubjectList,
         semesterList,
-        bootcampName
+        bootcampName,
+        branchMajorSemester
       }))
       setErrorMessage({
         allowcate: [],

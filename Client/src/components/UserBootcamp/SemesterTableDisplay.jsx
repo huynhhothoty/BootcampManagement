@@ -1,5 +1,5 @@
 import { ProCard } from '@ant-design/pro-components';
-import { Badge, Button, Dropdown, Input, Space, Table, Tag } from 'antd';
+import { Badge, Button, Dropdown, Input, Space, Table, Tag, Tooltip } from 'antd';
 import React, { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
@@ -187,6 +187,11 @@ const SemesterTableDisplay = ({
                 dataIndex: 'description',
                 key: 'description',
                 ellipsis: true,
+                render: (text) => (
+                    <Tooltip title={text} placement="topLeft">
+                        {text}
+                    </Tooltip>
+                )
             },
 
             {
@@ -306,6 +311,11 @@ const SemesterTableDisplay = ({
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
+            render: (text) => (
+                <Tooltip title={text} placement="topLeft">
+                    {text}
+                </Tooltip>
+            )
         },
 
         {

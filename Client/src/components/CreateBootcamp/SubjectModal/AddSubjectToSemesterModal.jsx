@@ -11,6 +11,7 @@ import {
     Col,
     Tag,
     Dropdown,
+    Tooltip,
 } from 'antd';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
@@ -214,11 +215,16 @@ const AddSubjectToSemesterModal = ({
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
+            render: (text) => (
+                <Tooltip title={text} placement="topLeft">
+                    {text}
+                </Tooltip>
+            )
         },
     ];
 
     const dispatch = useDispatch();
-    const { semesterSubjectList, allowcateFields } = useSelector(
+    const { semesterSubjectList, allowcateFields,branchMajorSemester } = useSelector(
         (store) => store.createBootCamp
     );
     const { viewedAllowcatedFields } = useSelector((store) => store.allowcate);
@@ -490,7 +496,7 @@ const AddSubjectToSemesterModal = ({
                 footer={(a) => (
                     <>
                         {a}
-                        {selectedSemester >= 4 && (
+                        {selectedSemester >= branchMajorSemester && (
                             <Dropdown
                                 menu={{
                                     items: createDropdownBranch(),

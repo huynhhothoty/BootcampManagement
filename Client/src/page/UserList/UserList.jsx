@@ -65,18 +65,18 @@ const UserList = ({ confirmModal }) => {
             },
             hideInSearch: true,
         },
-        {
-            title: 'Action',
-            valueType: 'option',
-            key: 'option',
-            align: "center",
-            width: 100,
-            render: (text, record, _, action) => {
-                return <div style={{ display: 'flex', justifyContent: "center" }}>
-                    <Button icon={<DeleteOutlined />} danger />
-                </div>
-            }
-        }
+        // {
+        //     title: 'Action',
+        //     valueType: 'option',
+        //     key: 'option',
+        //     align: "center",
+        //     width: 100,
+        //     render: (text, record, _, action) => {
+        //         return <div style={{ display: 'flex', justifyContent: "center" }}>
+        //             <Button icon={<DeleteOutlined />} danger />
+        //         </div>
+        //     }
+        // }
 
     ];
 

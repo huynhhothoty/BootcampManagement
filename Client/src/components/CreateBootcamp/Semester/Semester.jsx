@@ -203,6 +203,11 @@ const Semester = ({
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
+            render: (text) => (
+                <Tooltip title={text} placement="topLeft">
+                    {text}
+                </Tooltip>
+            )
         },
 
         {
@@ -304,6 +309,12 @@ const Semester = ({
                 title: 'Description',
                 dataIndex: 'description',
                 key: 'description',
+                ellipsis: true,
+                render: (text) => (
+                    <Tooltip title={text} placement="topLeft">
+                        {text}
+                    </Tooltip>
+                )
             },
 
             {
@@ -421,7 +432,7 @@ const Semester = ({
         setIsModalOpen(true);
     };
 
-    const { allowcateFields } = useSelector((store) => store.createBootCamp);
+    const { allowcateFields, branchMajorSemester } = useSelector((store) => store.createBootCamp);
     const { viewedMajor } = useSelector((store) => store.major);
 
     const getSemesterData = () => {
@@ -470,9 +481,9 @@ const Semester = ({
                     }
             });
         });
-        if (semesterIndex >= 4)
+        if (semesterIndex >= branchMajorSemester)
             if (viewedMajor) {
-                viewedMajor.branchMajor.forEach((branch, index) => {
+                viewedMajor?.branchMajor?.forEach((branch, index) => {
                     newSubjectArray.unshift({
                         ...branch,
                         key: branch._id,
@@ -569,6 +580,7 @@ const Semester = ({
                 }}
                 columns={columns}
                 dataSource={getSemesterData()}
+                pagination={false}
             />
         </Card>
     );

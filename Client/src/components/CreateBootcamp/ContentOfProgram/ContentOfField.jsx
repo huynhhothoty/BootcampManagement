@@ -13,6 +13,7 @@ import {
     Col,
     InputNumber,
     Popconfirm,
+    Tooltip,
 } from 'antd';
 import { useDispatch } from 'react-redux';
 import {
@@ -254,6 +255,11 @@ const ContentOfField = ({
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
+            render: (text) => (
+                <Tooltip title={text} placement="topLeft">
+                    {text}
+                </Tooltip>
+            )
         },
 
         {
@@ -266,7 +272,6 @@ const ContentOfField = ({
                             type='default'
                             danger
                             onClick={async () => {
-                                console.log(data.index);
                                 const confirmed = await confirmModal.confirm(
                                     deleteConfirmConfig
                                 );
