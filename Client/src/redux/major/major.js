@@ -11,7 +11,7 @@ const initialState = {
 };
 
 export const getMajorById = createAsyncThunk(
-    "allowcate/getAllowcatById",
+    "major/getAllowcatById",
     async (majorId) => {
       try {
         const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -30,9 +30,10 @@ export const getMajorById = createAsyncThunk(
   );
 
 export const getAllMajor = createAsyncThunk(
-  "allowcate/getAllMajor",
+  "major/getAllMajor",
   async () => {
     try {
+
       const userToken = sessionStorage.getItem(USER_TOKEN);
       let res = await axios.get(getAllMajorAPI(), {
         headers: {
@@ -49,7 +50,7 @@ export const getAllMajor = createAsyncThunk(
 );
 
 export const updateMajor = createAsyncThunk(
-  "allowcate/updateMajor",
+  "major/updateMajor",
   async ({majorId,data}) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -68,7 +69,7 @@ export const updateMajor = createAsyncThunk(
 );
 
 export const getDepartmentById =  createAsyncThunk(
-  "allowcate/getDepartmentById",
+  "major/getDepartmentById",
   async (departmentId) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -87,7 +88,7 @@ export const getDepartmentById =  createAsyncThunk(
 );
 
 export const queryAllDepartment =  createAsyncThunk(
-  "allowcate/queryAllDepartment",
+  "major/queryAllDepartment",
   async (query) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -106,7 +107,7 @@ export const queryAllDepartment =  createAsyncThunk(
 );
 
 export const queryAllMajor = createAsyncThunk(
-  "allowcate/queryAllMajor",
+  "major/queryAllMajor",
   async (query) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -125,7 +126,7 @@ export const queryAllMajor = createAsyncThunk(
 );
 
 export const getBranchMajorById =  createAsyncThunk(
-  "allowcate/getBranchMajorById",
+  "major/getBranchMajorById",
   async (branchId) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -144,7 +145,7 @@ export const getBranchMajorById =  createAsyncThunk(
 );
 
 export const updateBranchMajor = createAsyncThunk(
-  "allowcate/updateBranchMajor",
+  "major/updateBranchMajor",
   async ({branchId,data}) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -163,7 +164,7 @@ export const updateBranchMajor = createAsyncThunk(
 );
 
 export const addBranchMajor = createAsyncThunk(
-  "allowcate/addBranchMajor",
+  "major/addBranchMajor",
   async (data) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -182,7 +183,7 @@ export const addBranchMajor = createAsyncThunk(
 );
 
 export const createMajor = createAsyncThunk(
-  "allowcate/createMajor",
+  "major/createMajor",
   async (data) => {
     try {
       const userToken = sessionStorage.getItem(USER_TOKEN);
@@ -209,6 +210,7 @@ export const majorSlice = createSlice({
       });
 
       builder.addCase(getAllMajor.fulfilled, (state,action) => {
+  
         state.majorList = action.payload.data
       });
 

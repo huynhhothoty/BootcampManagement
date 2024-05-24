@@ -3,9 +3,9 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode'
 
-const SemesterViewOnly = () => {
-    const { viewedSemesterList, viewedSemesterSubjectList } = useSelector(store => store.subject)
-    const { viewedAllowcatedFields, viewedAllowcatedFieldsID } = useSelector(store => store.allowcate)
+const SemesterViewOnly = ({compareData, isMain}) => {
+    const { viewedSemesterList } = useSelector(store => store.subject)
+    const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
     const { viewedMajor } = useSelector(store => store.major)
     const columns = [
         {
@@ -65,12 +65,21 @@ const SemesterViewOnly = () => {
       ];
 
     const getSemesterData = () => {
-        return viewedSemesterList.map((semester, index) => {
+      let renderAllowcate = []
+      let renderSemester = []
+      if(compareData && !isMain){
+        renderSemester = compareData.semesterList
+        renderAllowcate = compareData.allowcateFields
+      }else {
+        renderAllowcate = viewedAllowcatedFields
+        renderSemester = viewedSemesterList
+      }
+        return renderSemester.map((semester, index) => {
             let subjectList = []
             let subjectBranchMajorList = []
 
             semester.forEach((subject, sindex) => {
-                const subjectData = viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                const subjectData = renderAllowcate[subject.fieldIndex].subjectList[subject.subjectIndex]
                 if (subjectData.branchMajor === undefined || subjectData.branchMajor === null) {
                     subjectList.push({
                             ...subjectData,
@@ -94,7 +103,7 @@ const SemesterViewOnly = () => {
                     }
                 }
             })
-            viewedAllowcatedFields.forEach((field, fIndex) => {
+            renderAllowcate.forEach((field, fIndex) => {
                 field.electiveSubjectList.forEach((group, gIndex) => {
                     if (group.semester === index) {
 
@@ -134,7 +143,7 @@ const SemesterViewOnly = () => {
     }
    
   return (
-    <div  style={{ width: '80%', marginInline: "auto" }}>
+    <div  style={{ width: compareData ? '100%' : '80%', marginInline: "auto" }}>
     {getSemesterData()}
     </div>
     // <Table columns={columns} dataSource={viewedAllowcatedFields} bordered/>

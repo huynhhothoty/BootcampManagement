@@ -1,16 +1,22 @@
 import React from 'react'
-import { Col, Row, Space, Table, Tag } from 'antd';
+import { Col, Row, Space, Table, Tag,Typography } from 'antd';
 import { useSelector } from 'react-redux';
 const { Column, ColumnGroup } = Table;
 
-const AllowcateTableViewOnly = () => {
+const AllowcateTableViewOnly = ({compareData, isMain}) => {
     const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
     const getCustomAllowcatedField = () => {
+        let dataRender = []
+        if(compareData && !isMain){
+            dataRender = compareData.allowcateFields
+        }else {
+            dataRender = viewedAllowcatedFields
+        }
         let customAllocate = []
         let allFieldCompulsoryCredits = 0
         let allFieldElectiveCredits = 0
         let allFieldtotalName = ''
-        customAllocate = viewedAllowcatedFields.map((field,index) => {
+        customAllocate = dataRender.map((field,index) => {
             allFieldCompulsoryCredits += field.compulsoryCredits
             allFieldElectiveCredits += field.electiveCredits
             return {
@@ -40,9 +46,13 @@ const AllowcateTableViewOnly = () => {
         return customAllocate
     }
     return (
-        <div style={{ width: '60%', marginInline: "auto" }}>
+        <div style={{ width: compareData ? '100%' : '60%', marginInline: "auto" }}>
+            
+            <Table dataSource={getCustomAllowcatedField()} bordered pagination={false} scroll={{
 
-            <Table dataSource={getCustomAllowcatedField()} bordered pagination={false}>
+          }} expandable={{
+                defaultExpandAllRows: true
+            }}>
                 <Column title="Name" dataIndex="fieldName" key="fieldName" render={(value, data) => {
                     if (data.children)
                         return <p style={{ fontWeight: "bold" }}>{value}</p>
@@ -55,7 +65,7 @@ const AllowcateTableViewOnly = () => {
                         return <p style={{ fontWeight: "bold" }}>{value}</p>
                     else return value
                 }}/>
-                    <Column title="Compulsory" dataIndex="compulsoryCredits" key="compulsoryCredits" width={"10%"} align='center' render={(value, data) => {
+                    <Column title="Compulsory" dataIndex="compulsoryCredits" key="compulsoryCredits" width={"12%"} align='center' render={(value, data) => {
                     if (data.children)
                         return <p style={{ fontWeight: "bold" }}>{value}</p>
                     else return value

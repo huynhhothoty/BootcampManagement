@@ -390,7 +390,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
 
     }, [viewedMajor])
     return (
-        <div>
+        <div style={{height:'100%', display:'flex', flexDirection:'column'}}>
             <AddSubjectToSemesterModal setIsUpdated={setIsUpdated} type={"view"} selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <ProDescriptions
                 actionRef={actionRef}

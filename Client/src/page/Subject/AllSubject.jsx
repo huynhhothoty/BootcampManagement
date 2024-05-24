@@ -143,10 +143,10 @@ const AllSubject = ({ openNotification, confirmModal, isSelect, importingType, s
                 actionRef={actionRef}
                 cardBordered
                 tableAlertRender={false}
-                rowSelection={{
+                rowSelection={isSelect ? {
                     type: 'radio',
                     ...rowSelection,
-                }}
+                }: false}
                 // rowSelection={isAddModal ? {
                 //     selectedRowKeys,
                 //     onChange: onSelectChange,

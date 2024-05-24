@@ -27,7 +27,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { ProTable } from '@ant-design/pro-components';
 import { copyObjectWithKeyRename, objectToQueryString } from '../../util/TableParamHandle/tableParamHandle';
 
-const AllBootcampTable = () => {
+const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelectedBootcamp, viewingBootcampId, viewedMajorId}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { userData } = useSelector((store) => store.authentication);
@@ -100,7 +100,6 @@ const AllBootcampTable = () => {
                 electiveSubjectList: field.electiveSubjectList,
             };
         });
-        console.log(data.detail);
         semesterList = data.detail.map((semester, index) => {
             return semester.subjectList.map((subject) => {
                 const semesterSubjectListIndex = semesterSubjectList.findIndex(
@@ -189,13 +188,15 @@ const AllBootcampTable = () => {
                     }
                 })
                 return dataList
-            }
+            },
+            hideInSearch: viewedMajorId ? true : false
         },
         {
             title: '',
             dataIndex: '',
             width: '17%',
             hideInSearch: true,
+            hideInTable: isModal,
             render: (_, data) => (
                 <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button
@@ -233,6 +234,16 @@ const AllBootcampTable = () => {
         },
     ];
 
+    const rowSelection = {
+        selectedRowKeys: selectedRowKeys,
+        onChange: async (selectedRowKeys, selectedRows) => {
+            setSelectedRowKeys(selectedRowKeys);
+            // const a = await handleGetCompareBootcampData(selectedRows[0])
+            setSelectedBootcamp(selectedRows[0]);
+        },
+    };
+
+
     useEffect(() => {
         dispatch(getBootcampsByUserID());
     }, []);
@@ -247,6 +258,14 @@ const AllBootcampTable = () => {
                     option: { fixed: 'right', disable: true },
                 },
             }}
+            rowSelection={isModal ? {
+                type: 'radio',
+                ...rowSelection,
+                getCheckboxProps: (record) => ({
+                    disabled: record._id === viewingBootcampId,
+                    // Column configuration not to be checked
+                  })
+            }: false}
             rowKey="key"
             search={{
                 labelWidth: 'auto',
@@ -274,6 +293,9 @@ const AllBootcampTable = () => {
                     total: res.payload.total,
                 }
             }}
+            params={viewedMajorId ? {
+                major: viewedMajorId
+            }: null}
             options={{
                 setting: {
                     listsHeight: 400,

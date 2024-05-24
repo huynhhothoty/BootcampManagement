@@ -3,7 +3,7 @@ import React from 'react'
 import { useSelector } from 'react-redux';
 import { AutogenAllSubjectCode } from '../../util/AutogenSubjectCode/autogenSubjectCode';
 
-const CourseSubjectViewOnly = ({isCompulsory}) => {
+const CourseSubjectViewOnly = ({isCompulsory,compareData,isMain}) => {
     const { viewedAllowcatedFields } = useSelector(store => store.allowcate)
     const columns = [
         {
@@ -42,7 +42,13 @@ const CourseSubjectViewOnly = ({isCompulsory}) => {
       
       ];
      const getFieldSubjectList = () => {
-        return viewedAllowcatedFields.map((field,index) => {
+        let renderData = []
+        if(compareData && !isMain){
+          renderData = compareData.allowcateFields
+        }else {
+          renderData = viewedAllowcatedFields
+        }
+        return renderData.map((field,index) => {
             let tempSubjectList = []
             tempSubjectList = field.subjectList.filter((subject) => subject.isCompulsory === isCompulsory)
             return (<div style={{marginBottom: 25}}>
@@ -52,7 +58,7 @@ const CourseSubjectViewOnly = ({isCompulsory}) => {
         })
      }
   return (
-    <div style={{ width: '80%', marginInline: "auto" }}>
+    <div style={{ width: compareData ? '100%' : '80%', marginInline: "auto" }}>
         {getFieldSubjectList()}
     {/* <Table columns={columns} dataSource={viewedAllowcatedFields} bordered/> */}
     </div>

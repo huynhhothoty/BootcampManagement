@@ -7,3 +7,11 @@
     border-width: 2px;
     border-color: red;
 }
+#viewBootcampTab{
+    .ant-tabs-content-holder{
+        .ant-tabs-content.ant-tabs-content-top{
+            height: 100%;
+        }
+    }
+}
+
