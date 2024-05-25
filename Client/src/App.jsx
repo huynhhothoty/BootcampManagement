@@ -15,6 +15,8 @@ import AllSubject from './page/Subject/AllSubject'
 import AllDepartment from './page/Department/AllDepartment'
 import AllMajor from './page/Major/AllMajor'
 import UserList from './page/UserList/UserList'
+import NotFound from './page/ErrorPage/NotFound'
+import UnauthorizedPage from './page/ErrorPage/UnauthorizedPage'
 
 
 const ReachableContext = createContext(null);
@@ -31,7 +33,6 @@ function App() {
       description:description,
     });
   };
-
 
 
   return (
@@ -56,6 +57,8 @@ function App() {
             <Route path="viewbootcamp" element={<BootcampDetail openNotification={openNotification} confirmModal={modal}/>}/>
           </Route>
         </Route>
+        <Route path='*' element={<NotFound />} />
+        <Route path='/unauthorized' element={<UnauthorizedPage />} />
       </Routes>
     </BrowserRouter>
     </Spin>

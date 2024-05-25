@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from 'react';
 import {
   MenuFoldOutlined,
@@ -29,6 +29,7 @@ const { Header, Sider, Content } = Layout;
 const Main = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { userData } = useSelector(store => store.authentication)
   const { draftID } = useSelector(store => store.createBootCamp)
   const [collapsed, setCollapsed] = useState(false);
@@ -182,6 +183,17 @@ const Main = () => {
       label: 'My Bootcamp',
     },
   ]
+
+  useEffect(() => {
+    let userData = sessionStorage.getItem(USER_DATA)
+    userData = JSON.parse(userData)
+    if(userData.role !== "admin"){
+      if(location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp"){
+        navigate('/unauthorized')
+      }
+    }
+
+  },[location])
 
   return (
 
