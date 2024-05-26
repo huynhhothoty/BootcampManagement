@@ -480,7 +480,12 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                 <Radio.Button value="create">Create Bootcamp</Radio.Button>
               </Radio.Group>
               :
-              <Button style={{ marginLeft: 20 }} type='primary' onClick={() => { handleAddTemplate(userData.major.templateBootcamp) }}>Reload Template</Button>
+              <Button style={{ marginLeft: 20 }} type='primary' onClick={() => {
+                if(userData.major.templateBootcamp){
+                  handleAddTemplate(userData.major.templateBootcamp) 
+                }
+                
+                }}>Reload Template</Button>
           }
 
         </Col>
