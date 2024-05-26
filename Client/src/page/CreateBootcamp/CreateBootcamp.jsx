@@ -280,7 +280,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           handleAddTemplate(selectedMajorData.templateBootcamp)
         }
       } else if (userData.role === "teacher") {
-        handleAddTemplate(userData.major.templateBootcamp)
+        if(userData.major.templateBootcamp)
+          handleAddTemplate(userData.major.templateBootcamp)
       }
     }
 
