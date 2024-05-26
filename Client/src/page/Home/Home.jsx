@@ -8,6 +8,7 @@ import { getMajorById } from "../../redux/major/major";
 import { updateLoading } from "../../redux/loading/Loading";
 import BootcampSemesterDrawer from "../../components/Home/BootcampSemesterDrawer";
 import TestComp from "../../components/TestComp";
+import { USER_DATA } from "../../util/constants/sectionStorageKey";
 const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
@@ -59,16 +60,22 @@ const Home = () => {
   }
   useEffect(() => {
     (async () => {
- 
-      await dispatch(getBootcampsForTrackingByUserID())
-      await dispatch(getMajorById('651ea4fac9a4c12da715528f'))
+      let userData = sessionStorage.getItem(USER_DATA);
+      if(userData){
+        await dispatch(getBootcampsForTrackingByUserID())
+        await dispatch(getMajorById('651ea4fac9a4c12da715528f'))
+      }
+    
 
     })()
     
   },[])
 
   useEffect(() => {
-    setBootcampCardList(renderBootcampStatic())
+    if(userTrackingBootcampList){
+      setBootcampCardList(renderBootcampStatic())
+    }
+    
   },[userTrackingBootcampList])
 
   return (

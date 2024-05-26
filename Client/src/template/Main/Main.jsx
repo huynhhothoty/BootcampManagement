@@ -186,12 +186,15 @@ const Main = () => {
 
   useEffect(() => {
     let userData = sessionStorage.getItem(USER_DATA)
-    userData = JSON.parse(userData)
-    if(userData.role !== "admin"){
-      if(location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp"){
-        navigate('/unauthorized')
+    if(userData){
+      userData = JSON.parse(userData)
+      if(userData.role !== "admin"){
+        if(location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp"){
+          navigate('/unauthorized')
+        }
       }
     }
+    
 
   },[location])
 
