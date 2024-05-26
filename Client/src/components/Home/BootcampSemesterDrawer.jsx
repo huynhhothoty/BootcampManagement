@@ -100,7 +100,13 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                     }
                 })
             })
-            subjectList = [...branchMajorList,...subjectList]
+            if(index >= data.branchMajorSemester){
+                subjectList = [...branchMajorList,...subjectList]
+            }else{
+                subjectList = [...subjectList]
+            }
+                
+            
 
 
             return <ProCard title={<h2>{`Semester ${index + 1}`}</h2>} key={index} collapsible>

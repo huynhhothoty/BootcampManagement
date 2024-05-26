@@ -20,13 +20,15 @@ const Home = () => {
   const [drawerData,setDrawerData] = useState({
     semesterList: [],
     allocation: {},
-    bootcampId: ''
+    bootcampId: '',
+    branchMajorSemester: 0
   })
   const showDrawer = (bootcamp) => {
     setOpenDrawer(true);
     drawerData.semesterList = bootcamp.detail
     drawerData.allocation = bootcamp.allocation
     drawerData.bootcampId = bootcamp._id
+    drawerData.branchMajorSemester = bootcamp.branchMajorSemester
     setDrawerData(drawerData)
   };
   const resetDrawerData = () => {
