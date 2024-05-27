@@ -569,20 +569,20 @@ export const createBootcampSlice = createSlice({
     },
     updateSmallFieldElectiveCredits: (state, action) => {
  
-        // if (action.payload.groupIndex !== null) {
+        if (action.payload.groupIndex !== null) {
           
-        //   state.allowcateFields[action.payload.fieldIndex].smallField[
-        //     state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
-        //       action.payload.groupIndex
-        //     ].allocateChildId
-        //   ].electiveCredits -=
-        //     state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
-        //       action.payload.groupIndex
-        //     ].credit;
-        // }
-        // state.allowcateFields[action.payload.fieldIndex].smallField[
-        //   action.payload.groupData.allocateChildId
-        // ].electiveCredits += action.payload.groupData.credit;
+          state.allowcateFields[action.payload.fieldIndex].smallField[
+            state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+              action.payload.groupIndex
+            ].allocateChildId
+          ].electiveCredits -=
+            state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+              action.payload.groupIndex
+            ].credit;
+        }
+        state.allowcateFields[action.payload.fieldIndex].smallField[
+          action.payload.groupData.allocateChildId
+        ].electiveCredits += action.payload.groupData.credit;
 
     },
     updateSmallFieldElectiveCreditsWithDelete:(state, action) => {
