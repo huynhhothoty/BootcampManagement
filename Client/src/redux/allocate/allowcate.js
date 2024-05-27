@@ -63,20 +63,14 @@ export const allowcateSlice = createSlice({
         state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
           action.payload.smallFieldIndex
         ];
-      let updatedSmallFieldData = action.payload.fieldData;
 
-      state.viewedAllowcatedFields[
-        action.payload.fieldIndex
-      ].compulsoryCredits +=
-        updatedSmallFieldData.compulsoryCredits -
-        tempSmallFieldData.compulsoryCredits;
-      state.viewedAllowcatedFields[action.payload.fieldIndex].electiveCredits +=
-        updatedSmallFieldData.electiveCredits -
-        tempSmallFieldData.electiveCredits;
+        state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+          action.payload.smallFieldIndex
+        ].fieldName = action.payload.fieldData.fieldName
 
       state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
         action.payload.smallFieldIndex
-      ] = { ...action.payload.fieldData, edited: true };
+      ]['edited'] = true
     },
     deleteViewedSmallField: (state, action) => {
       let tempSmallFieldData =
@@ -152,7 +146,98 @@ export const allowcateSlice = createSlice({
         state.viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex]['semester'] = subject.semester
       })
      
+    },
+    updateViewedSmallFieldCompulsoryCredits: (state, action) => {
+      if (action.payload.subject.isCompulsory) {
+        if (action.payload.subjectIndex !== null) {
+          if(state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].allocateChildId !== undefined && state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].allocateChildId !== null){
+            state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+              state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+                action.payload.subjectIndex
+              ].allocateChildId
+            ].compulsoryCredits -=
+              state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+                action.payload.subjectIndex
+              ].credits;
+          }
+        
+        }
+        state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+          action.payload.subject.allocateChildId
+        ].compulsoryCredits += action.payload.subject.credits;
+      }
+    },
+    updateViewedFieldCredits: (state, action) => {
+      state.viewedAllowcatedFields[action.payload].compulsoryCredits =
+        state.viewedAllowcatedFields[action.payload].smallField.reduce(
+          (accumulator, currentValue) =>
+            accumulator + currentValue.compulsoryCredits,
+          0
+        );
+      state.viewedAllowcatedFields[action.payload].electiveCredits =
+        state.viewedAllowcatedFields[action.payload].smallField.reduce(
+          (accumulator, currentValue) =>
+            accumulator + currentValue.electiveCredits,
+          0
+        );
+    },
+    updateViewedSmallFieldCreditsWithDelete: (state, action) => {
+      if (action.payload.type === "compulsory")
+        if(state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+          action.payload.subjectIndex
+        ].allocateChildId !== undefined && state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+          action.payload.subjectIndex
+        ].allocateChildId !== null){
+ 
+          state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+            state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+              action.payload.subjectIndex
+            ].allocateChildId
+          ].compulsoryCredits -=
+            state.viewedAllowcatedFields[action.payload.fieldIndex].subjectList[
+              action.payload.subjectIndex
+            ].credits;
+        }
+       
+    },
+    updateViewedSmallFieldElectiveCredits: (state, action) => {
+ 
+      if (action.payload.groupIndex !== null) {
+        state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+          state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+            action.payload.groupIndex
+          ].allocateChildId
+        ].electiveCredits -=
+          state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+            action.payload.groupIndex
+          ].credit;
+      }
+      state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+        action.payload.groupData.allocateChildId
+      ].electiveCredits += action.payload.groupData.credit;
+
+  },
+  updateViewedSmallFieldElectiveCreditsWithDelete:(state, action) => {
+    if(state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+      action.payload.groupIndex
+    ].allocateChildId !== undefined && state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+      action.payload.groupIndex
+    ].allocateChildId !== null){
+      state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
+        state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+          action.payload.groupIndex
+        ].allocateChildId
+      ].electiveCredits -= 
+      state.viewedAllowcatedFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].credit
     }
+  
+  }
   },
 });
 export const {
@@ -169,6 +254,11 @@ export const {
   addNewElectiveGroupToViewedField,
   editElectiveGroupToViewedField,
   deleteElectiveGroupToViewedField,
-  updateAllowcateSubjectListSemester
+  updateAllowcateSubjectListSemester,
+  updateViewedSmallFieldCompulsoryCredits,
+  updateViewedFieldCredits,
+  updateViewedSmallFieldCreditsWithDelete,
+  updateViewedSmallFieldElectiveCredits,
+  updateViewedSmallFieldElectiveCreditsWithDelete
 } = allowcateSlice.actions;
 export default allowcateSlice.reducer;

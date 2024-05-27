@@ -187,11 +187,18 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
                 departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                 shortFormName: subject.shortFormName ? subject.shortFormName : "",
                 isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
+                allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? (field.detail.findIndex(sField => sField._id === subject.allocateChildId) > -1 ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null) : null,
                 _id: subject._id
               }
               return a
             }),
-            electiveSubjectList: field.electiveSubjectList
+            electiveSubjectList: field.electiveSubjectList.map((group) => {
+              let newGroupData = { ...group }
+              if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
+                newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
+              }
+              return newGroupData
+            })
           }
         })
 

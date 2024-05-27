@@ -21,6 +21,10 @@ import {
     deleteGroup,
     editGroup,
     removeSubject,
+    updateFieldCredits,
+    updateSmallFieldCreditsWithDelete,
+    updateSmallFieldElectiveCredits,
+    updateSmallFieldElectiveCreditsWithDelete
 } from '../../../redux/CreateBootcamp/createBootCamp';
 import {
     NOT_EQUAL_CREDITS,
@@ -33,6 +37,7 @@ import {
     AutogenAllSubjectCode,
     padZero,
 } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
+import ElectiveGroupModal from '../Electivegroup/ElectiveGroupModal';
 
 const ContentOfField = ({
     error,
@@ -49,6 +54,8 @@ const ContentOfField = ({
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const [groupCredits, setGroupCredits] = useState(0);
+    const [electiveGroupModalOpen, setElectiveGroupModalOpen] = useState(false)
+    const [electiveGroupModalData, setElectiveGroupModalData] = useState(null)
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -70,13 +77,10 @@ const ContentOfField = ({
             return (
                 <span
                     style={{
-                        color:
-                            totalActureSubjectCredits === field.compulsoryCredits
-                                ? '#5cb85c'
-                                : 'red',
+                        color: '#5cb85c'
                     }}
                 >
-                    {totalActureSubjectCredits}/{field.compulsoryCredits}
+                    {totalActureSubjectCredits}
                 </span>
             );
         } else
@@ -103,13 +107,10 @@ const ContentOfField = ({
         return (
             <span
                 style={{
-                    color:
-                        totalActureSubjectCredits === field.electiveCredits
-                            ? '#5cb85c'
-                            : 'red',
+                    color: '#5cb85c'
                 }}
             >
-                {totalActureSubjectCredits}/{field.electiveCredits}
+                {totalActureSubjectCredits}
             </span>
         );
     };
@@ -224,14 +225,14 @@ const ContentOfField = ({
             width: '15%',
             render: (text, row) => {
                 if (row.isAutoCreateCode) {
-                    if(type === 'Elective'){
+                    if (type === 'Elective') {
                         return AutogenAllSubjectCode(row);
-                    }else {
-                        if (row.semester !== null && row.semester !== undefined ){
-                          return AutogenAllSubjectCode(row);
+                    } else {
+                        if (row.semester !== null && row.semester !== undefined) {
+                            return AutogenAllSubjectCode(row);
                         }
                     }
-                    
+
                 } else return text;
             },
         },
@@ -276,9 +277,18 @@ const ContentOfField = ({
                                     deleteConfirmConfig
                                 );
                                 if (confirmed) {
+                                    dispath(
+                                        updateSmallFieldCreditsWithDelete({
+                                            fieldIndex: index,
+                                            subjectIndex: data.index,
+                                            type,
+                                        })
+                                    )
+
                                     if (data._id) {
                                         dispath(removeImportedSubject(data._id));
                                     }
+                                    dispath(updateFieldCredits(index))
                                     dispath(
                                         removeSubject({
                                             fieldIndex: index,
@@ -304,6 +314,7 @@ const ContentOfField = ({
                                     subjectData: data,
                                     isCreateBootcamp: true,
                                     isViewBootcamp: false,
+                                    fieldData: field,
                                 });
                                 setIsSubjectModalOpen(true);
                             }}
@@ -339,43 +350,19 @@ const ContentOfField = ({
             valueType: 'option',
             width: '5%',
             render: (_, row) => [
-                <Popconfirm
-                    title='Edit Credits'
-                    onOpenChange={() => setGroupCredits(row.credit)}
-                    description={
-                        <InputNumber
-                            value={groupCredits}
-                            onChange={(value) => setGroupCredits(value)}
-                        />
-                    }
-                    onConfirm={() => {
-                        const groupData = {
-                            credit: groupCredits,
-                            semester: row.semester,
-                            branchMajor: row.branchMajor,
-                        };
-                        dispath(
-                            editGroup({
-                                fieldIndex: index,
-                                groupData,
-                                groupIndex: row.index,
-                            })
-                        );
-                        setGroupCredits(0);
-                    }}
-                    onCancel={() => setGroupCredits(0)}
-                    okText='Edit'
-                    cancelText='Cancel'
-                >
-                    <a key='edit'>Edit</a>
-                </Popconfirm>,
-
+                <a key='edit' onClick={() => handleOpenElectiveGroupModal({
+                    ...row,
+                    courseName: `${field.fieldName} ${row.index + 1}`
+                })}>Edit</a>
+                ,
                 <a
                     style={{ color: 'red', marginLeft: 20 }}
                     key='delete'
                     onClick={async () => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig);
                         if (confirmed) {
+                            dispath(updateSmallFieldElectiveCreditsWithDelete({ fieldIndex: index, groupIndex: row.index }))
+                            dispath(updateFieldCredits(index))
                             dispath(
                                 deleteGroup({ fieldIndex: index, groupIndex: row.index })
                             );
@@ -410,6 +397,14 @@ const ContentOfField = ({
         setData(getData());
     }, [field]);
 
+    const handleOpenElectiveGroupModal = (data) => {
+        setElectiveGroupModalData(data)
+        setElectiveGroupModalOpen(true)
+    }
+    const handleCloseElectiveGroupModal = () => {
+        setElectiveGroupModalData(null)
+        setElectiveGroupModalOpen(false)
+    }
     const handleSubjectModalOpen = () => {
         setSubjestModalData({
             type: 'add',
@@ -419,41 +414,72 @@ const ContentOfField = ({
             subjectData: null,
             isCreateBootcamp: true,
             isViewBootcamp: false,
+            fieldData: field,
         });
         setIsSubjectModalOpen(true);
     };
-    const handleAddGroup = () => {
+    const handleEditGroup = (editedData) => {
         const groupData = {
-            credit: groupCredits,
+            credit: editedData.credit,
+            semester: editedData.semester,
+            branchMajor: editedData.branchMajor,
+            allocateChildId: editedData.allocateChildId
+        };
+        dispath(updateSmallFieldElectiveCredits({
+            groupIndex: editedData.index,
+            groupData,
+            fieldIndex: index
+        }))
+        dispath(updateFieldCredits(index))
+        dispath(
+            editGroup({
+                fieldIndex: index,
+                groupData,
+                groupIndex: editedData.index,
+            })
+        );
+    }
+    const handleAddGroup = (addedData) => {
+        const groupData = {
+            credit: addedData.credit,
             semester: null,
             branchMajor: null,
+            allocateChildId: addedData.allocateChildId
         };
+        dispath(updateSmallFieldElectiveCredits({
+            groupIndex: null,
+            groupData,
+            fieldIndex: index
+        }))
+        dispath(updateFieldCredits(index))
         dispath(addNewGroup({ fieldIndex: index, groupData }));
     };
 
     return (
-        <Card
-            hoverable
-            style={{
-                width: '100%',
-                marginBottom: 16,
-            }}
-        >
-            {type === 'Elective' ? (
-                <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                            <h2>
-                                {field.fieldName} Course List - Total Group Credits:{' '}
-                                {groupCreditsLabel()}
-                            </h2>
-                            <h4 style={{ color: '#1677ff' }}>
-                                Note: For each course, Please choose 1 subject in the list
-                                below
-                            </h4>
-                        </div>
+        <>
+            <ElectiveGroupModal open={electiveGroupModalOpen} handleCancel={handleCloseElectiveGroupModal} modalData={electiveGroupModalData} fieldData={field} handleAddGroup={handleAddGroup} handleEditGroup={handleEditGroup}/>
+            <Card
+                hoverable
+                style={{
+                    width: '100%',
+                    marginBottom: 16,
+                }}
+            >
+                {type === 'Elective' ? (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                <h2>
+                                    {field.fieldName} Course List - Total Group Credits:{' '}
+                                    {groupCreditsLabel()}
+                                </h2>
+                                <h4 style={{ color: '#1677ff' }}>
+                                    Note: For each course, Please choose 1 subject in the list
+                                    below
+                                </h4>
+                            </div>
 
-                        <Popconfirm
+                            {/* <Popconfirm
                             title='Credits'
                             onOpenChange={() => setGroupCredits(0)}
                             description={
@@ -469,40 +495,60 @@ const ContentOfField = ({
                             onCancel={() => setGroupCredits(0)}
                             okText='Add'
                             cancelText='Cancel'
-                        >
+                        > */}
                             <Button
                                 type='primary'
-                                disabled={field.electiveCredits <= 0 ? true : false}
+                               
+                                onClick={() => handleOpenElectiveGroupModal(null)}
                             >
                                 Add New Course
                             </Button>
-                        </Popconfirm>
-                    </div>
-                    {groupError ? (
-                        <div style={{ color: 'red', marginTop: 10 }}>
-                            **{VIEW_GROUP_CREDITS_NOT_EQUAL_TOTAL_CREDITS}
+                            {/* </Popconfirm> */}
                         </div>
-                    ) : (
-                        ''
-                    )}
-                    <Divider />
-                    <Table
-                        style={{ marginBottom: 20 }}
-                        columns={electiveColumns}
-                        dataSource={field.electiveSubjectList.map((group, gIndex) => ({
-                            ...group,
-                            key: gIndex,
-                            index: gIndex,
-                        }))}
-                    />
-                </>
-            ) : (
-                <></>
-            )}
-            {type === 'Elective' ? (
-                <Row>
-                    <Col span={1}></Col>
-                    <Col span={23}>
+                        <Divider />
+                        <Table
+                            style={{ marginBottom: 20 }}
+                            columns={electiveColumns}
+                            dataSource={field.electiveSubjectList.map((group, gIndex) => ({
+                                ...group,
+                                key: gIndex,
+                                index: gIndex,
+                            }))}
+                        />
+                    </>
+                ) : (
+                    <></>
+                )}
+                {type === 'Elective' ? (
+                    <Row>
+                        <Col span={1}></Col>
+                        <Col span={23}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <h2>
+                                    {field.fieldName} Subject List - Total Subject Credits:{' '}
+                                    {creditsLabel()}
+                                </h2>
+                                <Button type='primary' onClick={handleSubjectModalOpen}>
+                                    Add Subject
+                                </Button>
+                            </div>
+                            {error ? (
+                                <div style={{ color: 'red', marginTop: 10 }}>
+                                    **
+                                    {type === 'Compulsory'
+                                        ? NOT_EQUAL_CREDITS
+                                        : NOT_EQUAL_OR_HIGER_CREDITS}
+                                </div>
+                            ) : (
+                                ''
+                            )}
+
+                            <Divider />
+                            <Table columns={columns} dataSource={data} />
+                        </Col>
+                    </Row>
+                ) : (
+                    <>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <h2>
                                 {field.fieldName} Subject List - Total Subject Credits:{' '}
@@ -525,35 +571,10 @@ const ContentOfField = ({
 
                         <Divider />
                         <Table columns={columns} dataSource={data} />
-                    </Col>
-                </Row>
-            ) : (
-                <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <h2>
-                            {field.fieldName} Subject List - Total Subject Credits:{' '}
-                            {creditsLabel()}
-                        </h2>
-                        <Button type='primary' onClick={handleSubjectModalOpen}>
-                            Add Subject
-                        </Button>
-                    </div>
-                    {error ? (
-                        <div style={{ color: 'red', marginTop: 10 }}>
-                            **
-                            {type === 'Compulsory'
-                                ? NOT_EQUAL_CREDITS
-                                : NOT_EQUAL_OR_HIGER_CREDITS}
-                        </div>
-                    ) : (
-                        ''
-                    )}
-
-                    <Divider />
-                    <Table columns={columns} dataSource={data} />
-                </>
-            )}
-        </Card>
+                    </>
+                )}
+            </Card>
+        </>
     );
 };
 

@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createBootcampAPI, createTemplateBootcampAPI } from "../../util/api/bootcamp/bootcampApi";
+import {
+  createBootcampAPI,
+  createTemplateBootcampAPI,
+} from "../../util/api/bootcamp/bootcampApi";
 import { tempJWTToken } from "../../util/api/host";
 import axios from "axios";
 import { createFieldAPI } from "../../util/api/allowcate/allowcateApi";
@@ -20,8 +23,8 @@ const initialState = {
   semesterSubjectList: [],
   semesterList: [[]],
   draftID: "",
-  selectedMajor: '',
-  branchMajorSemester: 0
+  selectedMajor: "",
+  branchMajorSemester: 0,
 };
 
 export const createSubject = createAsyncThunk(
@@ -268,7 +271,7 @@ export const createBootcampSlice = createSlice({
         electiveCredits: 0,
         smallField: [],
         subjectList: [],
-        electiveSubjectList: []
+        electiveSubjectList: [],
       };
       state.allowcateFields.push(newField);
     },
@@ -300,6 +303,23 @@ export const createBootcampSlice = createSlice({
         state.allowcateFields[action.payload.bigFieldIndex].smallField[
           action.payload.smallFieldIndex
         ].electiveCredits;
+
+      state.allowcateFields[action.payload.bigFieldIndex].subjectList =
+        state.allowcateFields[action.payload.bigFieldIndex].subjectList.map(
+          (subject) => {
+            if (
+              subject.allocateChildId !== undefined &&
+              subject.allocateChildId !== null
+            ) {
+              if (subject.allocateChildId === action.payload.smallFieldIndex)
+                return {
+                  ...subject,
+                  allocateChildId: null,
+                };
+            }
+            return subject;
+          }
+        );
       state.allowcateFields[action.payload.bigFieldIndex].smallField.splice(
         action.payload.smallFieldIndex,
         1
@@ -330,12 +350,12 @@ export const createBootcampSlice = createSlice({
       state.allowcateFields[action.payload.fieldIndex].subjectList[
         action.payload.subjectIndex
       ] = action.payload.subject;
-      
+
       if (action.payload.subject.isCompulsory) {
-      state.completeTotalCredits +=
-        state.allowcateFields[action.payload.fieldIndex].subjectList[
-          action.payload.subjectIndex
-        ].credits;
+        state.completeTotalCredits +=
+          state.allowcateFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].credits;
       }
     },
     updateCompleteTotalCredits: (state, action) => {
@@ -388,11 +408,12 @@ export const createBootcampSlice = createSlice({
     },
     addSubjectsToSemester: (state, action) => {
       action.payload.forEach((subject) => {
-        state.semesterSubjectList[
-          subject.semesterSubjectListIndex
-        ].semester = subject.semester;
+        state.semesterSubjectList[subject.semesterSubjectListIndex].semester =
+          subject.semester;
         state.semesterList[subject.semester].push(subject);
-        state.allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]['semester'] = subject.semester
+        state.allowcateFields[subject.fieldIndex].subjectList[
+          subject.subjectIndex
+        ]["semester"] = subject.semester;
       });
     },
     removeSubjectFromSemester: (state, action) => {
@@ -435,7 +456,7 @@ export const createBootcampSlice = createSlice({
       state.semesterSubjectList = [];
       state.semesterList = [[]];
       state.bootcampName = "";
-      state.branchMajorSemester = 0
+      state.branchMajorSemester = 0;
 
       state.totalCredits = action.payload.totalCredits;
       state.completeTotalCredits = action.payload.completeTotalCredits;
@@ -445,35 +466,142 @@ export const createBootcampSlice = createSlice({
       state.bootcampName = action.payload.bootcampName;
       state.branchMajorSemester = action.payload.branchMajorSemester;
     },
-    addNewGroup: (state,action) => {
-      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.push(action.payload.groupData)
+    addNewGroup: (state, action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.push(
+        action.payload.groupData
+      );
+      state.completeTotalCredits += action.payload.groupData.credit;
     },
-    editGroup: (state,action) => {
-      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[action.payload.groupIndex] = action.payload.groupData
+    editGroup: (state, action) => {
+      state.completeTotalCredits -= state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].credit
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ] = action.payload.groupData;
+      state.completeTotalCredits += action.payload.groupData.credit
     },
-    deleteGroup: (state,action) => {
-      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList.splice(action.payload.groupIndex,1)
+    deleteGroup: (state, action) => {
+      state.completeTotalCredits -= state.allowcateFields[
+        action.payload.fieldIndex
+      ].electiveSubjectList[action.payload.groupIndex].credit
+      state.allowcateFields[
+        action.payload.fieldIndex
+      ].electiveSubjectList.splice(action.payload.groupIndex, 1);
+   
     },
     editSubjectBranchMajor: (state, action) => {
       state.allowcateFields[action.payload.fieldIndex].subjectList[
         action.payload.subjectIndex
       ] = action.payload.subject;
-      console.log(state.allowcateFields[action.payload.fieldIndex].subjectList[
-        action.payload.subjectIndex
-      ])
+      console.log(
+        state.allowcateFields[action.payload.fieldIndex].subjectList[
+          action.payload.subjectIndex
+        ]
+      );
     },
-    updateAutogenSubjectCode: (state,action) => {
-      state.allowcateFields = action.payload
+    updateAutogenSubjectCode: (state, action) => {
+      state.allowcateFields = action.payload;
     },
-    updateSelectedMajor: (state,action) => {
-      state.selectedMajor = action.payload
+    updateSelectedMajor: (state, action) => {
+      state.selectedMajor = action.payload;
     },
-    updateBranchMajorSemester: (state,action) => {
-      
+    updateBranchMajorSemester: (state, action) => {
       // console.log(state.allowcateFields[0].subjectList[0].branchMajor)
-      state.branchMajorSemester = action.payload.newData
+      state.branchMajorSemester = action.payload.newData;
     },
+    updateSmallFieldCompulsoryCredits: (state, action) => {
+      if (action.payload.subject.isCompulsory) {
+        if (action.payload.subjectIndex !== null) {
+          if(state.allowcateFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].allocateChildId !== undefined && state.allowcateFields[action.payload.fieldIndex].subjectList[
+            action.payload.subjectIndex
+          ].allocateChildId !== null){
+            state.allowcateFields[action.payload.fieldIndex].smallField[
+              state.allowcateFields[action.payload.fieldIndex].subjectList[
+                action.payload.subjectIndex
+              ].allocateChildId
+            ].compulsoryCredits -=
+              state.allowcateFields[action.payload.fieldIndex].subjectList[
+                action.payload.subjectIndex
+              ].credits;
+          }
+        
+        }
+        state.allowcateFields[action.payload.fieldIndex].smallField[
+          action.payload.subject.allocateChildId
+        ].compulsoryCredits += action.payload.updateFieldCompulsoryCredits;
+      }
+    },
+    updateFieldCredits: (state, action) => {
+      state.allowcateFields[action.payload].compulsoryCredits =
+        state.allowcateFields[action.payload].smallField.reduce(
+          (accumulator, currentValue) =>
+            accumulator + currentValue.compulsoryCredits,
+          0
+        );
+      state.allowcateFields[action.payload].electiveCredits =
+        state.allowcateFields[action.payload].smallField.reduce(
+          (accumulator, currentValue) =>
+            accumulator + currentValue.electiveCredits,
+          0
+        );
+    },
+    updateSmallFieldCreditsWithDelete: (state, action) => {
+      if (action.payload.type === "Compulsory")
+        if(state.allowcateFields[action.payload.fieldIndex].subjectList[
+          action.payload.subjectIndex
+        ].allocateChildId !== undefined && state.allowcateFields[action.payload.fieldIndex].subjectList[
+          action.payload.subjectIndex
+        ].allocateChildId !== null){
+ 
+          state.allowcateFields[action.payload.fieldIndex].smallField[
+            state.allowcateFields[action.payload.fieldIndex].subjectList[
+              action.payload.subjectIndex
+            ].allocateChildId
+          ].compulsoryCredits -=
+            state.allowcateFields[action.payload.fieldIndex].subjectList[
+              action.payload.subjectIndex
+            ].credits;
+        }
+       
+    },
+    updateSmallFieldElectiveCredits: (state, action) => {
+ 
+        // if (action.payload.groupIndex !== null) {
+          
+        //   state.allowcateFields[action.payload.fieldIndex].smallField[
+        //     state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        //       action.payload.groupIndex
+        //     ].allocateChildId
+        //   ].electiveCredits -=
+        //     state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        //       action.payload.groupIndex
+        //     ].credit;
+        // }
+        // state.allowcateFields[action.payload.fieldIndex].smallField[
+        //   action.payload.groupData.allocateChildId
+        // ].electiveCredits += action.payload.groupData.credit;
 
+    },
+    updateSmallFieldElectiveCreditsWithDelete:(state, action) => {
+      if(state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].allocateChildId !== undefined && state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].allocateChildId !== null){
+        state.allowcateFields[action.payload.fieldIndex].smallField[
+          state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+            action.payload.groupIndex
+          ].allocateChildId
+        ].electiveCredits -= 
+        state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+          action.payload.groupIndex
+        ].credit
+      }
+    
+    }
   },
 });
 
@@ -505,7 +633,12 @@ export const {
   editSubjectBranchMajor,
   updateAutogenSubjectCode,
   updateSelectedMajor,
-  updateBranchMajorSemester
+  updateBranchMajorSemester,
+  updateSmallFieldCompulsoryCredits,
+  updateFieldCredits,
+  updateSmallFieldCreditsWithDelete,
+  updateSmallFieldElectiveCredits,
+  updateSmallFieldElectiveCreditsWithDelete
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

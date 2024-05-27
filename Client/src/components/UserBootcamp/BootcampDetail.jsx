@@ -98,7 +98,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
+                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
             } else if (type === "elective") {
                 const subjectList = []
                 let newFirstIndex = firstIndexSubjectCode
@@ -116,7 +116,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+                return <SubjectDisplayTable field={field}  addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
     }
@@ -180,10 +180,28 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             try {
                 let newFieldList = []
                 let subjectInListIndex = 1
+                let createdAllowcate = null
+                const newFieldData = {
+                    "detail": viewedAllowcatedFields.map((field) => {
+                      return {
+                        "name": field.fieldName,
+                        "detail": field.smallField.map((sfield) => {
+                          return {
+                            "name": sfield.fieldName,
+                            "compulsoryCredit": sfield.compulsoryCredits,
+                            "OptionalCredit": sfield.electiveCredits
+                          }
+                        }),
+                      }
+                    })
+                  }
+                let allowcateRes = await dispatch(updateAllowcate({ allowcateId: viewedAllowcatedFieldsID, fieldData: newFieldData }))
+                createdAllowcate = allowcateRes.payload.data
                 for (let i = 0; i < viewedAllowcatedFields.length; i++) {
                     const newSubjectList = []
                     for (let j = 0; j < viewedAllowcatedFields[i].subjectList.length; j++) {
                         if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_ADDED_NORMAL)) {
+                  
                             let subjectData = {
                                 "name": viewedAllowcatedFields[i].subjectList[j].name,
                                 "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...viewedAllowcatedFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
@@ -194,65 +212,50 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "type": "major",
                                 "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
                                 "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
-                                "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null
+                                "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null,
+                                "allocateChildId": (viewedAllowcatedFields[i].subjectList[j].allocateChildId !== undefined && viewedAllowcatedFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[viewedAllowcatedFields[i].subjectList[j].allocateChildId]._id : null
                             }
                             newSubjectList.push(subjectData)
                         }
-                        else if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_EDITED)) {
+                        else {
                             const updatedData = {
                                 "name": viewedAllowcatedFields[i].subjectList[j].name,
                                 "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...viewedAllowcatedFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
                                 "credit": viewedAllowcatedFields[i].subjectList[j].credits,
                                 "description": viewedAllowcatedFields[i].subjectList[j].description,
+                                "isCompulsory": viewedAllowcatedFields[i].subjectList[j].isCompulsory,
                                 "branchMajor": viewedAllowcatedFields[i].subjectList[j].branchMajor !== undefined ? viewedAllowcatedFields[i].subjectList[j].branchMajor : null,
                                 "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
                                 "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
                                 "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null,
+                                "allocateChildId": (viewedAllowcatedFields[i].subjectList[j].allocateChildId !== undefined && viewedAllowcatedFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[viewedAllowcatedFields[i].subjectList[j].allocateChildId]._id : null,
                                 "type": "major",
                                 "_id": viewedAllowcatedFields[i].subjectList[j]._id
                             }
                             newSubjectList.push(updatedData)
-                        } else{
-                            deletedSubjectListId.forEach(deletedId => {
-                                const updatedData = {
-                                    "isDelete": true,
-                                    "_id": deletedId
-                                }
-                                newSubjectList.push(updatedData)
-                            })
-                          
                         }
                         
             
                         subjectInListIndex++
                     }
                    
-                    newFieldList.push({
-                        ...viewedAllowcatedFields[i],
-                        subjectList: newSubjectList
-                    })
+                    createdAllowcate.detail[i].subjectList = newSubjectList
+                    createdAllowcate.detail[i].electiveSubjectList= viewedAllowcatedFields[i].electiveSubjectList.map((group) => {
+                        let newGroupData = { ...group }
+                        if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
+                          newGroupData.allocateChildId = createdAllowcate.detail[i].detail[newGroupData.allocateChildId]._id
+                        }
+                        return newGroupData
+                    })  
                 }
           
                 const fieldData = {
-                    "detail": newFieldList.map((field) => {
-                        return {
-                            "name": field.fieldName,
-                            "detail": field.smallField.map((sfield) => {
-                                return {
-                                    "name": sfield.fieldName,
-                                    "compulsoryCredit": sfield.compulsoryCredits,
-                                    "OptionalCredit": sfield.electiveCredits
-                                }
-                            }),
-                            "subjectList": field.subjectList,
-                            "electiveSubjectList": field.electiveSubjectList,
-                        }
-                    })
+                    "detail": [...createdAllowcate.detail]
                 }
                 console.log(fieldData)
                 const update_field_conatainer = await dispatch(updateAllowcate({ allowcateId: viewedAllowcatedFieldsID, fieldData }))
                 const bootcampData = {
-                    "major": "651ea4fac9a4c12da715528f",
+                    "major": viewedBootcamp.major,
                     "author": userData.id,
                     "name": viewedBootcamp.bootcampName,
                     "year": 2023,
@@ -332,11 +335,18 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         shortFormName: subject.shortFormName ? subject.shortFormName : "",
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                         departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
+                        allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
                     }
 
                     return a
                 }),
-                electiveSubjectList: field.electiveSubjectList
+                electiveSubjectList: field.electiveSubjectList.map((group) => {
+                    let newGroupData = { ...group }
+                    if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
+                      newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
+                    }
+                    return newGroupData
+                  })
             }
         })
 

@@ -18,3 +18,8 @@ export const activateMajorConfirmConfig = {
     title: 'Activate Confirm',
     content: 'This action will activate this major, all the relative User accounts and all the bootcamp of this major will be activate again',
 };
+
+export const clearAllConfirmConfig = {
+    title: 'Are you sure you want to clear all',
+    content: 'This action will clear all your current processes',
+}

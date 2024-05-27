@@ -37,9 +37,9 @@ const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldI
 
                     return <div>
                         <a onClick={() => {
-                            dispatch(updateCompleteCreditsToViewedBootcamp(record.electiveCredits * -1))
-                            dispatch(editViewedSmallField({ fieldIndex: bigFieldIndex, smallFieldIndex: record.index, fieldData: { fieldName, compulsoryCredits, electiveCredits } }))
-                            dispatch(updateCompleteCreditsToViewedBootcamp(electiveCredits))
+
+                            dispatch(editViewedSmallField({ fieldIndex: bigFieldIndex, smallFieldIndex: record.index, fieldData: { fieldName } }))
+
                             setAddedSmallFieldID(null)
                             action.cancelEditable(record.id)
                             setIsUpdated(true)
@@ -93,6 +93,7 @@ const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldI
                     }
                 },
                 subTitle: {
+                    editable:false,
                     render: (_, data) => {
                         return (
                             <Space size={0}>
@@ -101,12 +102,12 @@ const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldI
                             </Space>
                         );
                     },
-                    renderFormItem: () => {
-                        return (<div style={{ display: "flex" }}>
-                            <InputNumber min={0} placeholder='Compulsory' name="compulsoryCredits" style={{ marginRight: 20 }} value={compulsoryCredits} onChange={(value) => setCompulsoryCredits(value)} />
-                            <InputNumber min={0} placeholder='Elective' name="electiveCredits" value={electiveCredits} onChange={(value) => setElectiveCredits(value)} />
-                        </div>)
-                    }
+                    // renderFormItem: () => {
+                    //     return (<div style={{ display: "flex" }}>
+                    //         <InputNumber min={0} placeholder='Compulsory' name="compulsoryCredits" style={{ marginRight: 20 }} value={compulsoryCredits} onChange={(value) => setCompulsoryCredits(value)} />
+                    //         <InputNumber min={0} placeholder='Elective' name="electiveCredits" value={electiveCredits} onChange={(value) => setElectiveCredits(value)} />
+                    //     </div>)
+                    // }
                 },
 
 

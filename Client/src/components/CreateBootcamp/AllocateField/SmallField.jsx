@@ -48,13 +48,13 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
                  
                     <InputNumber min={0} 
                     // max={20} 
-                    placeholder="Compulsory Credits" value={fieldData.compulsoryCredits} onChange={handleChangeCompulsoryCredit}/>
+                    placeholder="Compulsory Credits" value={fieldData.compulsoryCredits}  disabled/>
                 </div>
                 <div style={{width:"20%",display:"flex", justifyContent:"center"}}>
                     
                     <InputNumber  min={0} 
                     // max={20} 
-                    placeholder="Elective Credits" value={fieldData.electiveCredits} onChange={handleChangeElectiveCredit}/>
+                    placeholder="Elective Credits" value={fieldData.electiveCredits}   disabled/>
                 </div>
                 <div style={{width:"10%"}}>
                     <Button danger onClick={async () => {

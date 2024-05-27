@@ -63,23 +63,14 @@ export const validateBootcampData = (
       allowcateTotalCredits += field.compulsoryCredits;
       allowcateTotalCredits += field.electiveCredits;
 
-      let totalCompulsorySubjectCredits = 0;
       let totalElectiveSubjectCredits = 0;
-      let totalElectiveGroupCredits = 0;
-      field.electiveSubjectList.forEach((group) => {
-        totalElectiveGroupCredits += group.credit;
-      });
+
       field.subjectList.forEach((subject) => {
-        if (subject.isCompulsory) {
-          totalCompulsorySubjectCredits += subject.credits;
-        } else totalElectiveSubjectCredits += subject.credits;
+        totalElectiveSubjectCredits += subject.credits;
       });
-      if (totalCompulsorySubjectCredits !== field.compulsoryCredits)
-        tempErrorMessage.compulsory.push(index);
       if (totalElectiveSubjectCredits < field.electiveCredits)
         tempErrorMessage.elective.push(index);
-      if (totalElectiveGroupCredits !== field.electiveCredits)
-        tempErrorMessage.electiveGroup.push(index);
+
       return error;
     });
     if (errorFieldIndex.length > 0 || allowcateTotalCredits !== totalCredits) {

@@ -107,12 +107,12 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
    return (
     <div>
         <Row style={{marginBottom: 10}}>
-            <Col span={4}>
+            {/* <Col span={4}>
             <span style={{fontSize: 15}}>Total {type} Credits:</span>
             </Col>
             <Col span={20}>
-            <Progress status={type === "Compulsory" ? getProgressStatus() : ""} percent={getProgressPercentage()} format={() => `${totalActureCredits()}/${totalContentCredits()}`} />
-            </Col>
+          
+            </Col> */}
 
         </Row>
         <div>

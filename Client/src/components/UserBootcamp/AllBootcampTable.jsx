@@ -93,11 +93,18 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                         departmentChild: subject.departmentChild
                             ? subject.departmentChild
                             : undefined,
+                        allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
                     };
 
                     return a;
                 }),
-                electiveSubjectList: field.electiveSubjectList,
+                electiveSubjectList:  field.electiveSubjectList.map((group) => {
+                    let newGroupData = { ...group }
+                    if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
+                      newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
+                    }
+                    return newGroupData
+                  }),
             };
         });
         semesterList = data.detail.map((semester, index) => {
@@ -126,6 +133,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                 bootcampName,
                 totalCredits,
                 completeTotalCredits,
+                major:data.major
             })
         );
         await dispatch(getMajorById(data.major));

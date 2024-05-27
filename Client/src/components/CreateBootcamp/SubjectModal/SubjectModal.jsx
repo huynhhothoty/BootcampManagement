@@ -14,9 +14,9 @@ import {
 import ImportSubjectModal from '../ImportSubjectModal/ImportSubjectModal';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addSubject, editSubject } from '../../../redux/CreateBootcamp/createBootCamp';
+import { addSubject, editSubject, updateFieldCredits, updateSmallFieldCompulsoryCredits } from '../../../redux/CreateBootcamp/createBootCamp';
 import dayjs from 'dayjs';
-import {
+import subject, {
     addSubjectToViewedSemsterSubjectList,
     getAllSubject,
     updateWithNormalImportSubject,
@@ -24,6 +24,8 @@ import {
 import {
     addToViewedFields,
     editSubjestViewedFields,
+    updateViewedFieldCredits,
+    updateViewedSmallFieldCompulsoryCredits,
 } from '../../../redux/allocate/allowcate';
 import { updateCompleteCreditsToViewedBootcamp } from '../../../redux/bootcamp/bootcamp';
 import { getDepartmentIndex } from '../../../util/GetDepartmentIndex/GetDepartmentIndex';
@@ -45,6 +47,7 @@ const SubjectModal = ({
     const [importedSubject, setImportedSubject] = useState(null);
     const [isAutogenSubjectCode, setIsAutogenSubjectCode] = useState(true);
     const [departmentChooseList, setDepartmentChooseList] = useState([]);
+    const [fieldChildList, setFieldChildList] = useState([]);
 
     const { viewedAllowcatedFields } = useSelector((store) => store.allowcate);
     const { departmentList } = useSelector((store) => store.major);
@@ -76,8 +79,16 @@ const SubjectModal = ({
                 shortFormName: a.shortFormName,
                 departmentChild: a.departmentChild[1],
                 isAutoCreateCode: isAutogenSubjectCode,
+                allocateChildId: a.allocateChildId
             };
-            if (subjectModalData.isCreateBootcamp)
+            if (subjectModalData.isCreateBootcamp) {
+                dispatch(updateSmallFieldCompulsoryCredits({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subject: newSubject,
+                    subjectIndex: subjectModalData.subjectData.index,
+                    updateFieldCompulsoryCredits: newSubject.credits
+                }))
+                dispatch(updateFieldCredits(subjectModalData.fieldIndex))
                 dispatch(
                     editSubject({
                         fieldIndex: subjectModalData.fieldIndex,
@@ -85,11 +96,20 @@ const SubjectModal = ({
                         subject: newSubject,
                     })
                 );
+            }
+
+
             else if (subjectModalData.isViewBootcamp) {
                 if (newSubject['status']) {
                     if (!newSubject['status'].includes(SUBJECT_EDITED))
                         newSubject['status'] = [...newSubject['status'], SUBJECT_EDITED];
                 } else newSubject['status'] = [SUBJECT_EDITED];
+                dispatch(updateViewedSmallFieldCompulsoryCredits({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subjectIndex: subjectModalData.subjectData.index,
+                    subject: newSubject,
+                }))
+                dispatch(updateViewedFieldCredits(subjectModalData.fieldIndex))
                 dispatch(
                     editSubjestViewedFields({
                         fieldIndex: subjectModalData.fieldIndex,
@@ -99,7 +119,6 @@ const SubjectModal = ({
                 );
 
                 if (subjectModalData.sujectType === 'Compulsory') {
-                    console.log(123);
                     dispatch(
                         updateCompleteCreditsToViewedBootcamp(subjectData.credits * -1)
                     );
@@ -114,7 +133,14 @@ const SubjectModal = ({
                 isAutoCreateCode: isAutogenSubjectCode,
                 departmentChild: a.departmentChild[1],
             };
-            if (subjectModalData.isCreateBootcamp)
+            if (subjectModalData.isCreateBootcamp) {
+                dispatch(updateSmallFieldCompulsoryCredits({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subject: newSubject,
+                    subjectIndex: null,
+                    updateFieldCompulsoryCredits: newSubject.credits
+                }))
+                dispatch(updateFieldCredits(subjectModalData.fieldIndex))
                 dispatch(
                     addSubject({
                         fieldIndex: subjectModalData.fieldIndex,
@@ -122,7 +148,15 @@ const SubjectModal = ({
                         type: subjectModalData.sujectType,
                     })
                 );
+            }
+
             else if (subjectModalData.isViewBootcamp) {
+                dispatch(updateViewedSmallFieldCompulsoryCredits({
+                    fieldIndex: subjectModalData.fieldIndex,
+                    subjectIndex: null,
+                    subject: newSubject,
+                }))
+                dispatch(updateViewedFieldCredits(subjectModalData.fieldIndex))
                 dispatch(
                     addToViewedFields({
                         fieldIndex: subjectModalData.fieldIndex,
@@ -163,6 +197,7 @@ const SubjectModal = ({
                 shortFormName,
                 isAutoCreateCode,
                 departmentChild,
+                allocateChildId
             } = subjectModalData.subjectData;
             form.setFieldsValue({
                 subjectCode,
@@ -170,6 +205,7 @@ const SubjectModal = ({
                 credits,
                 description,
                 shortFormName,
+                allocateChildId
             });
             if (departmentChild) {
                 form.setFieldValue(
@@ -207,6 +243,17 @@ const SubjectModal = ({
         }
         setDepartmentChooseList(tempDepartmentChooseList);
     }, [departmentList]);
+    useEffect(() => {
+        if (subjectModalData.fieldData) {
+            setFieldChildList(subjectModalData.fieldData.smallField.map((sfield, sfieldIndex) => {
+                return {
+                    value: sfieldIndex,
+                    label: sfield.fieldName
+                }
+            }))
+        }
+
+    }, [subjectModalData.fieldData])
     return (
         <>
             <Modal
@@ -341,6 +388,22 @@ const SubjectModal = ({
                     <Row>
                         <Col span={24}>
                             <Form.Item
+                                name='allocateChildId'
+                                label='Field Group'
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please choose 1 child field',
+                                    },
+                                ]}
+                            >
+                                <Select options={fieldChildList} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col span={24}>
+                            <Form.Item
                                 style={{ display: 'flex', justifyContent: 'flex-end' }}
                             >
                                 <Button
@@ -350,7 +413,7 @@ const SubjectModal = ({
                                     Cancel
                                 </Button>
                                 <Button type='primary' htmlType='submit'>
-                                    {subjectModalData.type === 'edit' ? 'Edit' : 'Add'}
+                                    {subjectModalData.type === 'edit' ? 'Save' : 'Add'}
                                 </Button>
                             </Form.Item>
                         </Col>

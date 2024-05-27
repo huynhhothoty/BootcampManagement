@@ -21,6 +21,10 @@ import {
     deleteElectiveGroupToViewedField,
     deleteSubjectFromViewedFields,
     editElectiveGroupToViewedField,
+    updateViewedFieldCredits,
+    updateViewedSmallFieldCreditsWithDelete,
+    updateViewedSmallFieldElectiveCredits,
+    updateViewedSmallFieldElectiveCreditsWithDelete,
 } from '../../redux/allocate/allowcate';
 import { updateCompleteCreditsToViewedBootcamp } from '../../redux/bootcamp/bootcamp';
 import {
@@ -31,6 +35,7 @@ import {
     AutogenAllSubjectCode,
     padZero,
 } from '../../util/AutogenSubjectCode/autogenSubjectCode';
+import ElectiveGroupModal from '../CreateBootcamp/Electivegroup/ElectiveGroupModal';
 
 const SubjectDisplayTable = ({
     addToDeletedList,
@@ -45,6 +50,7 @@ const SubjectDisplayTable = ({
     error,
     electiveSubjectList,
     firstIndex,
+    field
 }) => {
     const formRef = useRef();
     const dispatch = useDispatch();
@@ -53,6 +59,8 @@ const SubjectDisplayTable = ({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [groupCredits, setGroupCredits] = useState(0);
     const { viewedAllowcatedFields } = useSelector((store) => store.allowcate);
+    const [electiveGroupModalOpen, setElectiveGroupModalOpen] = useState(false)
+    const [electiveGroupModalData, setElectiveGroupModalData] = useState(null)
     const [subjectModalData, setSubjestModalData] = useState({
         type: '',
         fieldIndex: '',
@@ -258,6 +266,7 @@ const SubjectDisplayTable = ({
                             subjectData: row,
                             isCreateBootcamp: false,
                             isViewBootcamp: true,
+                            fieldData: field,
                         });
                         setIsModalOpen(true);
                     }}
@@ -270,6 +279,11 @@ const SubjectDisplayTable = ({
                     onClick={async () => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig);
                         if (confirmed) {
+                            dispatch(updateViewedSmallFieldCreditsWithDelete({
+                                fieldIndex,
+                                subjectIndex: row.fieldSubjectListIndex,
+                                type,
+                            }))
                             dispatch(
                                 removeSubjectFromField({
                                     fieldIndex,
@@ -322,39 +336,14 @@ const SubjectDisplayTable = ({
             valueType: 'option',
             width: '5%',
             render: (_, row) => [
-                <Popconfirm
-                    title='Edit Credits'
-                    onOpenChange={() => setGroupCredits(row.credit)}
-                    description={
-                        <InputNumber
-                            value={groupCredits}
-                            onChange={(value) => setGroupCredits(value)}
-                        />
-                    }
-                    onConfirm={() => {
-                        const groupData = {
-                            credit: groupCredits,
-                            semester: row.semester,
-                            branchMajor: row.branchMajor,
-                        };
-                        dispatch(
-                            editElectiveGroupToViewedField({
-                                fieldIndex,
-                                groupData,
-                                groupIndex: row.key,
-                            })
-                        );
-                        setGroupCredits(0);
-                        setIsUpdated(true);
-                    }}
-                    onCancel={() => setGroupCredits(0)}
-                    okText='Edit'
-                    cancelText='Cancel'
-                >
-                    <a key='edit' onClick={() => {}}>
-                        Edit
-                    </a>
-                </Popconfirm>,
+
+                <a key='edit' onClick={() => { handleOpenElectiveGroupModal({
+                    ...row,
+                    courseName: `${field.fieldName} ${row.index + 1}`
+                }) }}>
+                    Edit
+                </a>
+                ,
 
                 <a
                     style={{ color: 'red', marginLeft: 20 }}
@@ -362,12 +351,18 @@ const SubjectDisplayTable = ({
                     onClick={async () => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig);
                         if (confirmed) {
+                            dispatch(updateViewedSmallFieldElectiveCreditsWithDelete({
+                                fieldIndex,
+                                groupIndex: row.key,
+                            }))
+                            dispatch(updateViewedFieldCredits(fieldIndex))
                             dispatch(
                                 deleteElectiveGroupToViewedField({
                                     fieldIndex,
                                     groupIndex: row.key,
                                 })
                             );
+                            dispatch(updateCompleteCreditsToViewedBootcamp(row.credit));
                             setIsUpdated(true);
                         }
                     }}
@@ -377,8 +372,69 @@ const SubjectDisplayTable = ({
             ],
         },
     ];
+
+    const handleOpenElectiveGroupModal = (data) => {
+        setElectiveGroupModalData(data)
+        setElectiveGroupModalOpen(true)
+    }
+    const handleCloseElectiveGroupModal = () => {
+        setElectiveGroupModalData(null)
+        setElectiveGroupModalOpen(false)
+    }
+    const handleAddGroup = (addedData) => {
+        const groupData = {
+            credit: addedData.credit,
+            semester: null,
+            branchMajor: null,
+            allocateChildId: addedData.allocateChildId
+        };
+        dispatch(updateViewedSmallFieldElectiveCredits({
+            groupIndex: null,
+            groupData,
+            fieldIndex
+        }))
+        dispatch(updateViewedFieldCredits(fieldIndex))
+        dispatch(
+            addNewElectiveGroupToViewedField(
+                {
+                    fieldIndex,
+                    groupData,
+                }
+            )
+        );
+        // dispatch(
+        //     updateCompleteCreditsToViewedBootcamp(subjectData.credits * -1)
+        // );
+        dispatch(updateCompleteCreditsToViewedBootcamp(groupData.credit));
+    };
+    const handleEditGroup = (editedData,oldData) => {
+        const groupData = {
+            credit: editedData.credit,
+            semester: editedData.semester,
+            branchMajor: editedData.branchMajor,
+            allocateChildId: editedData.allocateChildId
+        };
+        dispatch(updateViewedSmallFieldElectiveCredits({
+            groupIndex: editedData.index,
+            groupData,
+            fieldIndex
+        }))
+        dispatch(updateViewedFieldCredits(fieldIndex))
+        dispatch(
+            editElectiveGroupToViewedField({
+                fieldIndex,
+                groupData,
+                groupIndex: editedData.index,
+            })
+        );
+        dispatch(
+            updateCompleteCreditsToViewedBootcamp(oldData.credit * -1)
+        );
+        dispatch(updateCompleteCreditsToViewedBootcamp(groupData.credit));
+    }
     return (
         <>
+            <ElectiveGroupModal open={electiveGroupModalOpen} handleCancel={handleCloseElectiveGroupModal} modalData={electiveGroupModalData} fieldData={field} handleAddGroup={handleAddGroup} handleEditGroup={handleEditGroup} />
             <SubjectModal
                 setIsUpdated={setIsUpdated}
                 subjectModalData={subjectModalData}
@@ -454,9 +510,6 @@ const SubjectDisplayTable = ({
                                                 }}
                                             >
                                                 <div style={{ flex: 1 }}>
-                                                    Allowcated Credits: {totalCredits}
-                                                </div>
-                                                <div style={{ flex: 1 }}>
                                                     Total Subject Credits:{' '}
                                                     {electiveSubjectList.reduce(
                                                         (total, item) => {
@@ -472,7 +525,7 @@ const SubjectDisplayTable = ({
                                                         justifyContent: 'flex-end',
                                                     }}
                                                 >
-                                                    <Popconfirm
+                                                    {/* <Popconfirm
                                                         title='Credits'
                                                         onOpenChange={() =>
                                                             setGroupCredits(0)
@@ -507,18 +560,14 @@ const SubjectDisplayTable = ({
                                                         }
                                                         okText='Add'
                                                         cancelText='Cancel'
+                                                    > */}
+                                                    <Button
+                                                        type='primary'
+                                                        onClick={() => { handleOpenElectiveGroupModal(null) }}
                                                     >
-                                                        <Button
-                                                            type='primary'
-                                                            disabled={
-                                                                totalCredits <= 0
-                                                                    ? true
-                                                                    : false
-                                                            }
-                                                        >
-                                                            Add New Group
-                                                        </Button>
-                                                    </Popconfirm>
+                                                        Add New Group
+                                                    </Button>
+                                                    {/* </Popconfirm> */}
                                                 </div>
                                             </div>
                                         );
@@ -572,9 +621,7 @@ const SubjectDisplayTable = ({
                                                 paddingBlockEnd: 16,
                                             }}
                                         >
-                                            <div style={{ flex: 1 }}>
-                                                Allowcated Credits: {totalCredits}
-                                            </div>
+
                                             <div style={{ flex: 1 }}>
                                                 Total Subject Credits:{' '}
                                                 {viewedAllowcatedFields[
@@ -611,6 +658,7 @@ const SubjectDisplayTable = ({
                                                             subjectData: null,
                                                             isCreateBootcamp: false,
                                                             isViewBootcamp: true,
+                                                            fieldData: field,
                                                         });
                                                         setIsModalOpen(true);
                                                     }}
