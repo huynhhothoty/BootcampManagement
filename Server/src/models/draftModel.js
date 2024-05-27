@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const draftSchema = new mongoose.Schema(
     {
+        name: String,
         author: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',
@@ -23,7 +24,6 @@ const draftSchema = new mongoose.Schema(
 
 //
 draftSchema.pre(/^find/, function () {
-    this.select('-__v -createdAt -updatedAt');
     this.populate('author');
 });
 //

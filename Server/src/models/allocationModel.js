@@ -49,6 +49,9 @@ const subjectSnapSchema = new mongoose.Schema({
     departmentChild: {
         type: mongoose.Schema.ObjectId,
     },
+    allocateChildId: {
+        type: mongoose.Schema.ObjectId,
+    },
 });
 const electHolderSchema = new mongoose.Schema({
     credit: {
@@ -70,6 +73,9 @@ const electHolderSchema = new mongoose.Schema({
     tracking: {
         type: Boolean,
         default: false,
+    },
+    allocateChildId: {
+        type: mongoose.Schema.ObjectId,
     },
 });
 
