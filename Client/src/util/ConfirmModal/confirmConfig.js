@@ -23,3 +23,12 @@ export const clearAllConfirmConfig = {
     title: 'Are you sure you want to clear all',
     content: 'This action will clear all your current processes',
 }
+export const loadDraftConfirmConfig = {
+    title: 'Load Draft',
+    content: 'Are you sure you want to use this draft for your current work ?',
+}
+
+export const uploadDraftConfirmConfig = {
+    title: 'Upload Draft',
+    content: 'Are you sure you want to save all your current work to this draft ?',
+}

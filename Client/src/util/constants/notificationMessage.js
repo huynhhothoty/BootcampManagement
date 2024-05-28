@@ -13,6 +13,9 @@ export const NOTI_RESET_SUCCESS_TITLE = "Reset Success !!!"
 export const NOTI_RESET_SUCCESS_INFO = "Your bootcamp data has been reset to the latest version"
 
 export const NOTI_SUCCESS_SAVE_DRAFT ="Your draft has been saved successfully"
+export const NOTI_SUCCESS_LOAD_DRAFT ="Load draft data successfully"
+export const NOTI_SUCCESS_UPDATE_DRAFT_NAME ="Update draft name successfully"
+export const NOTI_SUCCESS_DELETE_DRAFT ="Delete draft successfully"
 
 export const NOTI_SUCCESS_CREATE_SUBJECT ="Create new Subject successfully!"
 export const NOTI_SUCCESS_DELETE_SUBJECT ="Delete Subject successfully!"

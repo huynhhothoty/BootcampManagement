@@ -11,9 +11,10 @@ import {
   createDraftAPI,
   deleteDraftAPI,
   getDraftByUserAPI,
+  queryDraftByUserAPI,
   updateDraftAPI,
 } from "../../util/api/draft/draftApi";
-import { USER_TOKEN } from "../../util/constants/sectionStorageKey";
+import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
   bootcampName: "",
@@ -25,6 +26,7 @@ const initialState = {
   draftID: "",
   selectedMajor: "",
   branchMajorSemester: 0,
+  draftList: []
 };
 
 export const createSubject = createAsyncThunk(
@@ -159,6 +161,26 @@ export const getUserDraft = createAsyncThunk(
     }
   }
 );
+export const queryUserDraft = createAsyncThunk(
+  "createBootcamp/queryUserDraft",
+  async (query) => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let userData = sessionStorage.getItem(USER_DATA)
+      userData = JSON.parse(userData)
+      let res = await axios.get(queryDraftByUserAPI(userData.id,query), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+)
 
 export const deleteDraft = createAsyncThunk(
   "createBootcamp/deleteDraft",
@@ -207,6 +229,10 @@ export const createBootcampSlice = createSlice({
     });
     builder.addCase(deleteDraft.fulfilled, (state, action) => {
       state.draftID = "";
+    });
+
+    builder.addCase(queryUserDraft.fulfilled, (state, action) => {
+      state.draftList = action.payload.data
     });
   },
   reducers: {
@@ -601,7 +627,25 @@ export const createBootcampSlice = createSlice({
         ].credit
       }
     
+    },
+    loadDraft: (state,action) => {
+      const {
+        allowcateFields,
+        bootcampName,
+        completeTotalCredits,
+        semesterList,
+        semesterSubjectList,
+        totalCredits
+      } = action.payload.data
+      state.allowcateFields = allowcateFields;
+      state.bootcampName = bootcampName;
+      state.completeTotalCredits = completeTotalCredits;
+      state.semesterList = semesterList;
+      state.semesterSubjectList = semesterSubjectList;
+      state.totalCredits = totalCredits;
+      state.draftID = action.payload._id;
     }
+    
   },
 });
 
@@ -638,7 +682,8 @@ export const {
   updateFieldCredits,
   updateSmallFieldCreditsWithDelete,
   updateSmallFieldElectiveCredits,
-  updateSmallFieldElectiveCreditsWithDelete
+  updateSmallFieldElectiveCreditsWithDelete,
+  loadDraft
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

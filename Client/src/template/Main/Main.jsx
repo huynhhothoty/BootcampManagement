@@ -119,8 +119,8 @@ const Main = () => {
         let userData = sessionStorage.getItem(USER_DATA)
         userData = JSON.parse(userData)
         dispatch(setFirstUserData(userData))
-        if (draftID !== "")
-          await dispatch(getUserDraft(userData.id))
+        // if (draftID !== "")
+        //   await dispatch(getUserDraft(userData.id))
 
       }
       else {
