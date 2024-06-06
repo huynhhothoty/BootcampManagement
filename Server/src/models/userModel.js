@@ -37,6 +37,10 @@ const UserSchema = new Schema({
         ref: 'Major',
         required: [true, 'Please provide your major'],
     },
+    autoDraftId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Draft',
+    },
     passwordResetToken: {
         type: String,
     },
