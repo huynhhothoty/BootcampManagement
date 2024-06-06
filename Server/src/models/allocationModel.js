@@ -98,6 +98,10 @@ const sectionSchema = new mongoose.Schema({
         type: String,
         default: 'big field 1',
     },
+    isElectiveNameBaseOnBigField: {
+        type: Boolean,
+        default: false,
+    },
     compulsoryCredit: {
         type: Number,
         default: 0,
