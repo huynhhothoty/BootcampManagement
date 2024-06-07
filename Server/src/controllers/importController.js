@@ -40,7 +40,7 @@ const importBC = async (req, res, next) => {
                 )
             );
 
-        let data = [];
+        let allocateData = [];
         let tempBigField = {};
         let tempSmallField = [];
         let bigFieldList = [];
@@ -69,7 +69,7 @@ const importBC = async (req, res, next) => {
                 if (isBigField && !isDefaultField) {
                     if (Object.keys(tempBigField).length > 0) {
                         tempBigField.detail = [...tempSmallField];
-                        data = [...data, tempBigField];
+                        allocateData = [...allocateData, tempBigField];
                         tempBigField = {};
                         tempSmallField = [];
                     }
@@ -83,7 +83,7 @@ const importBC = async (req, res, next) => {
                     tempSmallField = [...tempSmallField, smallField];
                 } else if (isDefaultField) {
                     tempBigField.detail = [...tempSmallField];
-                    data = [...data, tempBigField];
+                    allocateData = [...allocateData, tempBigField];
                 }
             }
         });
@@ -94,12 +94,20 @@ const importBC = async (req, res, next) => {
         let currentSemester = 0;
         let planData = [];
         let tempSubjectList = [];
-        let tempElectList = bigFieldList.map((ele) => {
+        // let tempElectList = bigFieldList.map((ele) => {
+        //     return {
+        //         bigField: ele,
+        //         electSubList: [],
+        //     };
+        // });
+        let tempElectList = allocateData.map((ele) => {
             return {
-                bigField: ele,
+                bigField: ele.name.toLowerCase(),
                 electSubList: [],
+                smallField: ele.detail,
             };
         });
+
         planWs.eachRow((row) => {
             if (row.getCell(2).isMerged && !row.getCell(1).isMerged) {
                 if (branchMajorSemester === null) branchMajorSemester = currentSemester;
@@ -128,18 +136,22 @@ const importBC = async (req, res, next) => {
                     currentBranch = null;
                 }
             } else if (fieldData.name.toLowerCase().includes('elective')) {
-                tempElectList = tempElectList.map((ele) => {
+                tempElectList.forEach((ele) => {
                     const bigFieldName = ele.bigField.toLowerCase().trim();
-                    const elecName = fieldData.name.toLowerCase().trim().slice(0, -10);
-                    if (bigFieldName.includes(elecName))
-                        return {
-                            bigField: ele.bigField,
-                            electSubList: [
-                                ...ele.electSubList,
-                                { ...fieldData, semester: currentSemester },
-                            ],
-                        };
-                    return ele;
+                    const elecName = fieldData.name.toLowerCase().slice(0, -10).trim();
+                    if (bigFieldName.includes(elecName)) {
+                        const temp = { ...fieldData, semester: currentSemester };
+
+                        ele.electSubList.push(temp);
+                    } else {
+                        ele.smallField.forEach((smallField) => {
+                            const smallFieldName = smallField.name.toLowerCase().trim();
+                            if (smallFieldName.includes(elecName)) {
+                                const temp = { ...fieldData, semester: currentSemester };
+                                ele.electSubList.push(temp);
+                            }
+                        });
+                    }
                 });
             } else if (row.getCell(1).value) {
                 tempSubjectList = [...tempSubjectList, fieldData];
@@ -196,7 +208,7 @@ const importBC = async (req, res, next) => {
             }
         });
 
-        let fullAllo = data.map((ele, index) => {
+        let fullAllo = allocateData.map((ele, index) => {
             return {
                 ...ele,
                 subjectList: subjectData.at(index),
@@ -226,9 +238,9 @@ const importBC = async (req, res, next) => {
 
         res.status(200).send({
             status: 'ok',
-            data: dataFromImportFile,
+            allocateData: dataFromImportFile,
         });
-        // res.status(200).send(data);
+        // res.status(200).send(allocateData);
     } catch (error) {
         return next(error);
     }
