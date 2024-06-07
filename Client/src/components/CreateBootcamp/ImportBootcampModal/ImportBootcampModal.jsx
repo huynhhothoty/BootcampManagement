@@ -100,7 +100,8 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
             tempSubjectList.push(subject)
             return a
           }),
-          electiveSubjectList: field.electiveSubjectList
+          electiveSubjectList: field.electiveSubjectList,
+          isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
         }
       })
 
@@ -198,7 +199,8 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
                 newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
               }
               return newGroupData
-            })
+            }),
+            isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
           }
         })
 

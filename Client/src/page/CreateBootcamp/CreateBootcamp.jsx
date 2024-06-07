@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createDraft, createField, createFirstBootcamp, createSubject, createTemplateBootcamp, deleteDraft, importBootcamp, resetAll, updateAutogenSubjectCode, updateBootcampName, updateDraft, updateSelectedMajor, updateTotalCredits, queryUserDraft } from '../../redux/CreateBootcamp/createBootCamp';
 import ContentOfProgram from './../../components/CreateBootcamp/ContentOfProgram/ContentOfProgram';
 import SemesterList from '../../components/CreateBootcamp/Semester/SemesterList';
-import { MISSING_FIELD_INFO, NO_ALLOWCATION_CREDITS_DATA, NO_BOOTCAMP_NAME, NO_BOOTCAMP_TOTAL_CREDITS,  } from '../../util/constants/errorMessage';
+import { MISSING_FIELD_INFO, NO_ALLOWCATION_CREDITS_DATA, NO_BOOTCAMP_NAME, NO_BOOTCAMP_TOTAL_CREDITS, } from '../../util/constants/errorMessage';
 import { updateLoading } from '../../redux/loading/Loading';
 import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_SAVE_DRAFT, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_TEMPLATE_SUCCESS, NOTI_SUCCESS_UPDATE_DRAFT_NAME } from '../../util/constants/notificationMessage';
 import { getAllBootcamp, getBootcampById, updateBootcamp } from '../../redux/bootcamp/bootcamp';
@@ -67,12 +67,18 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const [contentModalFieldData, setContentModalFieldData] = useState({ index: -1, type: "compulsory" })
   const [manageStatus, setManageStatus] = useState('create')
   const [openDraftModal, setOpenDraftModal] = useState(false)
-
+  // console.log(allowcateFields[4].subjectList.filter(student => student.isCompulsory === true))
+  // console.log(semesterList[5].filter(subject => subject.semesterSubjectListIndex === 37))
+  // let a = []
+  // semesterList.forEach((semester) => {
+  //   semester.forEach(subject => a.push(subject.semesterSubjectListIndex))
+  // })
+  // console.log(a.sort(function(a, b){return a - b}))
   const closeContentModal = () => {
     setContainModalStatus(false)
   }
   const openContentModal = (fieldIndex, type) => {
-    setContainModalStatus(true)
+    
     setContentModalFieldData({
       index: fieldIndex,
       type: type
@@ -136,6 +142,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                     "OptionalCredit": sfield.electiveCredits
                   }
                 }),
+                "isElectiveNameBaseOnBigField": field.isElectiveNameBaseOnBigField
               }
             })
           }
@@ -154,6 +161,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                     "OptionalCredit": sfield.electiveCredits
                   }
                 }),
+                "isElectiveNameBaseOnBigField": field.isElectiveNameBaseOnBigField
               }
             })
           }
@@ -162,13 +170,13 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             let allowcateRes = await dispatch(updateAllowcate({ allowcateId: bootcampRes.payload.data.allocation._id, fieldData: newFieldData }))
             createdAllowcate = allowcateRes.payload.data
           } else {
-            
+
             const allowcateRes = await dispatch(createField(newFieldData))
             createdAllowcate = allowcateRes.payload.data
           }
 
         }
-        
+
         for (let i = 0; i < allowcateFields.length; i++) {
           const newSubjectList = []
           for (let j = 0; j < allowcateFields[i].subjectList.length; j++) {
@@ -203,7 +211,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         const fieldData = {
           "detail": [...createdAllowcate.detail]
         }
- 
+
         let created_field_container
 
         if (selectedMajor.length > 0) {
@@ -282,7 +290,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
   }
 
-  const handleUploadDraftName = async (uploadedId,draftName) => {
+  const handleUploadDraftName = async (uploadedId, draftName) => {
     const sendData = {
       draftID: uploadedId,
       data: {
@@ -295,27 +303,27 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
   const handleSaveAsDraft = async (draftName) => {
     dispatch(updateLoading(true))
-      const draftData = {
-        author: userData.id,
-        name: draftName,
-        data: {
-          totalCredits,
-          completeTotalCredits,
-          allowcateFields,
-          bootcampName,
-          semesterList,
-          semesterSubjectList,
-          selectedMajor,
-          branchMajorSemester
-        }
+    const draftData = {
+      author: userData.id,
+      name: draftName,
+      data: {
+        totalCredits,
+        completeTotalCredits,
+        allowcateFields,
+        bootcampName,
+        semesterList,
+        semesterSubjectList,
+        selectedMajor,
+        branchMajorSemester
       }
-      await dispatch(createDraft(draftData))
-      openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
+    }
+    await dispatch(createDraft(draftData))
+    openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
     dispatch(updateLoading(false))
   }
 
   const handleDeleteDraft = async (deletedId) => {
-    await dispatch(deleteDraft(deletedId))
+    // await dispatch(deleteDraft(deletedId))
   }
 
   const handleSelectMajor = (value) => {
@@ -402,6 +410,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             }
             return newGroupData
           }),
+          isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
           _id: newTemplateBootcampData.allocation._id
         }
       })
@@ -441,7 +450,35 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     }
   }
 
+  const getAllMajorDepartment = async () => {
 
+    if (viewedMajor) {
+      if (viewedMajor.department) {
+        let tempDepartmentList = []
+
+        for (let i = 0; i < viewedMajor.department.length; i++) {
+          const departmentId = viewedMajor.department[i];
+
+          if (typeof departmentId === 'string') {
+            const departmentRes = await dispatch(getDepartmentById(departmentId))
+
+            tempDepartmentList.push(departmentRes.payload.data)
+          } else {
+            tempDepartmentList.push(departmentId)
+          }
+
+        }
+        dispatch(updateDepartmentList(tempDepartmentList))
+      }
+    }
+  }
+
+  const handleOpenDraftModal = () => {
+    setOpenDraftModal(true)
+  }
+  const handleCloseDraftModal = () => {
+    setOpenDraftModal(false)
+  }
   useEffect(() => {
     if (userData) {
       if (userData.role === "admin") {
@@ -476,35 +513,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
   }, [userData, majorList])
 
-  const getAllMajorDepartment = async () => {
 
-    if (viewedMajor) {
-      if (viewedMajor.department) {
-        let tempDepartmentList = []
-
-        for (let i = 0; i < viewedMajor.department.length; i++) {
-          const departmentId = viewedMajor.department[i];
-
-          if (typeof departmentId === 'string') {
-            const departmentRes = await dispatch(getDepartmentById(departmentId))
-
-            tempDepartmentList.push(departmentRes.payload.data)
-          } else {
-            tempDepartmentList.push(departmentId)
-          }
-
-        }
-        dispatch(updateDepartmentList(tempDepartmentList))
-      }
-    }
-  }
-
-  const handleOpenDraftModal = () => {
-    setOpenDraftModal(true)
-  }
-  const handleCloseDraftModal = () => {
-    setOpenDraftModal(false)
-  }
   useEffect(() => {
     getAllMajorDepartment()
 
@@ -512,10 +521,14 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   }, [viewedMajor])
   return (
     <div>
-      <DraftTableModal open={openDraftModal} handleCancel={handleCloseDraftModal} confirmModal={confirmModal} openNotification={openNotification} handleUploadDraft={handleUploadDraft} handleSaveAsDraft={handleSaveAsDraft} handleUploadDraftName={handleUploadDraftName} handleDeleteDraft={handleDeleteDraft}/>
+      <ContentModal isModalOpen={contentModalStatus} handleCancel={closeContentModal}>
+
+        {contentModalComponent}
+      </ContentModal>
+      <DraftTableModal open={openDraftModal} handleCancel={handleCloseDraftModal} confirmModal={confirmModal} openNotification={openNotification} handleUploadDraft={handleUploadDraft} handleSaveAsDraft={handleSaveAsDraft} handleUploadDraftName={handleUploadDraftName} handleDeleteDraft={handleDeleteDraft} />
       <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen} />
       <ImportBootcampModal setErrorMessage={setErrorMessage} isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen} />
-      <ContentModal childComponent={contentModalComponent} isModalOpen={contentModalStatus} handleCancel={closeContentModal} />
+
 
       <Row gutter={16}>
         <Col span={12}>

@@ -37,6 +37,7 @@ const ElectiveGroupModal = ({open, handleCancel,fieldData,modalData,handleAddGro
     }
 
     useEffect(() => {
+        formRef.current?.resetFields()
         if(modalData){
             formRef.current?.setFieldValue('courseName', modalData.courseName)
             formRef.current?.setFieldValue('credit', modalData.credit)
@@ -46,7 +47,7 @@ const ElectiveGroupModal = ({open, handleCancel,fieldData,modalData,handleAddGro
                 formRef.current?.setFieldValue('courseName', `${fieldData.fieldName} ${fieldData.electiveSubjectList.length + 1}`)
             }
         }
-    },[fieldData,modalData])
+    },[fieldData,modalData, open])
   return (
     <Modal title={modalData ? 'Edit Course' : 'Add Course'} open={open} onCancel={handleCancel} onOk={handleSubmit}>
     <ProForm submitter={false} formRef={formRef}>

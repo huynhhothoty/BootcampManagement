@@ -6,7 +6,7 @@ import {DeleteOutlined} from  '@ant-design/icons'
 import { MISSING_FIELD_NAME } from '../../../util/constants/errorMessage'
 import { deleteConfirmConfig } from '../../../util/ConfirmModal/confirmConfig'
 
-const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
+const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal,isLastField}) => {
     const dispatch = useDispatch()
     const handleChangeCompulsoryCredit = (data) => {
             dispatch(updateCompulsoryCredit({
@@ -40,7 +40,7 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
 
         <Row>
             <Col span={8}>
-                <Input status={(isError && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldChange}/>
+                <Input status={(isError && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldChange} disabled={isLastField}/>
                 { (isError && fieldData.fieldName === "") ? <span style={{color:"red"}}>{MISSING_FIELD_NAME}</span> : ""}
             </Col>
             <Col span={16} style={{display:"flex", justifyContent:"space-evenly"}}>
@@ -61,7 +61,7 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal}) => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig)
                         if(confirmed)
                         dispatch(deleteSmallField({bigFieldIndex,smallFieldIndex: index}))
-                    }}><DeleteOutlined /></Button>
+                    }} disabled={isLastField}><DeleteOutlined /></Button>
                     
                 </div>
             </Col>

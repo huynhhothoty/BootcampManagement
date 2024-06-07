@@ -8,7 +8,7 @@ import { deleteConfirmConfig } from "../../../util/ConfirmModal/confirmConfig"
 
 
 
-const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorData, confirmModal, fieldIndex }) => {
+const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorData, confirmModal, fieldIndex, isLastField }) => {
     const [modal, contextHolder] = Modal.useModal();
 
     const items = [
@@ -16,7 +16,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
             key: '1',
             label: (
                 <a target="_blank" rel="noopener noreferrer" onClick={() => {
-                    openContentModal(fieldIndex,"compulsory")
+                    openContentModal(fieldIndex,"Compulsory")
                 }}>
                     Compulsory
                 </a>
@@ -26,7 +26,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
             key: '2',
             label: (
                 <a target="_blank" rel="noopener noreferrer" onClick={() => {
-                    openContentModal(fieldIndex,"elective")
+                    openContentModal(fieldIndex,"Elective")
                 }}>
                     Elective
                 </a>
@@ -46,7 +46,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
                 <Row>
                     <Col span={6}></Col>
                     <Col span={18}>
-                        <SmallField confirmModal={confirmModal} isError={isError} bigFieldIndex={bigFieldIndex} index={index} fieldData={field} />
+                        <SmallField confirmModal={confirmModal} isError={isError} bigFieldIndex={bigFieldIndex} index={index} fieldData={field} isLastField={isLastField}/>
                     </Col>
                 </Row>
             </div>)
@@ -66,7 +66,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
         >
             <Row>
                 <Col span={6}>
-                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldUpdateName} />
+                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldUpdateName} disabled={isLastField}/>
                     {errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? <span style={{ color: "red" }}>{MISSING_FIELD_NAME}</span> : ""}
 
                 </Col>
@@ -81,12 +81,13 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
                     </div>
                 </Col>
                 <Col span={6} style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button type="primary" style={{ marginRight: 10 }} onClick={() => dispatch(addSmallField(bigFieldIndex))}>Add Child Field</Button>
+                    <Button type="primary" style={{ marginRight: 10 }} onClick={() => dispatch(addSmallField(bigFieldIndex))} disabled={isLastField}>Add Child Field</Button>
                     <Dropdown
                         menu={{
                             items,
                         }}
                         placement="bottomLeft"
+                        disabled={isLastField}
                     >
                         <Button type="default" style={{ marginRight: 10 }} >Subject List</Button>
                     </Dropdown>
@@ -95,7 +96,9 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
                             if (confirmed) {
                                 dispatch(deleteBigField(bigFieldIndex))
                             }
-                        }}><DeleteOutlined /></Button>
+                        }}
+                        disabled={isLastField}
+                        ><DeleteOutlined /></Button>
                 </Col>
             </Row>
             <Row style={{ marginTop: 30 }}>

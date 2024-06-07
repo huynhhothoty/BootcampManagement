@@ -172,7 +172,20 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                 field.electiveSubjectList.forEach((group, gIndex) => {
                     if (group.semester === index) {
                         let newGroup = {
-                            name: `${field.name} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                }
+                                return `${field.fieldName} ${gIndex + 1}`
+                            })(),
                             isCompulsory: false,
                             credit: group.credit,
                             isBranch: false,

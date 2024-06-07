@@ -14,13 +14,16 @@ import {
     InputNumber,
     Popconfirm,
     Tooltip,
+    Checkbox,
 } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     addNewGroup,
+    changeUseSmallFieldName,
     deleteGroup,
     editGroup,
     removeSubject,
+    updateDragData,
     updateFieldCredits,
     updateSmallFieldCreditsWithDelete,
     updateSmallFieldElectiveCredits,
@@ -38,6 +41,7 @@ import {
     padZero,
 } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
 import ElectiveGroupModal from '../Electivegroup/ElectiveGroupModal';
+import { DragSortTable } from '@ant-design/pro-components';
 
 const ContentOfField = ({
     error,
@@ -48,6 +52,7 @@ const ContentOfField = ({
     index,
     confirmModal,
     groupError,
+    isLastField
 }) => {
     const dispath = useDispatch();
     const [searchText, setSearchText] = useState('');
@@ -56,6 +61,7 @@ const ContentOfField = ({
     const [groupCredits, setGroupCredits] = useState(0);
     const [electiveGroupModalOpen, setElectiveGroupModalOpen] = useState(false)
     const [electiveGroupModalData, setElectiveGroupModalData] = useState(null)
+    const { semesterSubjectList, semesterList, allowcateFields } = useSelector(store => store.createBootCamp)
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -219,6 +225,12 @@ const ContentOfField = ({
 
     const columns = [
         {
+            title: 'Sort',
+            dataIndex: 'sort',
+            width: 60,
+            className: 'drag-visible',
+        },
+        {
             title: 'Subject Code',
             dataIndex: 'subjectCode',
             key: 'subjectCode',
@@ -250,17 +262,33 @@ const ContentOfField = ({
             key: 'credits',
             width: '8%',
         },
+        {
+            title: 'Field Groups',
+            dataIndex: 'allocateChildId',
+            key: 'credits',
+            width: '12%',
+            filters: field.smallField.map((field,index) => {
+                return {
+                    text: field.fieldName,
+                    value: index,
+                }
+            }),
+            onFilter: (value, record) => record.allocateChildId === value,
+            render: (text, row) => {
+                return field.smallField[row.allocateChildId]?.fieldName
+            }
+        },
 
         {
             title: 'Description',
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
-            render: (text) => (
-                <Tooltip title={text} placement="topLeft">
-                    {text}
-                </Tooltip>
-            )
+            // render: (text) => (
+            //     <Tooltip title={text} placement="topLeft">
+            //         {text}
+            //     </Tooltip>
+            // )
         },
 
         {
@@ -296,6 +324,7 @@ const ContentOfField = ({
                                             type,
                                         })
                                     );
+                                  
                                 }
                             }}
                         >
@@ -329,7 +358,18 @@ const ContentOfField = ({
     const electiveColumns = [
         {
             title: 'Course Name',
-            render: (_, record) => {
+            render: (_, record) => {    
+                if(field.isElectiveNameBaseOnBigField){
+                    let smallFieldGroupList = field.electiveSubjectList.map((group,index) => {
+                        return {
+                            ...group,
+                            index
+                        }
+                    })
+                    smallFieldGroupList = smallFieldGroupList.filter(group => group.allocateChildId === record.allocateChildId)
+                    let keyIndex = smallFieldGroupList.findIndex(group => group.index === record.index)
+                    return `${field.smallField[record.allocateChildId].fieldName} ${keyIndex + 1}`
+                }
                 return `${field.fieldName} ${record.key + 1}`;
             },
             width: '55%',
@@ -454,10 +494,28 @@ const ContentOfField = ({
         dispath(updateFieldCredits(index))
         dispath(addNewGroup({ fieldIndex: index, groupData }));
     };
+    const handleDragSort = (beforeIndex, afterIndex, newDataSource) => {
+        dispath(updateDragData({
+            fieldIndex: index,
+            beforeIndex: data[beforeIndex].index,
+            afterIndex: data[afterIndex].index
+        }))
+        setData(newDataSource)
+        // console.log(beforeIndex)
+        // console.log(afterIndex)
+        // console.log(newDataSource)
+    }
+
+    const handleCheckChangeGroupName = (e) => {
+        dispath(changeUseSmallFieldName({
+            fieldIndex: index,
+            checked: e.target.checked
+        }))
+    }
 
     return (
         <>
-            <ElectiveGroupModal open={electiveGroupModalOpen} handleCancel={handleCloseElectiveGroupModal} modalData={electiveGroupModalData} fieldData={field} handleAddGroup={handleAddGroup} handleEditGroup={handleEditGroup}/>
+            <ElectiveGroupModal open={electiveGroupModalOpen} handleCancel={handleCloseElectiveGroupModal} modalData={electiveGroupModalData} fieldData={field} handleAddGroup={handleAddGroup} handleEditGroup={handleEditGroup} />
             <Card
                 hoverable
                 style={{
@@ -465,7 +523,7 @@ const ContentOfField = ({
                     marginBottom: 16,
                 }}
             >
-                {type === 'Elective' ? (
+                {type === 'Elective' && !isLastField ? (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -479,31 +537,19 @@ const ContentOfField = ({
                                 </h4>
                             </div>
 
-                            {/* <Popconfirm
-                            title='Credits'
-                            onOpenChange={() => setGroupCredits(0)}
-                            description={
-                                <InputNumber
-                                    value={groupCredits}
-                                    onChange={(value) => setGroupCredits(value)}
-                                />
-                            }
-                            onConfirm={() => {
-                                handleAddGroup();
-                                setGroupCredits(0);
-                            }}
-                            onCancel={() => setGroupCredits(0)}
-                            okText='Add'
-                            cancelText='Cancel'
-                        > */}
-                            <Button
+                           <div style={{display:'flex', alignItems:'center', gap: 20}}>
+                           <Button
                                 type='primary'
-                               
+
                                 onClick={() => handleOpenElectiveGroupModal(null)}
                             >
                                 Add New Course
                             </Button>
-                            {/* </Popconfirm> */}
+                            <Checkbox onChange={handleCheckChangeGroupName} defaultChecked={field.isElectiveNameBaseOnBigField}>Use Small Field Name</Checkbox>
+                           </div>
+
+                            
+                   
                         </div>
                         <Divider />
                         <Table
@@ -519,7 +565,7 @@ const ContentOfField = ({
                 ) : (
                     <></>
                 )}
-                {type === 'Elective' ? (
+                {type === 'Elective' ? !isLastField ? (
                     <Row>
                         <Col span={1}></Col>
                         <Col span={23}>
@@ -528,7 +574,7 @@ const ContentOfField = ({
                                     {field.fieldName} Subject List - Total Subject Credits:{' '}
                                     {creditsLabel()}
                                 </h2>
-                                <Button type='primary' onClick={handleSubjectModalOpen}>
+                                <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>
                                     Add Subject
                                 </Button>
                             </div>
@@ -544,17 +590,17 @@ const ContentOfField = ({
                             )}
 
                             <Divider />
-                            <Table columns={columns} dataSource={data} />
+                            <DragSortTable columns={columns} dataSource={data} search={false} pagination={false} dragSortKey="sort" rowKey="key" onDragSortEnd={handleDragSort} options={false} />
                         </Col>
                     </Row>
-                ) : (
+                ) : (<></>) : (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <h2>
                                 {field.fieldName} Subject List - Total Subject Credits:{' '}
                                 {creditsLabel()}
                             </h2>
-                            <Button type='primary' onClick={handleSubjectModalOpen}>
+                            <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>
                                 Add Subject
                             </Button>
                         </div>
@@ -570,7 +616,7 @@ const ContentOfField = ({
                         )}
 
                         <Divider />
-                        <Table columns={columns} dataSource={data} />
+                        <DragSortTable columns={columns} dataSource={data} search={false} pagination={false} dragSortKey="sort" rowKey="key" onDragSortEnd={handleDragSort} options={false} />
                     </>
                 )}
             </Card>

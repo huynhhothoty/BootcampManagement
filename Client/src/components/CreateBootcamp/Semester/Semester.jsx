@@ -375,7 +375,20 @@ const Semester = ({
                             if (group.branchMajor._id === branch._id) {
                                 if (group.semester === semesterIndex) {
                                     data.unshift({
-                                        name: `${field.fieldName} ${gIndex + 1}`,
+                                        name: (() => {
+                                            if(field.isElectiveNameBaseOnBigField){
+                                                let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                    return {
+                                                        ...ggroup,
+                                                        index
+                                                    }
+                                                })
+                                                smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                                let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                                return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                            }
+                                            return `${field.fieldName} ${gIndex + 1}`
+                                        })(),
                                         isCompulsory: false,
                                         credits: group.credit,
                                         isBranch: false,
@@ -425,6 +438,7 @@ const Semester = ({
                 });
             }
         });
+      
         return <Table columns={columns} dataSource={data} pagination={false} />;
     };
     const handleSemesterClick = () => {
@@ -466,7 +480,20 @@ const Semester = ({
                 if (group.branchMajor === undefined || group.branchMajor === null)
                     if (group.semester === semesterIndex) {
                         newSubjectArray.unshift({
-                            name: `${field.fieldName} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                }
+                                return `${field.fieldName} ${gIndex + 1}`
+                            })(),
                             isCompulsory: false,
                             credits: group.credit,
                             isBranch: false,
@@ -499,6 +526,7 @@ const Semester = ({
     const countTotalCredits = () => {
         let totalCredits = 0;
         subjectList.forEach((subject, index) => {
+            
             if (
                 allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
                     .branchMajor === undefined ||

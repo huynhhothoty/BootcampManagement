@@ -140,7 +140,20 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     if (group.semester === index) {
 
                         subjectList.unshift({
-                            name: `${field.fieldName} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                }
+                                return `${field.fieldName} ${gIndex + 1}`
+                            })(),
                             isCompulsory: false,
                             credits: group.credit,
                             isBranch: false,
@@ -192,6 +205,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             "OptionalCredit": sfield.electiveCredits
                           }
                         }),
+                        "isElectiveNameBaseOnBigField": field.isElectiveNameBaseOnBigField
                       }
                     })
                   }
