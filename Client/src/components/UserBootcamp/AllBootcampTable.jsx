@@ -105,6 +105,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                     }
                     return newGroupData
                   }),
+                isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
             };
         });
         semesterList = data.detail.map((semester, index) => {

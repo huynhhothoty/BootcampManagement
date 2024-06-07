@@ -15,12 +15,13 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
   const renderAllowcateField = () => {
 
     return allowcateFields.map((field, index) => {
+      let isLastField = allowcateFields.length - 1 === index
       if (errorMessage.length > 0) {
         if (errorMessage[0].data)
           if (errorMessage[0].data.errorFieldIndex.includes(index))
-            return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} />
+            return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField}/>
       }
-      return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} />
+      return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField}/>
 
     })
   }
@@ -45,7 +46,7 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
   const countTotalAll = () => {
     return countTotalCompulsoryCredits() + countTotalElectiveCredits()
   }
-  console.log()
+
   return (
     <div>
 

@@ -316,6 +316,17 @@ const SubjectDisplayTable = ({
         {
             title: 'Group Name',
             render: (_, record) => {
+                if(field.isElectiveNameBaseOnBigField){
+                    let smallFieldGroupList = field.electiveSubjectList.map((group,index) => {
+                        return {
+                            ...group,
+                            index
+                        }
+                    })
+                    smallFieldGroupList = smallFieldGroupList.filter(group => group.allocateChildId === record.allocateChildId)
+                    let keyIndex = smallFieldGroupList.findIndex(group => group.index === record.index)
+                    return `${field.smallField[record.allocateChildId].fieldName} ${keyIndex + 1}`
+                }
                 return `${fieldName} ${record.key + 1}`;
             },
             width: '55%',

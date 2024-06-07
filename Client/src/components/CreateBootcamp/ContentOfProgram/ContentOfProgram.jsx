@@ -3,14 +3,16 @@ import ContentOfField from "./ContentOfField"
 import { useDispatch, useSelector } from "react-redux"
 import { CaculatePercent } from "../../../util/CaculatePercent/caculatePercent"
 import { updateCompleteTotalCredits } from "../../../redux/CreateBootcamp/createBootCamp"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type,setIsSubjectModalOpen, setSubjestModalData, confirmModal,groupError}) => {
     const dispatch = useDispatch()
     const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
+    const [newFieldList, setNewFieldList] = useState([])
     const renderFields = () => {
         let firstIndexSubjectCode = 0
         return allowcateFields.map((field,index) => {
+            let isLastField = allowcateFields.length - 1 === index
             let newGroupError = false
             let newField = {}
             if(groupError){
@@ -26,11 +28,11 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
             firstIndexSubjectCode += field.subjectList.length 
             if(errorMessage.length > 0){
                 if(errorMessage.includes(index)){
-                    return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+                    return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
                 }
                    
             }
-            return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>
+            return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
         })
     }
     const totalActureCredits = () => {
@@ -63,47 +65,18 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
         return CaculatePercent(totalActureCredits(), totalContentCredits())
     }
     useEffect(() => {
-        console.log(123)
-        let firstIndexSubjectCode = 0
-        allowcateFields.forEach((field,index) => {
-            let newGroupError = false
-            let newField = {}
-            if(groupError){
-                if(groupError.length > 0){
-                    if(groupError.includes(index))
-                    newGroupError = true
-                }
-            }
-            newField = {
-                ...field,
-                firstIndexSubjectCode
-            }
-            firstIndexSubjectCode += field.subjectList.length 
-            if(errorMessage.length > 0){
-                if(errorMessage.includes(index)){
-                    if(chosenFieldData.index !== -1){
-                        if(chosenFieldData.type === type.toLowerCase()){
-                            if(chosenFieldData.index === index){
-                                updateContentFunc(<ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>)
-                            }
-                        }
-                    }
-                   
-                }
-                   
-            }
-            else {
-                if(chosenFieldData.index !== -1){
-                    if(chosenFieldData.type === type.toLowerCase()){
-                        if(chosenFieldData.index === index){
-                            updateContentFunc(<ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData}/>)
-                        }
-                    }
-                }
-              
-            }
-        })
+        if(type === chosenFieldData.type) 
+            updateContentFunc(newFieldList[chosenFieldData.index])
     },[chosenFieldData])
+
+    useEffect(() => {
+        let tempComponentList = renderFields()
+        setNewFieldList(tempComponentList)
+        if(chosenFieldData)
+            if(type === chosenFieldData.type) 
+                updateContentFunc(tempComponentList[chosenFieldData.index])
+    },[allowcateFields])
+
    return (
     <div>
         <Row style={{marginBottom: 10}}>
@@ -116,7 +89,7 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
 
         </Row>
         <div>
-            {renderFields()}
+            {newFieldList}
         </div>
     </div>
    )
