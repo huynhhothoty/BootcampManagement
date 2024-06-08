@@ -1,6 +1,6 @@
 import { ProTable } from '@ant-design/pro-components'
 import { Button, Modal } from 'antd'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { EditOutlined, DeleteOutlined, PlusOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons';
@@ -10,10 +10,10 @@ import { deleteConfirmConfig, loadDraftConfirmConfig, uploadDraftConfirmConfig }
 import { NOTI_SUCCESS, NOTI_SUCCESS_DELETE_DRAFT, NOTI_SUCCESS_LOAD_DRAFT, NOTI_SUCCESS_TITLE } from '../../../util/constants/notificationMessage'
 import DraftNameModal from './DraftNameModal'
 
-const DraftTableModal = ({ open, handleCancel, confirmModal, openNotification, handleUploadDraft,handleSaveAsDraft, handleUploadDraftName, handleDeleteDraft }) => {
+const DraftTableModal = ({ actionRef, open, handleCancel, confirmModal, openNotification, handleUploadDraft,handleSaveAsDraft, handleUploadDraftName, handleDeleteDraft }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate();
-    const actionRef = useRef();
+ 
 
     const [openDraftNameModal, setOpenDraftNameModal] = useState(false)
     const [editingDraftName, setEditingDraftName] = useState(null)

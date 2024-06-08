@@ -30,6 +30,7 @@ import {
 import { updateCompleteCreditsToViewedBootcamp } from '../../../redux/bootcamp/bootcamp';
 import { getDepartmentIndex } from '../../../util/GetDepartmentIndex/GetDepartmentIndex';
 import { SUBJECT_EDITED } from '../../../util/constants/subjectStatus';
+import { getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../../redux/major/major';
 const { Option } = Select;
 const SubjectModal = ({
     isModalOpen,
@@ -50,7 +51,7 @@ const SubjectModal = ({
     const [fieldChildList, setFieldChildList] = useState([]);
 
     const { viewedAllowcatedFields } = useSelector((store) => store.allowcate);
-    const { departmentList } = useSelector((store) => store.major);
+    const { departmentList,viewedMajor } = useSelector((store) => store.major);
 
     const handleCancel = () => {
         setAutoID('');
@@ -243,6 +244,22 @@ const SubjectModal = ({
         }
         setDepartmentChooseList(tempDepartmentChooseList);
     }, [departmentList]);
+
+    useEffect(() => {
+        (async () => {
+            if(isModalOpen){
+                if(viewedMajor){
+                    const majorRes = await dispatch(getMajorById(viewedMajor._id))
+                        
+                    await dispatch(updateViewedMajor(majorRes.payload.data))
+                    await dispatch(updateDepartmentList(majorRes.payload.data.department))
+                    
+                }
+               
+            }
+        })()
+       
+    },[isModalOpen])
     useEffect(() => {
         if (subjectModalData.fieldData) {
             setFieldChildList(subjectModalData.fieldData.smallField.map((sfield, sfieldIndex) => {

@@ -16,7 +16,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
             key: '1',
             label: (
                 <a target="_blank" rel="noopener noreferrer" onClick={() => {
-                    openContentModal(fieldIndex,"Compulsory")
+                    openContentModal(fieldIndex, "Compulsory")
                 }}>
                     Compulsory
                 </a>
@@ -26,7 +26,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
             key: '2',
             label: (
                 <a target="_blank" rel="noopener noreferrer" onClick={() => {
-                    openContentModal(fieldIndex,"Elective")
+                    openContentModal(fieldIndex, "Elective")
                 }}>
                     Elective
                 </a>
@@ -46,7 +46,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
                 <Row>
                     <Col span={6}></Col>
                     <Col span={18}>
-                        <SmallField confirmModal={confirmModal} isError={isError} bigFieldIndex={bigFieldIndex} index={index} fieldData={field} isLastField={isLastField}/>
+                        <SmallField confirmModal={confirmModal} isError={isError} bigFieldIndex={bigFieldIndex} index={index} fieldData={field} isLastField={isLastField} />
                     </Col>
                 </Row>
             </div>)
@@ -66,7 +66,7 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
         >
             <Row>
                 <Col span={6}>
-                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldUpdateName} disabled={isLastField}/>
+                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldUpdateName} disabled={isLastField} />
                     {errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? <span style={{ color: "red" }}>{MISSING_FIELD_NAME}</span> : ""}
 
                 </Col>
@@ -82,23 +82,27 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
                 </Col>
                 <Col span={6} style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button type="primary" style={{ marginRight: 10 }} onClick={() => dispatch(addSmallField(bigFieldIndex))} disabled={isLastField}>Add Child Field</Button>
-                    <Dropdown
-                        menu={{
-                            items,
-                        }}
-                        placement="bottomLeft"
+                    {
+                        isLastField ? <Button type="default" style={{ marginRight: 10 }} onClick={() => {openContentModal(fieldIndex, "Compulsory")}}>Subject List</Button> :
+                            <Dropdown
+                                menu={{
+                                    items,
+                                }}
+                                placement="bottomLeft"
+
+                            >
+                                <Button type="default" style={{ marginRight: 10 }} >Subject List</Button>
+                            </Dropdown>
+                    }
+
+                    <Button danger onClick={async () => {
+                        const confirmed = await confirmModal.confirm(deleteConfirmConfig);
+                        if (confirmed) {
+                            dispatch(deleteBigField(bigFieldIndex))
+                        }
+                    }}
                         disabled={isLastField}
-                    >
-                        <Button type="default" style={{ marginRight: 10 }} >Subject List</Button>
-                    </Dropdown>
-                        <Button danger onClick={async () => {
-                            const confirmed = await confirmModal.confirm(deleteConfirmConfig);
-                            if (confirmed) {
-                                dispatch(deleteBigField(bigFieldIndex))
-                            }
-                        }}
-                        disabled={isLastField}
-                        ><DeleteOutlined /></Button>
+                    ><DeleteOutlined /></Button>
                 </Col>
             </Row>
             <Row style={{ marginTop: 30 }}>

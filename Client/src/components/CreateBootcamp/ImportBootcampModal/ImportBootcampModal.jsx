@@ -96,7 +96,6 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               _id: null
             }
-            if(a.name === "Object-Oriented Software Engineering")
             tempSubjectList.push(subject)
             return a
           }),
@@ -150,7 +149,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
         let bootcampName = selectedRows[0].name
         let branchMajorSemester = selectedRows[0].branchMajorSemester
         let totalCredits = selectedRows[0].totalCredit
-        let completeTotalCredits = selectedRows[0].totalCredit
+        let completeTotalCredits = 0
         let allowcateFields = []
         let semesterSubjectList = []
         let semesterList = [[]]
@@ -191,6 +190,11 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
                 allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? (field.detail.findIndex(sField => sField._id === subject.allocateChildId) > -1 ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null) : null,
                 _id: subject._id
               }
+              if(index < tempAllowcateFields.payload.data.detail.length - 1){
+                if(subject.isCompulsory){
+                  completeTotalCredits += subject.credit
+                }
+              }
               return a
             }),
             electiveSubjectList: field.electiveSubjectList.map((group) => {
@@ -198,6 +202,7 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
                 newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
               }
+              completeTotalCredits += group.credit
               return newGroupData
             }),
             isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,

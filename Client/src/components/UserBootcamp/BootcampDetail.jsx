@@ -61,8 +61,11 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
 
     const [isUpdated, setIsUpdated] = useState(false)
     const sumTotalAllowcatedCredits = () => {
-        return viewedAllowcatedFields.reduce((accumulator, field) => {
-            return accumulator + field.compulsoryCredits + field.electiveCredits
+        return viewedAllowcatedFields.reduce((accumulator, field, index) => {
+            if(index < viewedAllowcatedFields.length - 1){
+                return accumulator + field.compulsoryCredits + field.electiveCredits
+            }else return accumulator
+            
         }, 0)
     }
     const renderAllowcate = () => {

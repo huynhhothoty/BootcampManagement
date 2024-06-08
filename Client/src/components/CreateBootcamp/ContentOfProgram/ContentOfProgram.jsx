@@ -4,11 +4,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { CaculatePercent } from "../../../util/CaculatePercent/caculatePercent"
 import { updateCompleteTotalCredits } from "../../../redux/CreateBootcamp/createBootCamp"
 import { useEffect, useState } from "react"
+import SwapModal from "./SwapModal"
 
 const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type,setIsSubjectModalOpen, setSubjestModalData, confirmModal,groupError}) => {
     const dispatch = useDispatch()
     const {totalCredits,completeTotalCredits,allowcateFields} = useSelector(store => store.createBootCamp)
     const [newFieldList, setNewFieldList] = useState([])
+    const [openSwapModal,setOpenSwapModal] = useState(false)
+    const [swapModalData,setSwapModalData] = useState(null)
     const renderFields = () => {
         let firstIndexSubjectCode = 0
         return allowcateFields.map((field,index) => {
@@ -28,11 +31,11 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
             firstIndexSubjectCode += field.subjectList.length 
             if(errorMessage.length > 0){
                 if(errorMessage.includes(index)){
-                    return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
+                    return <ContentOfField handleOpenSwapModal={handleOpenSwapModal} groupError={groupError} confirmModal={confirmModal} error={true} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
                 }
                    
             }
-            return <ContentOfField groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
+            return <ContentOfField handleOpenSwapModal={handleOpenSwapModal} groupError={groupError} confirmModal={confirmModal} error={false} key={index} field={newField} index={index}  type={type} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} isLastField={isLastField}/>
         })
     }
     const totalActureCredits = () => {
@@ -64,6 +67,16 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
     const getProgressPercentage = () => {
         return CaculatePercent(totalActureCredits(), totalContentCredits())
     }
+
+    const handleOpenSwapModal = (data) => {
+        setOpenSwapModal(true)
+        setSwapModalData(data)
+    }
+    const handleCloseSwapModal = () => {
+        setOpenSwapModal(false)
+        setSwapModalData(null)
+    }
+
     useEffect(() => {
         if(type === chosenFieldData.type) 
             updateContentFunc(newFieldList[chosenFieldData.index])
@@ -79,6 +92,7 @@ const ContentOfProgram = ({chosenFieldData, updateContentFunc, errorMessage,type
 
    return (
     <div>
+        <SwapModal handleClose={handleCloseSwapModal} open={openSwapModal} modalData={swapModalData}/>
         <Row style={{marginBottom: 10}}>
             {/* <Col span={4}>
             <span style={{fontSize: 15}}>Total {type} Credits:</span>

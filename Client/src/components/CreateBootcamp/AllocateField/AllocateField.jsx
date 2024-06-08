@@ -27,7 +27,8 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
   }
   const countTotalCompulsoryCredits = () => {
     let totalCompulsoryCredits = 0
-    allowcateFields.forEach((field) => {
+    allowcateFields.forEach((field,index) => {
+      if(index < allowcateFields.length - 1)
       totalCompulsoryCredits += field.compulsoryCredits
 
     })
@@ -36,8 +37,8 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
   }
   const countTotalElectiveCredits = () => {
     let totalElectiveCredits = 0
-    allowcateFields.forEach((field) => {
-
+    allowcateFields.forEach((field,index) => {
+      if(index < allowcateFields.length - 1)
       totalElectiveCredits += field.electiveCredits
     })
     return totalElectiveCredits

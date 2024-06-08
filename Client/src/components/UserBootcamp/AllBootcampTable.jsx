@@ -43,7 +43,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
 
         let bootcampName = data.name;
         let totalCredits = parseInt(data.totalCredit);
-        let completeTotalCredits = data.totalCredit;
+        let completeTotalCredits = 0
         let allowcateFields = [];
         let semesterSubjectList = [];
         let semesterList = [[]];
@@ -95,7 +95,13 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                             : undefined,
                         allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
                     };
-
+                    if(index < tempAllowcateFields.payload.data.detail.length - 1){
+                        if(subject.isCompulsory){
+                            completeTotalCredits += subject.credit
+                        }
+                    }
+                    
+   
                     return a;
                 }),
                 electiveSubjectList:  field.electiveSubjectList.map((group) => {
@@ -103,6 +109,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                     if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
                       newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
                     }
+                    completeTotalCredits += group.credit
                     return newGroupData
                   }),
                 isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
@@ -125,6 +132,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                 };
             });
         });
+        console.log(completeTotalCredits)
         dispatch(
             updateViewedAllocatedField({ data: allowcateFields, id: data.allocation })
         );

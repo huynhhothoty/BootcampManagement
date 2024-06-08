@@ -1,5 +1,6 @@
-import { Button, Col, Form, Input, InputNumber, Progress, Radio, Result, Row, Select, } from 'antd';
-import { useEffect, useState } from 'react';
+import { Button, Col, FloatButton, Form, Input, InputNumber, Progress, Radio, Result, Row, Select, } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
+import { useEffect, useRef, useState } from 'react';
 import { CaculatePercent } from '../../util/CaculatePercent/caculatePercent';
 import Semester from '../../components/CreateBootcamp/Semester/Semester';
 import SubjectModal from '../../components/CreateBootcamp/SubjectModal/SubjectModal';
@@ -12,7 +13,7 @@ import ContentOfProgram from './../../components/CreateBootcamp/ContentOfProgram
 import SemesterList from '../../components/CreateBootcamp/Semester/SemesterList';
 import { MISSING_FIELD_INFO, NO_ALLOWCATION_CREDITS_DATA, NO_BOOTCAMP_NAME, NO_BOOTCAMP_TOTAL_CREDITS, } from '../../util/constants/errorMessage';
 import { updateLoading } from '../../redux/loading/Loading';
-import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_SAVE_DRAFT, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_TEMPLATE_SUCCESS, NOTI_SUCCESS_UPDATE_DRAFT_NAME } from '../../util/constants/notificationMessage';
+import { NOTI_CREATE_BOOTCAMP_MISS_INFO, NOTI_CREATE_BOOTCAMP_SUCCESS, NOTI_ERROR, NOTI_ERROR_TITLE, NOTI_SUCCESS, NOTI_SUCCESS_SAVE_DRAFT, NOTI_SUCCESS_TITLE, NOTI_UPDATE_BOOTCAMP_TEMPLATE_SUCCESS, NOTI_SUCCESS_UPDATE_DRAFT_NAME, NOTI_SUCCESS_AUTO_SAVE_DRAFT } from '../../util/constants/notificationMessage';
 import { getAllBootcamp, getBootcampById, updateBootcamp } from '../../redux/bootcamp/bootcamp';
 import { validateBootcampData } from '../../util/ValidateBootcamp/validateBootcampData';
 import { getAllMajor, getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../redux/major/major';
@@ -22,6 +23,7 @@ import { updateAfterImportBootcamp } from '../../redux/subject/subject';
 import ContentModal from '../../components/CreateBootcamp/ContentOfProgram/ContentModal';
 import { clearAllConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 import DraftTableModal from '../../components/CreateBootcamp/DraftTable/DraftTableModal';
+import { editUserData, getUserData, updateUser } from '../../redux/authentication/authentication';
 
 
 const text = `
@@ -67,6 +69,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
   const [contentModalFieldData, setContentModalFieldData] = useState({ index: -1, type: "compulsory" })
   const [manageStatus, setManageStatus] = useState('create')
   const [openDraftModal, setOpenDraftModal] = useState(false)
+  const actionRef = useRef();
   // console.log(allowcateFields[4].subjectList.filter(student => student.isCompulsory === true))
   // console.log(semesterList[5].filter(subject => subject.semesterSubjectListIndex === 37))
   // let a = []
@@ -78,7 +81,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     setContainModalStatus(false)
   }
   const openContentModal = (fieldIndex, type) => {
-    
+    setContainModalStatus(true)
     setContentModalFieldData({
       index: fieldIndex,
       type: type
@@ -282,12 +285,20 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           allowcateFields,
           bootcampName,
           semesterList,
-          semesterSubjectList
+          semesterSubjectList,
+          selectedMajor,
+          branchMajorSemester
         }
       }
     }
-    await dispatch(updateDraft(sendData))
-    openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
+    let draftRes = await dispatch(updateDraft(sendData))
+    if (draftRes.payload.status === 'ok') {
+      openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
+      return true
+    }else {
+      return false
+    }
+
   }
 
   const handleUploadDraftName = async (uploadedId, draftName) => {
@@ -300,6 +311,26 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     await dispatch(updateDraft(sendData))
     openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_UPDATE_DRAFT_NAME)
   }
+
+  // const handleAutoSaveDraft = async (autoDraftId) => {
+  //   const sendData = {
+  //     draftID: autoDraftId,
+  //     data: {
+  //       data: {
+  //         totalCredits,
+  //         completeTotalCredits,
+  //         allowcateFields,
+  //         bootcampName,
+  //         semesterList,
+  //         semesterSubjectList,
+  //         selectedMajor,
+  //         branchMajorSemester
+  //       }
+  //     }
+  //   }
+  //   await dispatch(updateDraft(sendData))
+  //   openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_AUTO_SAVE_DRAFT)
+  // }
 
   const handleSaveAsDraft = async (draftName) => {
     dispatch(updateLoading(true))
@@ -317,13 +348,14 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
         branchMajorSemester
       }
     }
-    await dispatch(createDraft(draftData))
+    let draftRes = await dispatch(createDraft(draftData))
     openNotification(NOTI_SUCCESS, NOTI_SUCCESS_TITLE, NOTI_SUCCESS_SAVE_DRAFT)
     dispatch(updateLoading(false))
+    return draftRes.payload.data
   }
 
   const handleDeleteDraft = async (deletedId) => {
-    // await dispatch(deleteDraft(deletedId))
+    await dispatch(deleteDraft(deletedId))
   }
 
   const handleSelectMajor = (value) => {
@@ -352,7 +384,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
       let branchMajorSemester = newTemplateBootcampData.branchMajorSemester
       let bootcampName = newTemplateBootcampData.name
       let totalCredits = newTemplateBootcampData.totalCredit
-      let completeTotalCredits = newTemplateBootcampData.totalCredit
+      let completeTotalCredits = 0
       let allowcateFields = []
       let semesterSubjectList = []
       let semesterList = [[]]
@@ -401,6 +433,12 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
               _id: subject._id
             }
+            if (index < tempAllowcateFields.detail.length - 1) {
+              if (subject.isCompulsory) {
+                completeTotalCredits += subject.credit
+              }
+            }
+
             return a
           }),
           electiveSubjectList: field.electiveSubjectList.map((group) => {
@@ -408,6 +446,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
               newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
             }
+            completeTotalCredits += group.credit
             return newGroupData
           }),
           isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
@@ -519,13 +558,80 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
 
 
   }, [viewedMajor])
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     console.log("saved")
+  //   }, 5000); // Gọi API sau mỗi 5 giây
+
+  //   return () => clearTimeout(timer);
+  // },[bootcampName,totalCredits, allowcateFields, semesterList])
   return (
     <div>
+      {selectedMajor.length > 0 ? 
+      <>
+      <FloatButton
+        shape="square"
+
+        type="primary"
+        style={{
+          right: 94,
+          width: 100,
+          height: 30
+        }}
+
+        description="Quick Save"
+        onClick={async () => {
+          if (userData.autoDraftId) {
+            let updateResult = await handleUploadDraft(userData.autoDraftId)
+            if(updateResult === false){
+              let createdData = await handleSaveAsDraft('Auto Save')
+              let userRes = await dispatch(updateUser({
+                autoDraftId: createdData._id
+              }))
+              const newUserData = userRes.payload.data
+              dispatch(editUserData({
+                ...newUserData,
+                id: newUserData._id
+              }))
+            }
+          } else {
+            let createdData = await handleSaveAsDraft('Auto Save')
+            let userRes = await dispatch(updateUser({
+              autoDraftId: createdData._id
+            }))
+            const newUserData = userRes.payload.data
+            dispatch(editUserData({
+              ...newUserData,
+              id: newUserData._id
+            }))
+          }
+          actionRef?.current.reload()
+        }}
+
+        icon={<SaveOutlined />}
+      />
+      <FloatButton
+        shape="circle"
+        style={{
+          right: 30,
+        }}
+        badge={{
+          count: draftList.length
+        }}
+        onClick={handleOpenDraftModal}
+        tooltip={`You have (${draftList.length}) Draft`}
+        icon={<SaveOutlined />}
+      />
+      </> : 
+      <></>
+      }
+      
       <ContentModal isModalOpen={contentModalStatus} handleCancel={closeContentModal}>
 
         {contentModalComponent}
       </ContentModal>
-      <DraftTableModal open={openDraftModal} handleCancel={handleCloseDraftModal} confirmModal={confirmModal} openNotification={openNotification} handleUploadDraft={handleUploadDraft} handleSaveAsDraft={handleSaveAsDraft} handleUploadDraftName={handleUploadDraftName} handleDeleteDraft={handleDeleteDraft} />
+      <DraftTableModal actionRef={actionRef} open={openDraftModal} handleCancel={handleCloseDraftModal} confirmModal={confirmModal} openNotification={openNotification} handleUploadDraft={handleUploadDraft} handleSaveAsDraft={handleSaveAsDraft} handleUploadDraftName={handleUploadDraftName} handleDeleteDraft={handleDeleteDraft} />
       <SubjectModal subjectModalData={subjectModalData} isModalOpen={isSubjectModalOpen} setIsModalOpen={setIsSubjectModalOpen} />
       <ImportBootcampModal setErrorMessage={setErrorMessage} isModalOpen={isImportBootcampModalOpen} setIsModalOpen={setIsImportBootcampModalOpen} />
 
@@ -576,7 +682,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                   }
 
                 }} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true} danger>Clear All</Button>
-                <Button onClick={handleOpenDraftModal} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true}>You have ({draftList.length}) Draft</Button>
+                {/* <Button onClick={handleOpenDraftModal} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true}>You have ({draftList.length}) Draft</Button> */}
                 <Button type='primary' onClick={handleCreatebootcamp} htmlType='submit' disabled={selectedMajor.length > 0 ? false : true}>Create</Button>
               </>
 

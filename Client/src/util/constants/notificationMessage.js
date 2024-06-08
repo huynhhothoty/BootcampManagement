@@ -16,6 +16,7 @@ export const NOTI_SUCCESS_SAVE_DRAFT ="Your draft has been saved successfully"
 export const NOTI_SUCCESS_LOAD_DRAFT ="Load draft data successfully"
 export const NOTI_SUCCESS_UPDATE_DRAFT_NAME ="Update draft name successfully"
 export const NOTI_SUCCESS_DELETE_DRAFT ="Delete draft successfully"
+export const NOTI_SUCCESS_AUTO_SAVE_DRAFT ="Auto Save draft Successfully"
 
 export const NOTI_SUCCESS_CREATE_SUBJECT ="Create new Subject successfully!"
 export const NOTI_SUCCESS_DELETE_SUBJECT ="Delete Subject successfully!"

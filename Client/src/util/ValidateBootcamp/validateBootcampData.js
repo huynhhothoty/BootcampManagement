@@ -44,33 +44,33 @@ export const validateBootcampData = (
         missSmallField: false,
         smallFieldError: [],
       };
+      if (index !== allowcateFields.length - 1) {
+        if (field.fieldName === "") {
+          error.missFieldName = true;
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
+        }
+        if (field.smallField.length === 0) {
+          error.missSmallField = true;
+          !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
+        } else {
+          field.smallField.forEach((smallField, smallIndex) => {
+            if (smallField.fieldName === "") {
+              error.smallFieldError.push(smallIndex);
+              !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
+            }
+          });
+        }
+        allowcateTotalCredits += field.compulsoryCredits;
+        allowcateTotalCredits += field.electiveCredits;
 
-      if (field.fieldName === "") {
-        error.missFieldName = true;
-        !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
-      }
-      if (field.smallField.length === 0) {
-        error.missSmallField = true;
-        !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
-      } else {
-        field.smallField.forEach((smallField, smallIndex) => {
-          if (smallField.fieldName === "") {
-            error.smallFieldError.push(smallIndex);
-            !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
-          }
+        let totalElectiveSubjectCredits = 0;
+
+        field.subjectList.forEach((subject) => {
+          totalElectiveSubjectCredits += subject.credits;
         });
+        if (totalElectiveSubjectCredits < field.electiveCredits)
+          tempErrorMessage.elective.push(index);
       }
-      allowcateTotalCredits += field.compulsoryCredits;
-      allowcateTotalCredits += field.electiveCredits;
-
-      let totalElectiveSubjectCredits = 0;
-
-      field.subjectList.forEach((subject) => {
-        totalElectiveSubjectCredits += subject.credits;
-      });
-      if (totalElectiveSubjectCredits < field.electiveCredits)
-        tempErrorMessage.elective.push(index);
-
       return error;
     });
     if (errorFieldIndex.length > 0 || allowcateTotalCredits !== totalCredits) {
@@ -93,13 +93,13 @@ export const validateBootcampData = (
       allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
         .isCompulsory === true
   );
-  tempRemainWithGroupElective = allowcateFields.some(field => 
-    field.electiveSubjectList.some((group) => 
-      (group.semester === null && group.branchMajor === null) 
+  tempRemainWithGroupElective = allowcateFields.some((field) =>
+    field.electiveSubjectList.some(
+      (group) => group.semester === null && group.branchMajor === null
     )
-  )
-  if(tempRemainWithNormalSubject || tempRemainWithGroupElective){
-    tempErrorMessage.remainning = true
-  }else tempErrorMessage.remainning = false
+  );
+  if (tempRemainWithNormalSubject || tempRemainWithGroupElective) {
+    tempErrorMessage.remainning = true;
+  } else tempErrorMessage.remainning = false;
   return tempErrorMessage;
 };

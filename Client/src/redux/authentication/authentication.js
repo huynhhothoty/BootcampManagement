@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { changeUserPasswordAPI, createUserAPI, loginApi, queryAllUserAPI, resetPasswordAPI, updateUserAPI } from "../../util/api/authentication/authenticationApi";
+import { changeUserPasswordAPI, createUserAPI, getUserDataAPI, loginApi, queryAllUserAPI, resetPasswordAPI, updateUserAPI } from "../../util/api/authentication/authenticationApi";
 import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 
 const initialState = {
@@ -100,6 +100,25 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+export const getUserData = createAsyncThunk(
+  "authentication/getUserData",
+  async () => {
+    try {
+      const userToken = sessionStorage.getItem(USER_TOKEN);
+      let res = await axios.get(getUserDataAPI(), {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+);
+
 export const createUser = createAsyncThunk(
   "authentication/createUser",
   async (data) => {
@@ -139,6 +158,21 @@ export const authenticationSlice = createSlice({
     builder.addCase(login.rejected, (state, action) => {
       state.loading = false;
     });
+
+    builder.addCase(getUserData.fulfilled, (state, action) => {
+      state.loading = false;
+      if (action.payload.status === "ok") {
+        const newUserData = {
+          email: action.payload.data.email,
+          id: action.payload.data.id,
+          name: action.payload.data.name,
+          role: action.payload.data.role,
+          major: action.payload.data.major
+        }
+        state.userData = newUserData
+        sessionStorage.setItem(USER_DATA,JSON.stringify(newUserData))
+      }
+    });
   },
   reducers: {
     setFirstUserData: (state, action) => {
@@ -148,7 +182,7 @@ export const authenticationSlice = createSlice({
       const newUserData = action.payload
       state.userData = newUserData
       sessionStorage.setItem(USER_DATA,JSON.stringify(newUserData))
-    }
+    },
   },
 });
 export const {setFirstUserData,editUserData} = authenticationSlice.actions;

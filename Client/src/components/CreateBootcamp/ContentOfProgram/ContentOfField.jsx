@@ -1,4 +1,4 @@
-import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, EditOutlined,SwapOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import {
@@ -52,7 +52,8 @@ const ContentOfField = ({
     index,
     confirmModal,
     groupError,
-    isLastField
+    isLastField,
+    handleOpenSwapModal
 }) => {
     const dispath = useDispatch();
     const [searchText, setSearchText] = useState('');
@@ -267,7 +268,7 @@ const ContentOfField = ({
             dataIndex: 'allocateChildId',
             key: 'credits',
             width: '12%',
-            filters: field.smallField.map((field,index) => {
+            filters: field.smallField.map((field, index) => {
                 return {
                     text: field.fieldName,
                     value: index,
@@ -293,74 +294,81 @@ const ContentOfField = ({
 
         {
             title: 'Action',
-            width: '12%',
+            width: 200,
+            align:'center',
             render: (_, data) => (
-                <Row>
-                    <Col span={12}>
-                        <Button
-                            type='default'
-                            danger
-                            onClick={async () => {
-                                const confirmed = await confirmModal.confirm(
-                                    deleteConfirmConfig
-                                );
-                                if (confirmed) {
-                                    dispath(
-                                        updateSmallFieldCreditsWithDelete({
-                                            fieldIndex: index,
-                                            subjectIndex: data.index,
-                                            type,
-                                        })
-                                    )
 
-                                    if (data._id) {
-                                        dispath(removeImportedSubject(data._id));
-                                    }
-                                    dispath(updateFieldCredits(index))
-                                    dispath(
-                                        removeSubject({
-                                            fieldIndex: index,
-                                            subjectIndex: data.index,
-                                            type,
-                                        })
-                                    );
-                                  
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <Button
+                        type='default'
+                        onClick={() => {
+                            setSubjestModalData({
+                                type: 'edit',
+                                fieldIndex: index,
+                                modalName: `Edit Subject`,
+                                sujectType: type,
+                                subjectData: data,
+                                isCreateBootcamp: true,
+                                isViewBootcamp: false,
+                                fieldData: field,
+                            });
+                            setIsSubjectModalOpen(true);
+                        }}
+                    >
+                        <EditOutlined />
+                    </Button>
+                    <Button
+                        type='default'
+                        onClick={() => {
+                            handleOpenSwapModal({fieldIndex: index, subjectData: data})
+                        }}
+                    >
+                        <SwapOutlined />
+                    </Button>
+                    <Button
+                        type='default'
+                        danger
+                        onClick={async () => {
+                            const confirmed = await confirmModal.confirm(
+                                deleteConfirmConfig
+                            );
+                            if (confirmed) {
+                                dispath(
+                                    updateSmallFieldCreditsWithDelete({
+                                        fieldIndex: index,
+                                        subjectIndex: data.index,
+                                        type,
+                                    })
+                                )
+
+                                if (data._id) {
+                                    dispath(removeImportedSubject(data._id));
                                 }
-                            }}
-                        >
-                            <DeleteOutlined />
-                        </Button>
-                    </Col>
-                    <Col span={12}>
-                        <Button
-                            type='default'
-                            onClick={() => {
-                                setSubjestModalData({
-                                    type: 'edit',
-                                    fieldIndex: index,
-                                    modalName: `Edit Subject`,
-                                    sujectType: type,
-                                    subjectData: data,
-                                    isCreateBootcamp: true,
-                                    isViewBootcamp: false,
-                                    fieldData: field,
-                                });
-                                setIsSubjectModalOpen(true);
-                            }}
-                        >
-                            <EditOutlined />
-                        </Button>
-                    </Col>
-                </Row>
+                                dispath(updateFieldCredits(index))
+                                dispath(
+                                    removeSubject({
+                                        fieldIndex: index,
+                                        subjectIndex: data.index,
+                                        type,
+                                    })
+                                );
+
+                            }
+                        }}
+                    >
+                        <DeleteOutlined />
+                    </Button>
+
+                </div>
             ),
         },
     ];
     const electiveColumns = [
         {
             title: 'Course Name',
-            render: (_, record) => {    
-                if(field.isElectiveNameBaseOnBigField){
-                    let smallFieldGroupList = field.electiveSubjectList.map((group,index) => {
+            render: (_, record) => {
+                if (field.isElectiveNameBaseOnBigField) {
+                    let smallFieldGroupList = field.electiveSubjectList.map((group, index) => {
                         return {
                             ...group,
                             index
@@ -537,19 +545,19 @@ const ContentOfField = ({
                                 </h4>
                             </div>
 
-                           <div style={{display:'flex', alignItems:'center', gap: 20}}>
-                           <Button
-                                type='primary'
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                                <Button
+                                    type='primary'
 
-                                onClick={() => handleOpenElectiveGroupModal(null)}
-                            >
-                                Add New Course
-                            </Button>
-                            <Checkbox onChange={handleCheckChangeGroupName} defaultChecked={field.isElectiveNameBaseOnBigField}>Use Small Field Name</Checkbox>
-                           </div>
+                                    onClick={() => handleOpenElectiveGroupModal(null)}
+                                >
+                                    Add New Course
+                                </Button>
+                                <Checkbox onChange={handleCheckChangeGroupName} defaultChecked={field.isElectiveNameBaseOnBigField}>Use Small Field Name</Checkbox>
+                            </div>
 
-                            
-                   
+
+
                         </div>
                         <Divider />
                         <Table

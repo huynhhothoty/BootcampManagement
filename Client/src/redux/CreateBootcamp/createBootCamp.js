@@ -19,7 +19,7 @@ import { USER_DATA, USER_TOKEN } from "../../util/constants/sectionStorageKey";
 const initialState = {
   bootcampName: "",
   totalCredits: 0,
-  completeTotalCredits: 5,
+  completeTotalCredits: 0,
   allowcateFields: [{
     compulsoryCredits: 5,
     electiveCredits: 0,
@@ -602,7 +602,7 @@ export const createBootcampSlice = createSlice({
     resetAll: (state) => {
 
       state.totalCredits = 0;
-      (state.completeTotalCredits = 5),
+      (state.completeTotalCredits = 0),
         (state.allowcateFields = [{
           compulsoryCredits: 5,
           electiveCredits: 0,
@@ -932,6 +932,44 @@ export const createBootcampSlice = createSlice({
     },
     changeUseSmallFieldName: (state,action) => {
       state.allowcateFields[action.payload.fieldIndex]['isElectiveNameBaseOnBigField'] = action.payload.checked
+    },
+    swapSubject: (state,action) => {
+      //subjectIndex, oldFieldIndex, newFieldIndex, newSmallFieldIndex
+      const {
+        subjectIndex, oldFieldIndex, newFieldIndex, newSmallFieldIndex
+      } = action.payload
+      let swapedSubjectData = {
+        ...state.allowcateFields[oldFieldIndex].subjectList[subjectIndex],
+        allocateChildId: newSmallFieldIndex
+      }
+      state.semesterSubjectList = state.semesterSubjectList.map((subject,index) => {
+        if(subject.fieldIndex === oldFieldIndex && subject.subjectIndex > subjectIndex){
+
+          if(subject.semester !== null){
+            let subjectSemesterIndex = state.semesterList[subject.semester].findIndex(subject => subject.semesterSubjectListIndex === index)
+            state.semesterList[subject.semester][subjectSemesterIndex].subjectIndex =  state.semesterList[subject.semester][subjectSemesterIndex].subjectIndex - 1
+          }
+          return {
+            ...subject,
+            subjectIndex: subject.subjectIndex - 1
+          }
+        }else if(subject.fieldIndex === oldFieldIndex && subject.subjectIndex === subjectIndex){
+          if(subject.semester !== null){
+            let subjectSemesterIndex = state.semesterList[subject.semester].findIndex(subject => subject.semesterSubjectListIndex === index)
+            state.semesterList[subject.semester][subjectSemesterIndex].subjectIndex =  state.allowcateFields[newFieldIndex].subjectList.length
+            state.semesterList[subject.semester][subjectSemesterIndex].fieldIndex = newFieldIndex
+          }
+          return {
+            ...subject,
+            fieldIndex:  newFieldIndex,
+            subjectIndex: state.allowcateFields[newFieldIndex].subjectList.length
+          }
+        }
+        return subject
+      })
+
+      state.allowcateFields[oldFieldIndex].subjectList.splice(subjectIndex, 1)
+      state.allowcateFields[newFieldIndex].subjectList.push(swapedSubjectData)
     }
   },
 });
@@ -972,7 +1010,8 @@ export const {
   updateSmallFieldElectiveCreditsWithDelete,
   loadDraft,
   updateDragData,
-  changeUseSmallFieldName
+  changeUseSmallFieldName,
+  swapSubject
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;
