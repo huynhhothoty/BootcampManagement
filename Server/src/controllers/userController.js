@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const Email = require('../utils/email');
 const crypto = require('crypto');
 const ApiFeatures = require('../utils/ApiFeature');
+const { filterExcludeObject } = require('../utils/helper');
 
 const getAllUser = async (req, res, next) => {
     try {
@@ -255,7 +256,15 @@ const updateInfo = async (req, res, next) => {
         if (req.body.password)
             return next(new CustomError('You can not update password here', 400));
 
-        const filterBody = filterObject(req.body, 'name', 'email');
+        const filterBody = filterExcludeObject(
+            req.body,
+            'password',
+            'role',
+            'email',
+            'passwordResetToken',
+            'resetTokenExpire',
+            'passwordChangedAt'
+        );
 
         const updateUser = await User.findByIdAndUpdate(req.user._id, filterBody, {
             new: true,
