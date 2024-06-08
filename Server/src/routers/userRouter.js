@@ -6,6 +6,7 @@ const authorization = require('../middlewares/auth/authorize');
 const userRouter = express.Router();
 
 userRouter.get('/', authentication, authorization('admin'), userController.getAllUser);
+userRouter.get('/me', authentication, userController.getCurrentUser);
 userRouter.get('/:id', authentication, authorization('admin'), userController.getOneUser);
 
 userRouter.post('/register', userController.register);

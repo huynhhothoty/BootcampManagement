@@ -292,6 +292,17 @@ const getOneUser = async (req, res, next) => {
     }
 };
 
+const getCurrentUser = async (req, res, next) => {
+    try {
+        const user = req.user;
+        res.status(200).send({
+            status: 'ok',
+            data: user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 //
 module.exports = {
     register,
@@ -303,4 +314,5 @@ module.exports = {
     getAllUser,
     getOneUser,
     updatePasswordByAdmin,
+    getCurrentUser,
 };
