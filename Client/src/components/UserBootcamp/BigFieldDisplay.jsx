@@ -49,15 +49,17 @@ const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddB
                     onValuesChange: (e, f) => setFieldName(e.fieldName),
 
                 }}
-
-                request={async () => {
-                    return Promise.resolve({
-                        success: true,
-                        data: {
-                            fieldName: field?.fieldName
-                        },
-                    });
+                dataSource={{
+                    fieldName: field?.fieldName
                 }}
+                // request={async () => {
+                //     return Promise.resolve({
+                //         success: true,
+                //         data: {
+                //             fieldName: field?.fieldName
+                //         },
+                //     });
+                // }}
                 style={{ width: 300 }}
                 editable={{
                     onSave: (_, data) => {

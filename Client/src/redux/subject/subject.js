@@ -168,44 +168,30 @@ export const subjectSlice = createSlice({
       );
     },
     removeSubjectFromField: (state, action) => {
-      state.viewedSemesterList = state.viewedSemesterList.map((subjectList) => {
-        return subjectList.map((subject) => {
-          if (subject.fieldIndex === action.payload.fieldIndex) {
-            if (subject.subjectIndex > action.payload.subjectIndex) {
-              return {
-                ...subject,
-                subjectIndex: subject.subjectIndex - 1,
-              };
-            } else return subject;
-          } else return subject;
-        });
-      });
-      state.viewedSemesterList = state.viewedSemesterList.map((subjectList) => {
-        return subjectList.filter(
-          (subject) =>
-            subject.fieldIndex !== action.payload.fieldIndex ||
-            subject.subjectIndex !== action.payload.subjectIndex
-        );
-      });
-
-      state.viewedSemesterSubjectList = state.viewedSemesterSubjectList.map(
-        (subject) => {
-          if (subject.fieldIndex === action.payload.fieldIndex) {
-            if (subject.subjectIndex > action.payload.subjectIndex) {
-              return {
-                ...subject,
-                subjectIndex: subject.subjectIndex - 1,
-              };
-            } else return subject;
-          } else return subject;
+      let removedItem = state.viewedSemesterSubjectList.find(subject => (subject.fieldIndex === action.payload.fieldIndex && subject.subjectIndex === action.payload.subjectIndex))
+      if(removedItem.semester){
+        let removedIndex = state.viewedSemesterList[removedItem.semester].findIndex(subject => (subject.fieldIndex === removedItem.fieldIndex && subject.subjectIndex === removedItem.subjectIndex))
+        state.viewedSemesterList[removedItem.semester].splice(removedIndex, 1)
+      }
+      let removedIndex = state.viewedSemesterSubjectList.findIndex(subject => (subject.fieldIndex === removedItem.fieldIndex && subject.subjectIndex === removedItem.subjectIndex))
+      state.viewedSemesterSubjectList.splice(removedIndex, 1)
+      state.viewedSemesterSubjectList = state.viewedSemesterSubjectList.map((subject,index) => {
+        let newSubject = subject
+        if(subject.fieldIndex === action.payload.fieldIndex && newSubject.subjectIndex > action.payload.subjectIndex){
+        
+          if(subject.semester !== null) {
+            let subjectSemesterIndex = state.viewedSemesterList[subject.semester].findIndex(s => s.fieldIndex === subject.fieldIndex && s.subjectIndex === subject.subjectIndex)
+            state.viewedSemesterList[subject.semester][subjectSemesterIndex].subjectIndex = state.viewedSemesterList[subject.semester][subjectSemesterIndex].subjectIndex - 1
+            state.viewedSemesterList[subject.semester][subjectSemesterIndex].semesterSubjectListIndex = index
+          }
+          return {
+            ...subject,
+            subjectIndex: subject.subjectIndex - 1
+          }
         }
-      );
-
-      state.viewedSemesterSubjectList = state.viewedSemesterSubjectList.filter(
-        (subject) =>
-          subject.fieldIndex !== action.payload.fieldIndex ||
-          subject.subjectIndex !== action.payload.subjectIndex
-      );
+        return subject
+      })
+      
     },
 
     addSemesterToViewedSemesterList: (state, action) => {

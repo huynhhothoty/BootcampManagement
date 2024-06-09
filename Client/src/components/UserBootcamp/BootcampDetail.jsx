@@ -40,7 +40,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedSemester, setSelectedSemester] = useState(-1)
-
+    // console.log(viewedAllowcatedFields)
+    // console.log(viewedSemesterSubjectList)
     const [errorMessage, setErrorMessage] = useState({
         bootcampName: false,
         totalCredits: false,

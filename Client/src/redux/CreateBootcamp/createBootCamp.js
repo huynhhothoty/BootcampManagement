@@ -970,6 +970,15 @@ export const createBootcampSlice = createSlice({
 
       state.allowcateFields[oldFieldIndex].subjectList.splice(subjectIndex, 1)
       state.allowcateFields[newFieldIndex].subjectList.push(swapedSubjectData)
+    },
+    swapSubjectInSemester: (state,action) => {
+      const {
+        semesterIndex,
+        beforeIndex,
+        afterIndex
+      } = action.payload
+      const [movedItem] = state.semesterList[semesterIndex].splice(beforeIndex, 1)
+      state.semesterList[semesterIndex].splice(afterIndex, 0, movedItem);
     }
   },
 });
@@ -1011,7 +1020,8 @@ export const {
   loadDraft,
   updateDragData,
   changeUseSmallFieldName,
-  swapSubject
+  swapSubject,
+  swapSubjectInSemester
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

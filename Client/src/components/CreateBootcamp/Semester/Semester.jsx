@@ -1,4 +1,4 @@
-import { SearchOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, WarningOutlined,MenuOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col, Tooltip } from 'antd';
@@ -7,6 +7,7 @@ import {
     deleteSemester,
     editGroup,
     removeSubjectFromSemester,
+    swapSubjectInSemester,
 } from '../../../redux/CreateBootcamp/createBootCamp';
 import {
     MISSING_SUBJECT_IN_SEMESTER,
@@ -17,6 +18,7 @@ import {
     AutogenAllSubjectCode,
     getFirstAutogenSubjectIndex,
 } from '../../../util/AutogenSubjectCode/autogenSubjectCode';
+import { DragSortTable } from '@ant-design/pro-components';
 
 const Semester = ({
     error,
@@ -145,6 +147,21 @@ const Semester = ({
     });
     const columns = [
         {
+            title: 'Sort',
+            dataIndex: 'sort',
+            width:60,
+            className: 'drag-visible',
+        },
+        {
+            title: 'STT',
+            dataIndex: 'key',
+            width: '5%',
+            render: (text,row) => {
+                if(row.isBranch || row.isGroup) return ''
+                else return text + 1
+            }
+        },
+        {
             title: 'Subject Code',
             dataIndex: 'subjectCode',
             key: 'subjectCode',
@@ -263,6 +280,15 @@ const Semester = ({
     ];
     const expandedRowRender = (branch) => {
         const columns = [
+            {
+                title: 'STT',
+                dataIndex: 'key',
+                width: '5%',
+                render: (text,row) => {
+                    if(row.isBranch || row.isGroup) return ''
+                    else return text + 1
+                }
+            },
             {
                 title: 'Subject Code',
                 dataIndex: 'subjectCode',
@@ -549,6 +575,16 @@ const Semester = ({
         return totalCredits;
     };
 
+    const handleDragEnd = (beforeIndex, afterIndex,newDataSource) => {
+        if(newDataSource[beforeIndex].isBranch === false && newDataSource[afterIndex].isGroup === false){
+            dispatch(swapSubjectInSemester({
+                semesterIndex,
+                beforeIndex: newDataSource[afterIndex].key,
+                afterIndex: newDataSource[beforeIndex].key
+            }))
+        }
+    }
+
     return (
         <Card
             hoverable
@@ -601,7 +637,7 @@ const Semester = ({
                 ''
             )}
             <Divider />
-            <Table
+            <DragSortTable
                 expandable={{
                     expandedRowRender,
                     rowExpandable: (record) => record.branchCode !== undefined,
@@ -609,6 +645,18 @@ const Semester = ({
                 columns={columns}
                 dataSource={getSemesterData()}
                 pagination={false}
+                search={false} 
+                dragSortKey="sort"
+                rowKey="key"
+                options={false}
+                onDragSortEnd={handleDragEnd}
+                dragSortHandlerRender={(row) => {
+                    if(row.isBranch || row.isGroup){
+                        return <></>
+                    }else {
+                        return <MenuOutlined className= "dragSortDefaultHandle" style={{ cursor: 'grab', color: '#999' }} />
+                    }
+                }}
             />
         </Card>
     );

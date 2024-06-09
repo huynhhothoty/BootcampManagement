@@ -59,6 +59,7 @@ const SubjectDisplayTable = ({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [groupCredits, setGroupCredits] = useState(0);
     const { viewedAllowcatedFields } = useSelector((store) => store.allowcate);
+    const { viewedSemesterList, viewedSemesterSubjectList } = useSelector(store => store.subject)
     const [electiveGroupModalOpen, setElectiveGroupModalOpen] = useState(false)
     const [electiveGroupModalData, setElectiveGroupModalData] = useState(null)
     const [subjectModalData, setSubjestModalData] = useState({
@@ -279,6 +280,10 @@ const SubjectDisplayTable = ({
                     onClick={async () => {
                         const confirmed = await confirmModal.confirm(deleteConfirmConfig);
                         if (confirmed) {
+                            // viewedSemesterSubjectList.forEach((subject) => {
+                            //     if(subject.fieldIndex === fieldIndex && subject.subjectIndex > row.fieldSubjectListIndex)
+                            //         console.log(subject)
+                            // })
                             dispatch(updateViewedSmallFieldCreditsWithDelete({
                                 fieldIndex,
                                 subjectIndex: row.fieldSubjectListIndex,
