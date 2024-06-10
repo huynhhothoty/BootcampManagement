@@ -1,6 +1,7 @@
 const exceljs = require('exceljs');
 const CustomError = require('../utils/CustomError');
 const Major = require('../models/majorModel');
+const { Types } = require('mongoose');
 
 const defaultFieldArray = ['military education'];
 
@@ -79,7 +80,7 @@ const importBC = async (req, res, next) => {
                     !isDefaultField &&
                     !row.getCell(1).value.toString().toLowerCase().startsWith('total')
                 ) {
-                    const smallField = { ...dataField };
+                    const smallField = { ...dataField, _id: new Types.ObjectId() };
                     tempSmallField = [...tempSmallField, smallField];
                 } else if (isDefaultField) {
                     tempBigField.detail = [...tempSmallField];
@@ -94,17 +95,13 @@ const importBC = async (req, res, next) => {
         let currentSemester = 0;
         let planData = [];
         let tempSubjectList = [];
-        // let tempElectList = bigFieldList.map((ele) => {
-        //     return {
-        //         bigField: ele,
-        //         electSubList: [],
-        //     };
-        // });
+
         let tempElectList = allocateData.map((ele) => {
             return {
                 bigField: ele.name.toLowerCase(),
                 electSubList: [],
                 smallField: ele.detail,
+                isElectiveNameBaseOnBigField: false,
             };
         });
 
@@ -147,7 +144,12 @@ const importBC = async (req, res, next) => {
                         ele.smallField.forEach((smallField) => {
                             const smallFieldName = smallField.name.toLowerCase().trim();
                             if (smallFieldName.includes(elecName)) {
-                                const temp = { ...fieldData, semester: currentSemester };
+                                ele.isElectiveNameBaseOnBigField = true;
+                                const temp = {
+                                    ...fieldData,
+                                    semester: currentSemester,
+                                    allocateChildId: smallField._id,
+                                };
                                 ele.electSubList.push(temp);
                             }
                         });
