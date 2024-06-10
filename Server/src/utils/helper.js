@@ -18,6 +18,7 @@ const filterExcludeObject = (obj, ...excludeField) => {
 };
 
 const checkTypeOfData = (value) => {
+    // String, NaN, Number, Object, Array
     const temp = Object.prototype.toString.call(value);
     const format = temp.slice(0, -1).split(' ')[1];
     if (format === 'Number' && isNaN(value)) return 'NaN';

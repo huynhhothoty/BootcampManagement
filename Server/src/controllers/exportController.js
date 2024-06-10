@@ -454,12 +454,37 @@ const exportFileExcel = async (req, res, next) => {
 
         // get elective subject list from allocation
         const electiveSubjectList = new Array(20).fill([]);
+
         allocation.forEach((ele) => {
+            const isNameBaseSmallField = ele.isElectiveNameBaseOnBigField;
+            const smallFieldIndex = {};
             ele.electiveSubjectList.forEach((sub, index) => {
                 let subject = sub;
+                let subjectName;
+                if (isNameBaseSmallField) {
+                    let currentIndexOfSmallField;
+                    if (smallFieldIndex?.[sub.allocateChildId.toString()] !== undefined) {
+                        smallFieldIndex[sub.allocateChildId.toString()] += 1;
+                        currentIndexOfSmallField =
+                            smallFieldIndex[sub.allocateChildId.toString()];
+                    } else {
+                        currentIndexOfSmallField = 0;
+                        smallFieldIndex[sub.allocateChildId.toString()] = 0;
+                    }
+                    let smallField = ele.detail.find(
+                        (x) => x._id.toString() === sub.allocateChildId.toString()
+                    );
+                    subjectName = `${smallField.name.trim()} Elective ${
+                        currentIndexOfSmallField + 1
+                    }`;
+                } else {
+                    subjectName = `${ele.name.split('(')[0].trim()} Elective ${
+                        index + 1
+                    }`;
+                }
                 subject = {
                     ...subject,
-                    name: `${ele.name.split('(')[0].trim()} Elective ${index + 1}`,
+                    name: subjectName,
                 };
 
                 const temp = electiveSubjectList[sub.semester];

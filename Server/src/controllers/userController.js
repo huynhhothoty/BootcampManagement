@@ -243,19 +243,8 @@ const updatePasswordByAdmin = async (req, res, next) => {
     }
 };
 
-const filterObject = (obj, ...allowField) => {
-    const newObject = {};
-    Object.keys(obj).forEach((ele) => {
-        if (allowField.includes(ele)) newObject[ele] = obj[ele];
-    });
-    return newObject;
-};
-
 const updateInfo = async (req, res, next) => {
     try {
-        if (req.body.password)
-            return next(new CustomError('You can not update password here', 400));
-
         const filterBody = filterExcludeObject(
             req.body,
             'password',
