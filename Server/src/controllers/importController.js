@@ -160,6 +160,8 @@ const importBC = async (req, res, next) => {
             }
         });
 
+        console.log(tempElectList);
+
         // read subject list
         let subjectData = [];
         let tempAlloSubjectList = [];
@@ -221,7 +223,11 @@ const importBC = async (req, res, next) => {
             let returnEle = ele;
             tempElectList.forEach((ele2) => {
                 if (ele2.bigField.trim().includes(ele.name.toLowerCase().trim())) {
-                    returnEle = { ...ele, electiveSubjectList: ele2.electSubList };
+                    returnEle = {
+                        ...ele,
+                        electiveSubjectList: ele2.electSubList,
+                        isElectiveNameBaseOnBigField: ele2.isElectiveNameBaseOnBigField,
+                    };
                 }
             });
             return returnEle;
