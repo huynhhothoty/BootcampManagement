@@ -3,17 +3,38 @@ import { Button, Drawer, Space } from 'antd';
 import CheckingSemesterList from './CheckingSemesterList';
 import { ProCard } from '@ant-design/pro-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { initCheckSubjectList } from '../../redux/subject/subject';
+import { initCheckElectiveSubjectList, initCheckSubjectList } from '../../redux/subject/subject';
 import { updateAllowcate } from '../../redux/allocate/allowcate';
 import { getBootcampsForTrackingByUserID, updateBootcamp } from '../../redux/bootcamp/bootcamp';
 import { updateLoading } from '../../redux/loading/Loading';
+import CheckingSubjectModal from './CheckingSubjectModal';
 
 const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
     const { viewedMajor } = useSelector(store => store.major)
-    const { checkSubjectList } = useSelector(store => store.subject)
+    const { checkSubjectList, checkElecttivSubjectList } = useSelector(store => store.subject)
     const [subjectData, setSubjectData] = useState([])
     const [loading,setLoading] = useState(false)
+
+    const [openElectiveTrackingModal,setOpenElectiveTrackingModal] = useState(false)
+    const [electiveTrackingModalData,setElectiveTrackingModalData] = useState(null)
+
     const dispatch = useDispatch()
+
+    const handleOpenElectiveTrackingModal = (fieldIndex, semesterIndex, groupName) => {
+        const { semesterList, allocation } = data
+        setElectiveTrackingModalData({
+            fieldIndex,
+            semesterIndex,
+            field: allocation.detail[fieldIndex],
+            groupName
+        })
+        setOpenElectiveTrackingModal(true)
+    }
+    const handleCloseElectiveTrackingModal = () => {
+        setElectiveTrackingModalData(null)
+        setOpenElectiveTrackingModal(false)
+    }
+
     const generateData = () => {
         const { semesterList, allocation } = data
         let tempCheckSubjectList = []
@@ -68,7 +89,22 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                 field.electiveSubjectList.forEach((group, gIndex) => {
                     if (group.semester === index) {
                         let newGroup = {
-                            name: `${field.name} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                   
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    let smallFieldData = field.detail.find(sfield => sfield._id === group.allocateChildId)
+                                    return `${smallFieldData.name} ${keyIndex + 1}`
+                                }
+                                return `${field.name} ${gIndex + 1}`
+                            })(),
                             isCompulsory: false,
                             credit: group.credit,
                             isBranch: false,
@@ -110,7 +146,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
 
 
             return <ProCard title={<h2>{`Semester ${index + 1}`}</h2>} key={index} collapsible>
-                <CheckingSemesterList subjectList={subjectList} checkedKeyList={checkedKeyList} checkedRowList={checkedRowList}/>
+                <CheckingSemesterList semester={index} subjectList={subjectList} checkedKeyList={checkedKeyList} checkedRowList={checkedRowList} handleOpenElectiveTrackingModal={handleOpenElectiveTrackingModal}/>
             </ProCard>
         })
         // dispatch(initCheckSubjectList(tempCheckSubjectList))
@@ -120,7 +156,26 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
     const generateTrackingDataData = () => {
         const { semesterList, allocation } = data
         let tempCheckSubjectList = []
-     
+        let tempAllElectiveSubject = []
+        allocation.detail.forEach((field) => {
+            let tempCheckElectiveSubjectList = []
+            tempCheckElectiveSubjectList = field.subjectList.filter(subject => subject.isCompulsory === false)
+            tempCheckElectiveSubjectList = tempCheckElectiveSubjectList.map((subject) => {
+                let semesterCheck = null
+                semesterList.forEach((semester,semesterIndex) => {
+                    if(semester.trackingList.includes(subject._id)){
+                        semesterCheck = semesterIndex
+                    }
+                })
+                return {
+                    ...subject,
+                    key: subject._id,
+                    semester: semesterCheck,
+                    oldSemester: semesterCheck
+                }
+            })
+            tempAllElectiveSubject.push(tempCheckElectiveSubjectList)
+        })
         semesterList.forEach((semester, index) => {
             let checkedKeyList = []
             let checkedRowList = []
@@ -181,10 +236,12 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                                         }
                                     })
                                     smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                   
                                     let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
-                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                    let smallFieldData = field.detail.find(sfield => sfield._id === group.allocateChildId)
+                                    return `${smallFieldData.name} ${keyIndex + 1}`
                                 }
-                                return `${field.fieldName} ${gIndex + 1}`
+                                return `${field.name} ${gIndex + 1}`
                             })(),
                             isCompulsory: false,
                             credit: group.credit,
@@ -221,7 +278,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
 
         })
         dispatch(initCheckSubjectList(tempCheckSubjectList))
-      
+        dispatch(initCheckElectiveSubjectList(tempAllElectiveSubject))
     }
     useEffect(() => {
         if(open){
@@ -239,7 +296,6 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
         newAllowcation = JSON.parse(newAllowcation)
         let newSemesterList =  JSON.stringify(semesterList)
         newSemesterList =  JSON.parse(newSemesterList)
-       
         checkSubjectList.forEach((subject) => {
             if(subject.isBranch === false) {
                 
@@ -260,6 +316,23 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
             }
         })
 
+        checkElecttivSubjectList.forEach((field) => {
+            field.forEach(subject => {
+                if(subject.oldSemester !== null){
+                    if(subject.semester === null){
+                        newSemesterList[subject.oldSemester].trackingList = newSemesterList[subject.oldSemester].trackingList.filter(subjectId => subjectId !== subject._id)
+                    }else if(subject.semester !== null && subject.semester !== subject.oldSemester){
+                        newSemesterList[subject.oldSemester].trackingList = newSemesterList[subject.oldSemester].trackingList.filter(subjectId => subjectId !== subject._id)
+                        newSemesterList[subject.semester].trackingList.push(subject._id)
+                    }
+                }else {
+                    if(subject.semester !== null){
+                        newSemesterList[subject.semester].trackingList.push(subject._id)
+                    }
+                }
+            })
+        })
+
         const fieldData = {
             "detail": newAllowcation.detail
           }
@@ -274,6 +347,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
         setLoading(false)
         dispatch(updateLoading(false))
     }
+
+    
+
     return (
         <Drawer width={'50%'} title="Basic Drawer" placement="right" onClose={onClose} open={open}  extra={
             <Space>
@@ -286,6 +362,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
               </Button>
             </Space>
           }>
+            <CheckingSubjectModal open={openElectiveTrackingModal} modalData={electiveTrackingModalData} handleCancel={handleCloseElectiveTrackingModal}/>
             {subjectData}
             {/* <CheckingSemesterList/> */}
         </Drawer>

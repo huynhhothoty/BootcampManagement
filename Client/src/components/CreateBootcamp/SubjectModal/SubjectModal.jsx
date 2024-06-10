@@ -429,8 +429,8 @@ const SubjectModal = ({
                                 >
                                     Cancel
                                 </Button>
-                                <Button type='primary' htmlType='submit'>
-                                    {subjectModalData.type === 'edit' ? 'Save' : 'Add'}
+                                <Button type='primary' htmlType='submit' >
+                                    {subjectModalData.type === 'edit' ? 'Edit' : 'Add'}
                                 </Button>
                             </Form.Item>
                         </Col>

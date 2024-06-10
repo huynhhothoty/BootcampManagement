@@ -12,7 +12,8 @@ const initialState = {
   viewedSubjectList: [],
   viewedSemesterList: [],
   viewedSemesterSubjectList: [],
-  checkSubjectList: []
+  checkSubjectList: [],
+  checkElecttivSubjectList: []
 };
 export const getAllSubject = createAsyncThunk(
   "subject/getAllSubject",
@@ -254,6 +255,12 @@ export const subjectSlice = createSlice({
     },
     updateSubjectCheckStatus: (state, action) => {
       state.checkSubjectList[action.payload.subjectIndex].check = action.payload.check
+    },
+    initCheckElectiveSubjectList: (state,action)=> {
+      state.checkElecttivSubjectList = action.payload
+    },
+    updateCheckElectiveSubjectList: (state,action)=> {
+      state.checkElecttivSubjectList = action.payload
     }
   },
 });
@@ -273,6 +280,8 @@ export const {
   deleteSubjectFromViewedSemster,
   dragSortSemester,
   initCheckSubjectList,
-  updateSubjectCheckStatus
+  updateSubjectCheckStatus,
+  initCheckElectiveSubjectList,
+  updateCheckElectiveSubjectList
 } = subjectSlice.actions;
 export default subjectSlice.reducer;

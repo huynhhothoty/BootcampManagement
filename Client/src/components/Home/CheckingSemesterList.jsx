@@ -1,53 +1,65 @@
 import React, { useEffect, useState } from 'react';
-import { Space, Switch, Table, Tag } from 'antd';
+import { Button, Space, Switch, Table, Tag } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSubjectCheckStatus } from '../../redux/subject/subject';
-const columns = [
-    {
-        title: 'Subject Code',
-        dataIndex: 'subjectCode',
-        key: 'subjectCode',
-        width: "35%"
-    },
-    {
-        title: 'Subject Name',
-        dataIndex: 'name',
-        key: 'name',
-        width: "45%",
-        render: (text, row) => {
-            if (row.isBranch) {
-                return <span style={{ fontWeight: "bold" }}>{text}</span>
-            } else return text
-        }
-    },
-    {
-        title: 'Type',
-        dataIndex: 'isCompulsory',
-        key: 'isCompulsory',
-        width: '13%',
-        render: (value, row) => {
-            if (row.isBranch) return <></>
-            return <Tag color={value ? "volcano" : "green"}>{value ? "Compulsory" : "Elective"}</Tag>
-        }
-    },
-    {
-        title: 'Credtis',
-        dataIndex: 'credit',
-        key: 'address',
-        width: '7%',
-    },
-];
+
 
 
 // rowSelection objects indicates the need for row selection
 
 
-const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList }) => {
+const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList, handleOpenElectiveTrackingModal, semester }) => {
     const dispatch = useDispatch()
 
     const [selectedSubjectRows, setSelectedSubjectRows] = useState([])
     const [selectedRowKeys,setSelectedRowKeys] = useState([])
     const { checkSubjectList } = useSelector(store => store.subject)
+
+    const columns = [
+        {
+            title: 'Subject Code',
+            dataIndex: 'subjectCode',
+            key: 'subjectCode',
+            width: "35%"
+        },
+        {
+            title: 'Subject Name',
+            dataIndex: 'name',
+            key: 'name',
+            width: "45%",
+            render: (text, row) => {
+                if (row.isBranch) {
+                    return <span style={{ fontWeight: "bold" }}>{text}</span>
+                } else return text
+            }
+        },
+        {
+            title: 'Type',
+            dataIndex: 'isCompulsory',
+            key: 'isCompulsory',
+            width: '13%',
+            render: (value, row) => {
+                if (row.isBranch) return <></>
+                return <Tag color={value ? "volcano" : "green"}>{value ? "Compulsory" : "Elective"}</Tag>
+            }
+        },
+        {
+            title: 'Credtis',
+            dataIndex: 'credit',
+            key: 'address',
+            width: '7%',
+        },
+        {
+            title: '',
+            width: '7%',
+            render: (_,row) => {
+                if(row.isGroup)
+                return <Button onClick={() => handleOpenElectiveTrackingModal(row.fieldIndex, semester, row.name)}>Checked Subjects</Button>
+                else return <></>
+            }
+        },
+    ];
+
     const rowSelection = {
         onChange: (selectedRowKeys, selectedRows) => {
       
