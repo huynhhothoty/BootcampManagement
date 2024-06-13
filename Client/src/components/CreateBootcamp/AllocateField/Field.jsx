@@ -66,18 +66,18 @@ const Field = ({ openContentModal, fieldData, bigFieldIndex, errorMess, errorDat
         >
             <Row>
                 <Col span={6}>
-                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldUpdateName} disabled={isLastField} />
-                    {errorData === undefined ? "" : (errorData.missFieldName && fieldData.fieldName === "") ? <span style={{ color: "red" }}>{MISSING_FIELD_NAME}</span> : ""}
+                    <Input status={errorData === undefined ? "" : (errorData.missFieldName && fieldData?.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData?.fieldName} onChange={handleFieldUpdateName} disabled={isLastField} />
+                    {errorData === undefined ? "" : (errorData.missFieldName && fieldData?.fieldName === "") ? <span style={{ color: "red" }}>{MISSING_FIELD_NAME}</span> : ""}
 
                 </Col>
                 <Col span={12} style={{ display: "flex", justifyContent: "space-evenly" }}>
                     <div>
                         <span style={{ marginRight: 10 }}>Compulsory Credits</span>
-                        <InputNumber placeholder="Compulsory Credits" value={fieldData.compulsoryCredits} disabled />
+                        <InputNumber placeholder="Compulsory Credits" value={fieldData?.compulsoryCredits} disabled />
                     </div>
                     <div>
                         <span style={{ marginRight: 10 }}>Elective Credits</span>
-                        <InputNumber placeholder="Elective Credits" value={fieldData.electiveCredits} disabled />
+                        <InputNumber placeholder="Elective Credits" value={fieldData?.electiveCredits} disabled />
                     </div>
                 </Col>
                 <Col span={6} style={{ display: "flex", justifyContent: "flex-end" }}>

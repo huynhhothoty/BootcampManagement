@@ -16,8 +16,7 @@ const ImportFromExcel = ({importFunc,style}) => {
         onChange(info) {
           if (info.file.status === 'done') {
             message.success(`${info.file.name} file uploaded successfully`);
-            console.log(info.file.response.data)
-            importFunc(info.file.response.data)
+            importFunc(info.file.response.allocateData)
           } else if (info.file.status === 'error') {
             message.error(`${info.file.name} file upload failed.`);
           }

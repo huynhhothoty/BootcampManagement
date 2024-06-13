@@ -1,4 +1,4 @@
-import { SearchOutlined, DeleteOutlined, EditOutlined,SwapOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, EditOutlined, SwapOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import {
@@ -270,7 +270,7 @@ const ContentOfField = ({
             width: '12%',
             filters: field.smallField.map((field, index) => {
                 return {
-                    text: field.fieldName,
+                    text: field?.fieldName,
                     value: index,
                 }
             }),
@@ -295,11 +295,12 @@ const ContentOfField = ({
         {
             title: 'Action',
             width: 200,
-            align:'center',
+            align: 'center',
             render: (_, data) => (
 
-                <div style={{display:'flex',justifyContent:'space-between'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Button
+                        disabled={isLastField}
                         type='default'
                         onClick={() => {
                             setSubjestModalData({
@@ -318,14 +319,16 @@ const ContentOfField = ({
                         <EditOutlined />
                     </Button>
                     <Button
+                     disabled={isLastField}
                         type='default'
                         onClick={() => {
-                            handleOpenSwapModal({fieldIndex: index, subjectData: data})
+                            handleOpenSwapModal({ fieldIndex: index, subjectData: data })
                         }}
                     >
                         <SwapOutlined />
                     </Button>
                     <Button
+                     disabled={isLastField}
                         type='default'
                         danger
                         onClick={async () => {
@@ -376,9 +379,9 @@ const ContentOfField = ({
                     })
                     smallFieldGroupList = smallFieldGroupList.filter(group => group.allocateChildId === record.allocateChildId)
                     let keyIndex = smallFieldGroupList.findIndex(group => group.index === record.index)
-                    return `${field.smallField[record.allocateChildId].fieldName} ${keyIndex + 1}`
+                    return `${field.smallField[record.allocateChildId]?.fieldName} ${keyIndex + 1}`
                 }
-                return `${field.fieldName} ${record.key + 1}`;
+                return `${field?.fieldName} ${record.key + 1}`;
             },
             width: '55%',
         },
@@ -400,7 +403,7 @@ const ContentOfField = ({
             render: (_, row) => [
                 <a key='edit' onClick={() => handleOpenElectiveGroupModal({
                     ...row,
-                    courseName: `${field.fieldName} ${row.index + 1}`
+                    courseName: `${field?.fieldName} ${row.index + 1}`
                 })}>Edit</a>
                 ,
                 <a
@@ -457,7 +460,7 @@ const ContentOfField = ({
         setSubjestModalData({
             type: 'add',
             fieldIndex: index,
-            modalName: `Add Subject to "${field.fieldName}" field`,
+            modalName: `Add Subject to "${field?.fieldName}" field`,
             sujectType: type,
             subjectData: null,
             isCreateBootcamp: true,
@@ -536,7 +539,7 @@ const ContentOfField = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                                 <h2>
-                                    {field.fieldName} Course List - Total Group Credits:{' '}
+                                    {field?.fieldName} Course List - Total Group Credits:{' '}
                                     {groupCreditsLabel()}
                                 </h2>
                                 <h4 style={{ color: '#1677ff' }}>
@@ -579,7 +582,7 @@ const ContentOfField = ({
                         <Col span={23}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <h2>
-                                    {field.fieldName} Subject List - Total Subject Credits:{' '}
+                                    {field?.fieldName} Subject List - Total Subject Credits:{' '}
                                     {creditsLabel()}
                                 </h2>
                                 <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>
@@ -605,7 +608,7 @@ const ContentOfField = ({
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <h2>
-                                {field.fieldName} Subject List - Total Subject Credits:{' '}
+                                {field?.fieldName} Subject List - Total Subject Credits:{' '}
                                 {creditsLabel()}
                             </h2>
                             <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>

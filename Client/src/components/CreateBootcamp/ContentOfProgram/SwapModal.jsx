@@ -54,7 +54,7 @@ const SwapModal = ({open, handleClose, modalData}) => {
                         if(index < allowcateFields.length - 1 && index !== modalData?.fieldIndex){
                             valueList.push({
                                 value:index,
-                                label: field.fieldName
+                                label: field?.fieldName
                             })
                         }
                     })

@@ -45,7 +45,7 @@ export const validateBootcampData = (
         smallFieldError: [],
       };
       if (index !== allowcateFields.length - 1) {
-        if (field.fieldName === "") {
+        if (field?.fieldName === "") {
           error.missFieldName = true;
           !errorFieldIndex.includes(index) && errorFieldIndex.push(index);
         }

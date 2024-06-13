@@ -259,7 +259,7 @@ const AddSubjectToSemesterModal = ({
                         tempSubjectList.push({
                             ...group,
                             key: `${fIndex}${gIndex}group`,
-                            name: `${field.fieldName} ${gIndex + 1}`,
+                            name: `${field?.fieldName} ${gIndex + 1}`,
                             isGroup: true,
                             groupIndex: gIndex,
                             fieldIndex: fIndex,
@@ -290,7 +290,7 @@ const AddSubjectToSemesterModal = ({
                         tempSubjectList.push({
                             ...group,
                             key: `${fIndex}${gIndex}group`,
-                            name: `${field.fieldName} ${gIndex + 1}`,
+                            name: `${field?.fieldName} ${gIndex + 1}`,
                             isGroup: true,
                             groupIndex: gIndex,
                             fieldIndex: fIndex,

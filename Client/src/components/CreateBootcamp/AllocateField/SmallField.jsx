@@ -40,21 +40,21 @@ const SmallField = ({fieldData,bigFieldIndex,index, isError, confirmModal,isLast
 
         <Row>
             <Col span={8}>
-                <Input status={(isError && fieldData.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData.fieldName} onChange={handleFieldChange} disabled={isLastField}/>
-                { (isError && fieldData.fieldName === "") ? <span style={{color:"red"}}>{MISSING_FIELD_NAME}</span> : ""}
+                <Input status={(isError && fieldData?.fieldName === "") ? "error" : ""} placeholder="Field Name" value={fieldData?.fieldName} onChange={handleFieldChange} disabled={isLastField}/>
+                { (isError && fieldData?.fieldName === "") ? <span style={{color:"red"}}>{MISSING_FIELD_NAME}</span> : ""}
             </Col>
             <Col span={16} style={{display:"flex", justifyContent:"space-evenly"}}>
                 <div style={{width:"20%",display:"flex", justifyContent:"center"}}>
                  
                     <InputNumber min={0} 
                     // max={20} 
-                    placeholder="Compulsory Credits" value={fieldData.compulsoryCredits}  disabled/>
+                    placeholder="Compulsory Credits" value={fieldData?.compulsoryCredits}  disabled/>
                 </div>
                 <div style={{width:"20%",display:"flex", justifyContent:"center"}}>
                     
                     <InputNumber  min={0} 
                     // max={20} 
-                    placeholder="Elective Credits" value={fieldData.electiveCredits}   disabled/>
+                    placeholder="Elective Credits" value={fieldData?.electiveCredits}   disabled/>
                 </div>
                 <div style={{width:"10%"}}>
                     <Button danger onClick={async () => {

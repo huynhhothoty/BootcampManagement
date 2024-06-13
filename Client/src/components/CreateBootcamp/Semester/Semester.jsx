@@ -413,7 +413,7 @@ const Semester = ({
                                                 let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
                                                 return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
                                             }
-                                            return `${field.fieldName} ${gIndex + 1}`
+                                            return `${field?.fieldName} ${gIndex + 1}`
                                         })(),
                                         isCompulsory: false,
                                         credits: group.credit,
@@ -432,7 +432,7 @@ const Semester = ({
                             if (group.branchMajor === branch._id) {
                                 if (group.semester === semesterIndex) {
                                     data.unshift({
-                                        name: `${field.fieldName} ${gIndex + 1}`,
+                                        name: `${field?.fieldName} ${gIndex + 1}`,
                                         isCompulsory: false,
                                         credits: group.credit,
                                         isBranch: false,
@@ -518,7 +518,7 @@ const Semester = ({
                                     let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
                                     return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
                                 }
-                                return `${field.fieldName} ${gIndex + 1}`
+                                return `${field?.fieldName} ${gIndex + 1}`
                             })(),
                             isCompulsory: false,
                             credits: group.credit,

@@ -480,7 +480,11 @@ export const createBootcampSlice = createSlice({
       });
     },
     editSubject: (state, action) => {
-      if (action.payload.subject.isCompulsory) {
+      if (state.allowcateFields[action.payload.fieldIndex].subjectList[
+        action.payload.subjectIndex
+      ].isCompulsory && state.allowcateFields[action.payload.fieldIndex].subjectList[
+        action.payload.subjectIndex
+      ].allocateChildId !== null) {
         state.completeTotalCredits -=
           state.allowcateFields[action.payload.fieldIndex].subjectList[
             action.payload.subjectIndex
@@ -712,10 +716,15 @@ export const createBootcampSlice = createSlice({
       state.completeTotalCredits += action.payload.groupData.credit;
     },
     editGroup: (state, action) => {
-      state.completeTotalCredits -=
+      if(state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].allocateChildId !== null){
+        state.completeTotalCredits -=
         state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
           action.payload.groupIndex
         ].credit;
+      }
+      
       state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
         action.payload.groupIndex
       ] = action.payload.groupData;
@@ -812,14 +821,19 @@ export const createBootcampSlice = createSlice({
     },
     updateSmallFieldElectiveCredits: (state, action) => {
       if (action.payload.groupIndex !== null) {
-        state.allowcateFields[action.payload.fieldIndex].smallField[
-          state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
-            action.payload.groupIndex
-          ].allocateChildId
-        ].electiveCredits -=
-          state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
-            action.payload.groupIndex
-          ].credit;
+        if(state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+          action.payload.groupIndex
+        ].allocateChildId !== null){
+          state.allowcateFields[action.payload.fieldIndex].smallField[
+            state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+              action.payload.groupIndex
+            ].allocateChildId
+          ].electiveCredits -=
+            state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+              action.payload.groupIndex
+            ].credit;
+        }
+      
       }
       state.allowcateFields[action.payload.fieldIndex].smallField[
         action.payload.groupData.allocateChildId

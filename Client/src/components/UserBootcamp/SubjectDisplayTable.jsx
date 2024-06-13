@@ -330,7 +330,7 @@ const SubjectDisplayTable = ({
                     })
                     smallFieldGroupList = smallFieldGroupList.filter(group => group.allocateChildId === record.allocateChildId)
                     let keyIndex = smallFieldGroupList.findIndex(group => group.index === record.index)
-                    return `${field.smallField[record.allocateChildId].fieldName} ${keyIndex + 1}`
+                    return `${field.smallField[record.allocateChildId]?.fieldName} ${keyIndex + 1}`
                 }
                 return `${fieldName} ${record.key + 1}`;
             },
@@ -355,7 +355,7 @@ const SubjectDisplayTable = ({
 
                 <a key='edit' onClick={() => { handleOpenElectiveGroupModal({
                     ...row,
-                    courseName: `${field.fieldName} ${row.index + 1}`
+                    courseName: `${field?.fieldName} ${row.index + 1}`
                 }) }}>
                     Edit
                 </a>

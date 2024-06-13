@@ -52,7 +52,7 @@ const CourseSubjectViewOnly = ({isCompulsory,compareData,isMain}) => {
             let tempSubjectList = []
             tempSubjectList = field.subjectList.filter((subject) => subject.isCompulsory === isCompulsory)
             return (<div style={{marginBottom: 25}}>
-                <span style={{fontWeight:"bold", fontSize:20}}>{index + 1}. {field.fieldName}</span>
+                <span style={{fontWeight:"bold", fontSize:20}}>{index + 1}. {field?.fieldName}</span>
                 <Table style={{marginTop:10}} columns={columns} dataSource={tempSubjectList} bordered pagination={false}/>
             </div>)
         })

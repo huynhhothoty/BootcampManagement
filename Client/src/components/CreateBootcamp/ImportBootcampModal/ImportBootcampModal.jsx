@@ -49,32 +49,40 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
   };
   const handleImport = async (data) => {
     dispatch(updateLoading(true))
+    console.log(data)
     if (data.type === 'bootcamp') {
       setIsModalOpen(false);
       let bootcampName = ''
       let branchMajorSemester = data.branchMajorSemester
       let totalCredits = data.totalCredit
-      let completeTotalCredits = data.totalCredit
+      let completeTotalCredits = 0
       let allowcateFields = []
       let semesterSubjectList = []
       let semesterList = [[]]
       let tempSubjectList = []
       allowcateFields = data.allocation.detail.map((field, index) => {
+        let electiveCredits = 0
         return {
-          compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
+          compulsoryCredits: index === data.allocation.detail.length - 1 ? field.detail.reduce((accumulator, currentValue) => {
             return accumulator + currentValue.compulsoryCredit;
-          }, 0),
-          electiveCredits: field.detail.reduce((accumulator, currentValue) => {
-            return accumulator + currentValue.OptionalCredit;
-          }, 0),
+          }, 0) : 0,
+          // electiveCredits: ,
           fieldName: field.name,
           smallField: field.detail.map((smallField) => {
-            return {
-              compulsoryCredits: smallField.compulsoryCredit,
-              electiveCredits: smallField.OptionalCredit,
+            let tempSmallField = {
+              compulsoryCredits: index === data.allocation.detail.length - 1 ? smallField.compulsoryCredit : 0,
+              electiveCredits: field.electiveSubjectList.reduce((acc, group) => {
+                if(group.allocateChildId && group.allocateChildId === smallField._id){
+                  return acc + group.credit
+                }else return acc
+              }, 0),
               fieldName: smallField.name
             }
+            electiveCredits += tempSmallField.electiveCredits
+            completeTotalCredits += tempSmallField.electiveCredits
+            return tempSmallField
           }),
+          electiveCredits,
           subjectList: field.subjectList.map((subject, sindex) => {
             semesterSubjectList.push({
               fieldIndex: index,
@@ -90,20 +98,29 @@ const ImportBootcampModal = ({ isModalOpen, setIsModalOpen, setErrorMessage }) =
               isCompulsory: subject.isCompulsory,
               name: subject.name,
               subjectCode: subject.subjectCode,
-              branchMajor: subject.branchMajor !== undefined ? subject.branchMajor !== null ? subject.branchMajor : null : null,
+              branchMajor: null,
               shortFormName: "",
               isAutoCreateCode: false,
               departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
+              allocateChildId: null,
               _id: null
             }
             tempSubjectList.push(subject)
             return a
           }),
-          electiveSubjectList: field.electiveSubjectList,
+          electiveSubjectList: field.electiveSubjectList.map((group) => {
+            let newGroupData = { ...group }
+            if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
+              newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
+            }else {
+              newGroupData['allocateChildId'] = null
+            }
+            return newGroupData
+          }),
+
           isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
         }
       })
-
       semesterList = data.detail.map((semester, index) => {
         let newSubjectList = []
         semester.subjectList.forEach((subject) => {

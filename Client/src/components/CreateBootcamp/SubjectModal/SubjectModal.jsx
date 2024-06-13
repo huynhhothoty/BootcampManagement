@@ -265,7 +265,7 @@ const SubjectModal = ({
             setFieldChildList(subjectModalData.fieldData.smallField.map((sfield, sfieldIndex) => {
                 return {
                     value: sfieldIndex,
-                    label: sfield.fieldName
+                    label: sfield?.fieldName
                 }
             }))
         }

@@ -137,10 +137,10 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           const newFieldData = {
             "detail": allowcateFields.map((field) => {
               return {
-                "name": field.fieldName,
+                "name": field?.fieldName,
                 "detail": field.smallField.map((sfield) => {
                   return {
-                    "name": sfield.fieldName,
+                    "name": sfield?.fieldName,
                     "compulsoryCredit": sfield.compulsoryCredits,
                     "OptionalCredit": sfield.electiveCredits
                   }
@@ -156,10 +156,10 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           const newFieldData = {
             "detail": allowcateFields.map((field) => {
               return {
-                "name": field.fieldName,
+                "name": field?.fieldName,
                 "detail": field.smallField.map((sfield) => {
                   return {
-                    "name": sfield.fieldName,
+                    "name": sfield?.fieldName,
                     "compulsoryCredit": sfield.compulsoryCredits,
                     "OptionalCredit": sfield.electiveCredits
                   }

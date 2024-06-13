@@ -102,7 +102,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
+                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
             } else if (type === "elective") {
                 const subjectList = []
                 let newFirstIndex = firstIndexSubjectCode
@@ -120,7 +120,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable field={field}  addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+                return <SubjectDisplayTable field={field}  addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
             }
         })
     }
@@ -156,7 +156,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                     let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
                                     return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
                                 }
-                                return `${field.fieldName} ${gIndex + 1}`
+                                return `${field?.fieldName} ${gIndex + 1}`
                             })(),
                             isCompulsory: false,
                             credits: group.credit,
@@ -201,10 +201,10 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 const newFieldData = {
                     "detail": viewedAllowcatedFields.map((field) => {
                       return {
-                        "name": field.fieldName,
+                        "name": field?.fieldName,
                         "detail": field.smallField.map((sfield) => {
                           return {
-                            "name": sfield.fieldName,
+                            "name": sfield?.fieldName,
                             "compulsoryCredit": sfield.compulsoryCredits,
                             "OptionalCredit": sfield.electiveCredits
                           }

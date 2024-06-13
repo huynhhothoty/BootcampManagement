@@ -9,7 +9,7 @@ const ElectiveGroupModal = ({open, handleCancel,fieldData,modalData,handleAddGro
         if(fieldData){
             setChildList(fieldData.smallField.map((sfield,sIndex) => {
                 return {
-                    label: sfield.fieldName,
+                    label: sfield?.fieldName,
                     value: sIndex
                 }
             }))
@@ -44,7 +44,7 @@ const ElectiveGroupModal = ({open, handleCancel,fieldData,modalData,handleAddGro
             formRef.current?.setFieldValue('allocateChildId', modalData.allocateChildId)
         }else {
             if(fieldData){
-                formRef.current?.setFieldValue('courseName', `${fieldData.fieldName} ${fieldData.electiveSubjectList.length + 1}`)
+                formRef.current?.setFieldValue('courseName', `${fieldData?.fieldName} ${fieldData.electiveSubjectList.length + 1}`)
             }
         }
     },[fieldData,modalData, open])

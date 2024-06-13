@@ -66,7 +66,7 @@ export const allowcateSlice = createSlice({
 
         state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
           action.payload.smallFieldIndex
-        ].fieldName = action.payload.fieldData.fieldName
+        ].fieldName = action.payload.fieldData?.fieldName
 
       state.viewedAllowcatedFields[action.payload.fieldIndex].smallField[
         action.payload.smallFieldIndex

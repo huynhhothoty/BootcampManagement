@@ -120,7 +120,7 @@ const SemesterViewOnly = ({compareData, isMain}) => {
                                   let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
                                   return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
                               }
-                              return `${field.fieldName} ${gIndex + 1}`
+                              return `${field?.fieldName} ${gIndex + 1}`
                           })(),
                             isCompulsory: false,
                             credits: group.credit,
