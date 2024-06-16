@@ -212,7 +212,7 @@ const SemesterTableDisplay = ({
                                     if (confirmed) {
                                         if (row.isGroup) {
                                             const groupData = {
-                                                credit: row.credits,
+                                                ...row.trueData,
                                                 semester: null,
                                                 branchMajor: null,
                                             };
@@ -337,7 +337,7 @@ const SemesterTableDisplay = ({
                                 if (confirmed) {
                                     if (row.isGroup) {
                                         const groupData = {
-                                            credit: row.credits,
+                                            ...row.trueData,
                                             semester: null,
                                             branchMajor: null,
                                         };
@@ -420,8 +420,17 @@ const SemesterTableDisplay = ({
                 pagination={false}
                 columns={columns}
                 dataSource={subjectList.filter(
-                    (subject) =>
-                        subject.branchMajor === undefined || subject.branchMajor === null
+                    (subject) => {
+                        // if(subject.semester === 5) console.log(subject)
+                        if(subject.branchMajor === undefined || subject.branchMajor === null){
+                            return subject
+                        }else if(typeof subject.branchMajor === 'string'){
+                            if(subject.isBranchNotActive){
+                                return subject
+                            }
+                        }
+                    }
+                       
                 )}
             />
         </ProCard>

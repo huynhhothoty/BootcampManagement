@@ -65,7 +65,7 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
                 <span style={{ color: (countTotalAll() > totalCredits || countTotalAll() < totalCredits) ? "red" : "#5cb85c" }}> {countTotalAll()} \ {totalCredits} </span>
               </span>
               <span style={{ marginRight: 50 }}>
-                Total Compolsory Credits: {countTotalCompulsoryCredits()}
+                Total Compulsory Credits: {countTotalCompulsoryCredits()}
               </span>
               <span>
                 Total Elective Credits: {countTotalElectiveCredits()}

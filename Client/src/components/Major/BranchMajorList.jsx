@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SearchOutlined, EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Space, Table } from 'antd';
+import { Button, Input, Space, Table, Tag } from 'antd';
 import Highlighter from 'react-highlight-words';
 import BranchMajorDetailModal from './BranchMajorDetailModal';
+import { deactiveDepartmentConfirmConfig } from '../../util/ConfirmModal/confirmConfig';
 
-const BranchMajorList = ({ branchList,handleChange }) => {
+const BranchMajorList = ({ branchList,handleChange, confirmModal }) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -137,7 +138,9 @@ const BranchMajorList = ({ branchList,handleChange }) => {
         setModalOpen(false)
     }
 
-   
+   const handleChangeStatus = (status,rowData) => {
+        handleChange({...rowData,isActive: status}, 'edit')
+   }
 
     const columns = [
         {
@@ -155,6 +158,28 @@ const BranchMajorList = ({ branchList,handleChange }) => {
             ...getColumnSearchProps('code'),
         },
         {
+            title: 'Status',
+            dataIndex: 'isActive',
+            key: 'isActive',
+            width: '10%',
+            align: 'center',
+            filters: [
+                { text: 'Active', value: true },
+                { text: 'Inactive', value: false },
+            ],
+            filterSearch: true,
+            onFilter: (value, record) => record.isActive === value,
+            render: (_, row) => (
+                <>
+                    {row?.isActive ? (
+                        <Tag color={'green'}>Active</Tag>
+                    ) : (
+                        <Tag color={'volcano'}>Inactive</Tag>
+                    )}
+                </>
+            ),
+        },
+        {
             title: 'Action',
             key: 'action',
             width: '13%',
@@ -162,7 +187,18 @@ const BranchMajorList = ({ branchList,handleChange }) => {
             render: (_, rows, index) => {
                 return (<div style={{ display: 'flex', justifyContent: "center", gap: 10 }}>
                     <Button icon={<EditOutlined />} onClick={() => handleOpenModal({...rows,index})}/>
-                    <Button danger icon={<DeleteOutlined />} />
+                    {rows.isActive ? 
+                    <Button danger onClick={async () => {
+                        const confirmed = await confirmModal.confirm(
+                            deactiveDepartmentConfirmConfig
+                        );
+                        if (confirmed) {
+                            handleChangeStatus(false,{...rows,index})
+                        }
+                    }}> Deactivate</Button> :
+                    <Button onClick={() => handleChangeStatus(true,{...rows,index})}> Activate</Button>
+                }
+                    
 
 
                 </div>)

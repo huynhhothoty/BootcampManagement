@@ -526,7 +526,7 @@ const SubjectDisplayTable = ({
                                                 }}
                                             >
                                                 <div style={{ flex: 1 }}>
-                                                    Total Subject Credits:{' '}
+                                                    Total Credits:{' '}
                                                     {electiveSubjectList.reduce(
                                                         (total, item) => {
                                                             return total + item?.credit;
@@ -639,7 +639,7 @@ const SubjectDisplayTable = ({
                                         >
 
                                             <div style={{ flex: 1 }}>
-                                                Total Subject Credits:{' '}
+                                                Total Credits:{' '}
                                                 {viewedAllowcatedFields[
                                                     fieldIndex
                                                 ].subjectList.reduce((total, item) => {

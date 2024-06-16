@@ -12,7 +12,7 @@ const UserBootcamp = () => {
     const [viewState, setViewState] = useState("all")
     const [breadCrumbList, setBreadCrumbList] = useState([
         {
-            title: "All Bootcamp",
+            title: "All Curriculum",
         }
     ])
    

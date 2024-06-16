@@ -730,6 +730,22 @@ export const createBootcampSlice = createSlice({
       ] = action.payload.groupData;
       state.completeTotalCredits += action.payload.groupData.credit;
     },
+    removeGroupFromSemeter: (state,action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].semester = null
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].branchMajor = null
+    },
+    addGroupToSemester: (state, action) => {
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].semester = action.payload.semester
+      state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
+        action.payload.groupIndex
+      ].branchMajor = action.payload.branchMajor
+    },
     deleteGroup: (state, action) => {
       state.completeTotalCredits -=
         state.allowcateFields[action.payload.fieldIndex].electiveSubjectList[
@@ -1035,7 +1051,9 @@ export const {
   updateDragData,
   changeUseSmallFieldName,
   swapSubject,
-  swapSubjectInSemester
+  swapSubjectInSemester,
+  removeGroupFromSemeter,
+  addGroupToSemester
 } = createBootcampSlice.actions;
 
 export default createBootcampSlice.reducer;

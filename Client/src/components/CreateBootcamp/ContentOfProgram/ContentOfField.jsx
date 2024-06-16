@@ -582,7 +582,7 @@ const ContentOfField = ({
                         <Col span={23}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <h2>
-                                    {field?.fieldName} Subject List - Total Subject Credits:{' '}
+                                    {field?.fieldName} Subject List - Total Credits:{' '}
                                     {creditsLabel()}
                                 </h2>
                                 <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>
@@ -608,7 +608,7 @@ const ContentOfField = ({
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <h2>
-                                {field?.fieldName} Subject List - Total Subject Credits:{' '}
+                                {field?.fieldName} Subject List - Total Credits:{' '}
                                 {creditsLabel()}
                             </h2>
                             <Button type='primary' onClick={handleSubjectModalOpen} disabled={isLastField}>

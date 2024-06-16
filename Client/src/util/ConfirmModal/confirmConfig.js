@@ -32,3 +32,8 @@ export const uploadDraftConfirmConfig = {
     title: 'Upload Draft',
     content: 'Are you sure you want to save all your current work to this draft ?',
 }
+
+export const deactiveDepartmentConfirmConfig = {
+    title: 'Deactivate Department',
+    content: 'This action will deactivate this department and it cannot be used in any future curriculum. Any old curriculum that includes subjects from this department will remain unchanged, but you can update it later if you wish.'
+}

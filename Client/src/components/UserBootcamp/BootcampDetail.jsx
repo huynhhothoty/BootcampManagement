@@ -129,6 +129,15 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
         const semesterCardList = viewedSemesterList.map((semester, index) => {
             let subjectList = []
             subjectList = semester.map((subject, sindex) => {
+                let isBranchNotActive = false
+                if(viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor){
+                    let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor)
+                    if(belongBranchMajorIndex === -1){
+                        isBranchNotActive = true
+                    }else {
+                        if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
+                    }
+                }
                 return {
                     ...viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex],
                     fieldIndex: subject.fieldIndex,
@@ -136,13 +145,29 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     isBranch: false,
                     isGroup: false,
                     key: sindex,
-                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex, subject.subjectIndex, viewedAllowcatedFields)
+                    indexAutogenSubjectCode: getFirstAutogenSubjectIndex(subject.fieldIndex, subject.subjectIndex, viewedAllowcatedFields),
+                    isBranchNotActive
                 }
             })
             viewedAllowcatedFields.forEach((field, fIndex) => {
                 field.electiveSubjectList.forEach((group, gIndex) => {
                     if (group.semester === index) {
-
+                        let isBranchNotActive = false
+                        if(group.branchMajor){
+                            let groupBranchId = ''
+                            if(group.branchMajor._id){
+                                groupBranchId = group.branchMajor._id
+                            }else{
+                                groupBranchId = group.branchMajor
+                            }
+                            let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === groupBranchId)
+                           
+                            if(belongBranchMajorIndex === -1){
+                                isBranchNotActive = true
+                            }else {
+                                if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
+                            }
+                        }
                         subjectList.unshift({
                             name: (() => {
                                 if(field.isElectiveNameBaseOnBigField){
@@ -166,12 +191,15 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             semester: group.semester,
                             fieldIndex: fIndex,
                             groupIndex: gIndex,
+                            isBranchNotActive,
+                            trueData:group
                         })
                     }
                 })
             })
             if (index >= 4) {
                 viewedMajor.branchMajor?.forEach((branch, index) => {
+                    if(branch.isActive === true)
                     subjectList.unshift({
                         ...branch,
                         key: branch._id,
@@ -440,7 +468,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         }}
                 columns={[
                     {
-                        title: 'Bootcamp Name',
+                        title: 'Curriculum Name',
                         key: 'bootcampName',
                         dataIndex: 'bootcampName',
                         ellipsis: true,
@@ -456,7 +484,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             </div>
                         },
                         fieldProps: {
-                            placeholder: "Enter Bootcamp Name"
+                            placeholder: "Enter Curriculum Name"
                         }
                     },
                     {

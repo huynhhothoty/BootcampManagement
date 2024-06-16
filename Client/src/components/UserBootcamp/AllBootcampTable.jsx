@@ -34,8 +34,6 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
     const { loading, userBootcampList } = useSelector((store) => store.bootcamp);
     const [error, setError] = useState(false);
 
-
-
     const { setBreadCrumbList } = useOutletContext();
 
     const handleViewBootcamp = async (data, viewType) => {
@@ -132,7 +130,6 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                 };
             });
         });
-        console.log(completeTotalCredits)
         dispatch(
             updateViewedAllocatedField({ data: allowcateFields, id: data.allocation })
         );
@@ -151,7 +148,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
         dispatch(updateLoading(false));
         setBreadCrumbList([
             {
-                title: <a>All Bootcamp</a>,
+                title: <a>All Curriculum</a>,
                 onClick: () => {
                     navigate('/userbootcamp');
                     setBreadCrumbList([
@@ -172,7 +169,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
 
     const columns = [
         {
-            title: 'BootCamp Name',
+            title: 'Curriculum Name',
             dataIndex: 'name',
             copyable: true,
             ellipsis: true,
@@ -190,6 +187,12 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
             render: (text,row) => {
                 return row.year
             }
+        },
+        {
+            title: 'Last Updated',
+            dataIndex: 'updatedAt',
+            ellipsis: true,
+            valueType: 'dateTime'
         },
         {
             title: 'Major',

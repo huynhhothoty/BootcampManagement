@@ -17,6 +17,7 @@ import Highlighter from 'react-highlight-words';
 import { SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+    addGroupToSemester,
     addSubjectsToSemester,
     editGroup,
     editSubject,
@@ -259,7 +260,20 @@ const AddSubjectToSemesterModal = ({
                         tempSubjectList.push({
                             ...group,
                             key: `${fIndex}${gIndex}group`,
-                            name: `${field?.fieldName} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                }
+                                return `${field?.fieldName} ${gIndex + 1}`
+                            })(),
                             isGroup: true,
                             groupIndex: gIndex,
                             fieldIndex: fIndex,
@@ -290,10 +304,24 @@ const AddSubjectToSemesterModal = ({
                         tempSubjectList.push({
                             ...group,
                             key: `${fIndex}${gIndex}group`,
-                            name: `${field?.fieldName} ${gIndex + 1}`,
+                            name: (() => {
+                                if(field.isElectiveNameBaseOnBigField){
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                        return {
+                                            ...ggroup,
+                                            index
+                                        }
+                                    })
+                                    smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                    let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                    return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                }
+                                return `${field?.fieldName} ${gIndex + 1}`
+                            })(),
                             isGroup: true,
                             groupIndex: gIndex,
                             fieldIndex: fIndex,
+                            trueData: group
                         });
                     }
                 });
@@ -319,16 +347,12 @@ const AddSubjectToSemesterModal = ({
                         semester: selectedSemester,
                     });
                 } else {
-                    const groupData = {
-                        credit: row.credit,
-                        semester: selectedSemester,
-                        branchMajor: null,
-                    };
                     dispatch(
-                        editGroup({
+                        addGroupToSemester({
                             fieldIndex: row.fieldIndex,
-                            groupData,
                             groupIndex: row.groupIndex,
+                            semester: selectedSemester,
+                            branchMajor: null,
                         })
                     );
                 }
@@ -346,7 +370,7 @@ const AddSubjectToSemesterModal = ({
                     });
                 } else {
                     const groupData = {
-                        credit: row.credit,
+                        ...row.trueData,
                         semester: selectedSemester,
                         branchMajor: null,
                     };
@@ -396,16 +420,12 @@ const AddSubjectToSemesterModal = ({
                         semester: selectedSemester,
                     });
                 } else {
-                    const groupData = {
-                        credit: row.credit,
-                        semester: selectedSemester,
-                        branchMajor: branchData._id,
-                    };
                     dispatch(
-                        editGroup({
+                        addGroupToSemester({
                             fieldIndex: row.fieldIndex,
-                            groupData,
                             groupIndex: row.groupIndex,
+                            semester: selectedSemester,
+                            branchMajor: branchData._id,
                         })
                     );
                 }
@@ -423,8 +443,8 @@ const AddSubjectToSemesterModal = ({
                     newSubject = {
                         ...newSubject,
                         branchMajor: branchData._id,
+                        semester: selectedSemester,
                     };
-
                     dispatch(
                         editSubjestViewedFields({
                             fieldIndex: tempSubjectSemesterData.fieldIndex,
@@ -439,10 +459,11 @@ const AddSubjectToSemesterModal = ({
                     });
                 } else {
                     const groupData = {
-                        credit: row.credit,
+                        ...row.trueData,
                         semester: selectedSemester,
                         branchMajor: branchData._id,
                     };
+                    console.log(groupData)
                     dispatch(
                         editElectiveGroupToViewedField({
                             fieldIndex: row.fieldIndex,
@@ -473,8 +494,10 @@ const AddSubjectToSemesterModal = ({
     const createDropdownBranch = () => {
         let newViewedMajor = [...viewedMajor.branchMajor];
         newViewedMajor = newViewedMajor.reverse();
-        return newViewedMajor.map((branch) => {
-            return {
+        let mapData = []
+        newViewedMajor.forEach((branch) => {
+            if(branch.isActive === true)
+            mapData.push({
                 key: branch._id,
                 label: (
                     <a
@@ -485,8 +508,9 @@ const AddSubjectToSemesterModal = ({
                         {branch.name}
                     </a>
                 ),
-            };
+            })
         });
+        return mapData
     };
 
     return (

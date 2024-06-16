@@ -10,7 +10,7 @@ import ImportFromExcel from './ImportFromExcel';
 
 const columns = [
   {
-    title: 'BootCamp Name',
+    title: 'Curriculum Name',
     dataIndex: 'name',
   },
   {

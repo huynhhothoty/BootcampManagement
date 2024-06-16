@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     deleteSemester,
     editGroup,
+    removeGroupFromSemeter,
     removeSubjectFromSemester,
     swapSubjectInSemester,
 } from '../../../redux/CreateBootcamp/createBootCamp';
@@ -32,7 +33,6 @@ const Semester = ({
     const dispatch = useDispatch();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [data, setData] = useState([]);
     const searchInput = useRef(null);
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -246,15 +246,9 @@ const Semester = ({
                                     );
                                     if (confirmed)
                                         if (data.isGroup) {
-                                            const groupData = {
-                                                credit: data.credits,
-                                                semester: null,
-                                                branchMajor: null,
-                                            };
                                             dispatch(
-                                                editGroup({
+                                                removeGroupFromSemeter({
                                                     fieldIndex: data.fieldIndex,
-                                                    groupData,
                                                     groupIndex: data.groupIndex,
                                                 })
                                             );
@@ -360,15 +354,9 @@ const Semester = ({
                                     );
                                     if (confirmed) {
                                         if (row.isGroup) {
-                                            const groupData = {
-                                                credit: row.credits,
-                                                semester: null,
-                                                branchMajor: null,
-                                            };
                                             dispatch(
-                                                editGroup({
+                                                removeGroupFromSemeter({
                                                     fieldIndex: row.fieldIndex,
-                                                    groupData,
                                                     groupIndex: row.groupIndex,
                                                 })
                                             );
@@ -395,58 +383,76 @@ const Semester = ({
         const data = [];
         allowcateFields.forEach((field, fIndex) => {
             field.electiveSubjectList.forEach((group, gIndex) => {
-                if (group.branchMajor !== undefined) {
-                    if (group.branchMajor !== null)
-                        if (group.branchMajor._id) {
-                            if (group.branchMajor._id === branch._id) {
-                                if (group.semester === semesterIndex) {
-                                    data.unshift({
-                                        name: (() => {
-                                            if(field.isElectiveNameBaseOnBigField){
-                                                let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
-                                                    return {
-                                                        ...ggroup,
-                                                        index
-                                                    }
-                                                })
-                                                smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
-                                                let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
-                                                return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
-                                            }
-                                            return `${field?.fieldName} ${gIndex + 1}`
-                                        })(),
-                                        isCompulsory: false,
-                                        credits: group.credit,
-                                        isBranch: false,
-                                        isGroup: true,
-                                        branchMajor: group.branchMajor?._id
-                                            ? group.branchMajor._id
-                                            : group.branchMajor,
-                                        semester: group.semester,
-                                        fieldIndex: fIndex,
-                                        groupIndex: gIndex,
-                                    });
-                                }
-                            }
-                        } else {
-                            if (group.branchMajor === branch._id) {
-                                if (group.semester === semesterIndex) {
-                                    data.unshift({
-                                        name: `${field?.fieldName} ${gIndex + 1}`,
-                                        isCompulsory: false,
-                                        credits: group.credit,
-                                        isBranch: false,
-                                        isGroup: true,
-                                        branchMajor: group.branchMajor?._id
-                                            ? group.branchMajor._id
-                                            : group.branchMajor,
-                                        semester: group.semester,
-                                        fieldIndex: fIndex,
-                                        groupIndex: gIndex,
-                                    });
-                                }
+             
+                if (group.branchMajor !== undefined && group.branchMajor !== null) {
+                    if (group.branchMajor._id) {
+                        if (group.branchMajor._id === branch._id) {
+                            
+                            if (group.semester === semesterIndex) {
+                               
+                                data.unshift({
+                                    name: (() => {
+                                        if(field.isElectiveNameBaseOnBigField){
+                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                return {
+                                                    ...ggroup,
+                                                    index
+                                                }
+                                            })
+                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                        }
+                                        return `${field?.fieldName} ${gIndex + 1}`
+                                    })(),
+                                    isCompulsory: false,
+                                    credits: group.credit,
+                                    isBranch: false,
+                                    isGroup: true,
+                                    branchMajor: group.branchMajor?._id
+                                        ? group.branchMajor._id
+                                        : group.branchMajor,
+                                    semester: group.semester,
+                                    fieldIndex: fIndex,
+                                    groupIndex: gIndex,
+                                    trueData: group
+                                });
                             }
                         }
+                    } else {
+                        if (group.branchMajor === branch._id) {
+                            if (group.semester === semesterIndex) {
+                            
+                                data.unshift({
+                                    name: (() => {
+                                        if(field.isElectiveNameBaseOnBigField){
+                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                return {
+                                                    ...ggroup,
+                                                    index
+                                                }
+                                            })
+                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                        }
+                                        return `${field?.fieldName} ${gIndex + 1}`
+                                    })(),
+                                    isCompulsory: false,
+                                    credits: group.credit,
+                                    isBranch: false,
+                                    isGroup: true,
+                                    branchMajor: group.branchMajor?._id
+                                        ? group.branchMajor._id
+                                        : group.branchMajor,
+                                    semester: group.semester,
+                                    fieldIndex: fIndex,
+                                    groupIndex: gIndex,
+                                    trueData: group
+                                });
+                            }
+                        }
+                    }
                 }
             });
         });
@@ -477,7 +483,6 @@ const Semester = ({
 
     const getSemesterData = () => {
         let newSubjectArray = [];
-
         subjectList.forEach((subject, index) => {
             if (
                 allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
@@ -499,10 +504,51 @@ const Semester = ({
                         allowcateFields
                     ),
                 });
+            }else{
+                if(viewedMajor){
+                    let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                        .branchMajor)
+                    if(belongBranchMajorIndex === -1){
+                        newSubjectArray.push({
+                            ...allowcateFields[subject.fieldIndex].subjectList[
+                                subject.subjectIndex
+                            ],
+                            semesterSubjectListIndex: subject.semesterSubjectListIndex,
+                            isBranch: false,
+                            isGroup: false,
+                            key: index,
+                            indexAutogenSubjectCode: getFirstAutogenSubjectIndex(
+                                subject.fieldIndex,
+                                subject.subjectIndex,
+                                allowcateFields
+                            ),
+                        });
+                    }else {
+                        if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false){
+                            newSubjectArray.push({
+                                ...allowcateFields[subject.fieldIndex].subjectList[
+                                    subject.subjectIndex
+                                ],
+                                semesterSubjectListIndex: subject.semesterSubjectListIndex,
+                                isBranch: false,
+                                isGroup: false,
+                                key: index,
+                                indexAutogenSubjectCode: getFirstAutogenSubjectIndex(
+                                    subject.fieldIndex,
+                                    subject.subjectIndex,
+                                    allowcateFields
+                                ),
+                            });
+                        }
+                    }
+                }
+                
             }
         });
         allowcateFields.forEach((field, fIndex) => {
+            
             field.electiveSubjectList.forEach((group, gIndex) => {
+
                 if (group.branchMajor === undefined || group.branchMajor === null)
                     if (group.semester === semesterIndex) {
                         newSubjectArray.unshift({
@@ -530,19 +576,89 @@ const Semester = ({
                             semester: group.semester,
                             fieldIndex: fIndex,
                             groupIndex: gIndex,
+                            trueData: group
                         });
                     }
+                if (typeof group.branchMajor === 'string') {
+                    if(viewedMajor){
+                        let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === group.branchMajor)
+                        if(belongBranchMajorIndex === -1){
+                            if (group.semester === semesterIndex) {
+                                newSubjectArray.unshift({
+                                    name: (() => {
+                                        if(field.isElectiveNameBaseOnBigField){
+                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                return {
+                                                    ...ggroup,
+                                                    index
+                                                }
+                                            })
+                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                        }
+                                        return `${field?.fieldName} ${gIndex + 1}`
+                                    })(),
+                                    isCompulsory: false,
+                                    credits: group.credit,
+                                    isBranch: false,
+                                    isGroup: true,
+                                    branchMajor: group.branchMajor?._id
+                                        ? group.branchMajor._id
+                                        : group.branchMajor,
+                                    semester: group.semester,
+                                    fieldIndex: fIndex,
+                                    groupIndex: gIndex,
+                                    trueData: group
+                                });
+                            }
+                        }else {
+                            if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false){
+                                if (group.semester === semesterIndex) {
+                                    newSubjectArray.unshift({
+                                        name: (() => {
+                                            if(field.isElectiveNameBaseOnBigField){
+                                                let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                    return {
+                                                        ...ggroup,
+                                                        index
+                                                    }
+                                                })
+                                                smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                                let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                                return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                            }
+                                            return `${field?.fieldName} ${gIndex + 1}`
+                                        })(),
+                                        isCompulsory: false,
+                                        credits: group.credit,
+                                        isBranch: false,
+                                        isGroup: true,
+                                        branchMajor: group.branchMajor?._id
+                                            ? group.branchMajor._id
+                                            : group.branchMajor,
+                                        semester: group.semester,
+                                        fieldIndex: fIndex,
+                                        groupIndex: gIndex,
+                                        trueData: group
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
             });
         });
         if (semesterIndex >= branchMajorSemester)
             if (viewedMajor) {
                 viewedMajor?.branchMajor?.forEach((branch, index) => {
-                    newSubjectArray.unshift({
-                        ...branch,
-                        key: branch._id,
-                        isBranch: true,
-                        isGroup: false,
-                    });
+                    if(branch.isActive === true)
+                        newSubjectArray.unshift({
+                            ...branch,
+                            key: branch._id,
+                            isBranch: true,
+                            isGroup: false,
+                        });
                 });
             }
 

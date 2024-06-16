@@ -80,12 +80,12 @@ const Main = () => {
 
       case '2':
         navigate('/createbootcamp')
-        setheaderTitle('Create Bootcamp')
+        setheaderTitle('Create Curriculum')
         break;
 
       case '3':
         navigate('/userbootcamp')
-        setheaderTitle('My Bootcamp')
+        setheaderTitle('My Curriculum')
         break;
       case '4':
         navigate('/subject')
@@ -138,32 +138,32 @@ const Main = () => {
     {
       key: '2',
       icon: <PlusCircleOutlined />,
-      label: 'Create Bootcamp',
+      label: 'Create Curriculum',
     },
     {
       key: '3',
       icon: <UnorderedListOutlined />,
-      label: 'My Bootcamp',
+      label: 'My Curriculum',
     },
     {
       key: '4',
       icon: <BookOutlined />,
-      label: 'Subject',
+      label: 'Subjects',
     },
     {
       key: '5',
       icon: <BlockOutlined />,
-      label: 'Department',
+      label: 'Departments',
     },
     {
       key: '6',
       icon: <CalendarOutlined />,
-      label: 'Major',
+      label: 'Majors',
     },
     {
       key: '7',
       icon: <UserOutlined />,
-      label: 'User',
+      label: 'Users',
     },
   ]
   const teacherOptions = [

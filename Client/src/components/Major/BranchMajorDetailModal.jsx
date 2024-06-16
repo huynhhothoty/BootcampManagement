@@ -10,9 +10,10 @@ const BranchMajorDetailModal = ({open, onClose, modalType, modalData, onSubmit})
 
     const handleSubmitModal = (formData) => {
         if(modalType === 'edit'){
-            onSubmit({...formData,_id: modalData._id,index: modalData.index}, modalType)
+            console.log({...modalData,...formData})
+            onSubmit({...modalData,...formData}, modalType)
         }else if(modalType === 'add'){
-            onSubmit(formData, modalType)
+            onSubmit({...modalData,...formData}, modalType)
         }
         
         onClose()
@@ -29,7 +30,7 @@ const BranchMajorDetailModal = ({open, onClose, modalType, modalData, onSubmit})
     return (
         <ModalForm
 
-            title={modalType === 'create' ? "New Specialization" : "Edit Specialization"}
+            title={modalType === 'add' ? "New Specialization" : "Edit Specialization"}
             open={open}
             form={form}
             width={500}
@@ -37,7 +38,7 @@ const BranchMajorDetailModal = ({open, onClose, modalType, modalData, onSubmit})
             modalProps={{
                 destroyOnClose: true,
                 onCancel: onClose,
-                okText: modalType === 'create' ? "Create" : "Save"
+                okText: modalType === 'add' ? "Create" : "Edit"
             }}
             onFinish={handleSubmitModal}
         >

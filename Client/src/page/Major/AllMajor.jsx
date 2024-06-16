@@ -51,24 +51,24 @@ const AllMajor = ({confirmModal}) => {
             initialValue: 'true',
         },
         {
-            title: 'Department',
+            title: 'Involving Departments',
             dataIndex: 'department',
             ellipsis: true,
             width: 200,
             align: 'center',
             render: (_,row) => {
-                return <Button onClick={() => handleOpenDepartmentModal(row.department,row._id)}>View Departments</Button>
+                return <Button onClick={() => handleOpenDepartmentModal(row.department,row._id)}>View / Edit</Button>
             },
             hideInSearch: true,
         },
         {
-            title: 'Specialization',
+            title: 'Specializations',
             dataIndex: 'branchMajor',
             ellipsis: true,
             width: 200,
             align: 'center',
             render: (_,row) => {
-                return <Button onClick={() => handleOpenbranchMajorModal(row.branchMajor,row._id)}>View Specializations</Button>
+                return <Button onClick={() => handleOpenbranchMajorModal(row.branchMajor,row._id)}>View / Edit</Button>
             },
             hideInSearch: true,
         },
@@ -136,7 +136,6 @@ const AllMajor = ({confirmModal}) => {
             const branchId = branchList[i];
             const branchRes = await dispatch(getBranchMajorById(branchId))
             tempBranchList.push(branchRes.payload.data)
-            
         }
 
         setbranchMajorModalData(tempBranchList)
@@ -179,7 +178,7 @@ const AllMajor = ({confirmModal}) => {
     return (
         <div>
             <DepartmentModal open={departmentModalOpen} departments={departmentModalData} handleClose={handleCloseDepartmentModal} confirmModal={confirmModal} majorId={departmentModalMajorId} reloadTable={reloadTable}/>
-            <BranchMajorModal branchList={branchMajorModalData} open={branchMajorModalOpen} handleClose={handleClosebranchMajorModal} majorId={branchMajorModalMajorId} handleUpdate={handleUpdateBranchList} reloadTable={reloadTable}/>
+            <BranchMajorModal branchList={branchMajorModalData} open={branchMajorModalOpen} handleClose={handleClosebranchMajorModal} majorId={branchMajorModalMajorId} handleUpdate={handleUpdateBranchList} reloadTable={reloadTable} confirmModal={confirmModal}/>
             <CreateMajorModal open={createMajorModalOpen} handleClose={handleCloseCreateMajorModal} confirmModal={confirmModal}  reloadTable={reloadTable}/>
             <EditMajorModal open={editMajorModalOpen} handleCancel={handleCloseEditMajorModal} modalData={editMajorModalData} reloadTable={reloadTable}/>
               <ProTable

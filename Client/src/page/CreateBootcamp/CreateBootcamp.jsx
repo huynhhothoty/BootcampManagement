@@ -99,7 +99,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
     },
     {
       key: '2',
-      label: 'Add Composory Subjects',
+      label: 'Add Compulsory Subjects',
       children: <ContentOfProgram chosenFieldData={contentModalFieldData} updateContentFunc={updateContentModalContent} confirmModal={confirmModal} errorMessage={errorMessage.compulsory} type={"Compulsory"} setIsSubjectModalOpen={setIsSubjectModalOpen} setSubjestModalData={setSubjestModalData} />,
     },
     {
@@ -642,7 +642,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             <Button onClick={() => {
               dispatch(getAllBootcamp())
               setIsImportBootcampModalOpen(true)
-            }} type='dashed' disabled={selectedMajor.length > 0 ? false : true}>Import Bootcamp</Button>
+            }} type='dashed' disabled={selectedMajor.length > 0 ? false : true}>Import</Button>
             <Select
               placeholder='Select a major'
               style={{
@@ -655,8 +655,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             {
               userData?.role === "admin" ?
                 <Radio.Group defaultValue="create" buttonStyle="solid" onChange={(e) => setManageStatus(e.target.value)}>
-                  <Radio value="template">Template Manage</Radio>
-                  <Radio value="create">Create Bootcamp</Radio>
+                  <Radio value="template">Manage Template</Radio>
+                  <Radio value="create">Create Curriculum</Radio>
                 </Radio.Group>
                 :
                 <Button style={{ marginLeft: 20 }} type='primary' onClick={() => {
@@ -702,12 +702,12 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
             <Form layout="vertical">
               <Row gutter={16}>
                 <Col span={8}>
-                  <div><span style={{ color: "red" }}>* </span>Bootcamp Name</div>
+                  <div><span style={{ color: "red" }}>* </span>Name</div>
                   <Input style={{ marginBlock: 8 }} status={(bootcampNameError && bootcampName === "") ? "error" : ""} value={bootcampName} placeholder="Please enter user name" onChange={handleChangeBootcampName} />
                   {(bootcampNameError && bootcampName === "") ? <div style={{ color: "red" }}>{NO_BOOTCAMP_NAME}</div> : ""}
                 </Col>
                 <Col span={8} className='staticColum'>
-                  <div><span style={{ color: "red" }}>* </span>Total Program Credits</div>
+                  <div><span style={{ color: "red" }}>* </span>Total Credits</div>
                   <InputNumber status={(bootcampCreditError && totalCredits <= 0) ? "error" : ""} onChange={handleChangeBootcampTotalCredits} value={totalCredits} min={1}
                     // max={300} 
                     style={{ width: "100%", marginBlock: 8 }} placeholder="Please enter total credits" />

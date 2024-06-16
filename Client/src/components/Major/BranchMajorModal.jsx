@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { addBranchMajor, updateBranchMajor, updateMajor } from '../../redux/major/major'
 
 
-const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate, reloadTable }) => {
+const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate, reloadTable, confirmModal }) => {
     const dispatch = useDispatch()
     const [updatedList, setUpdatedList] = useState([])
     const [addedList, setAddedList] = useState([])
@@ -13,19 +13,45 @@ const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate,
 
     const handleChange = (data,type) => {
         if(type === 'edit'){
-            let tempUpdatedList = [...updatedList]
-            tempUpdatedList.push(data)
-            setUpdatedList(tempUpdatedList)
-
-            let newBranchList = [...branchList]
-            newBranchList[data.index].name = data.name
-            newBranchList[data.index].branchCode = data.branchCode
-            handleUpdate(newBranchList)
+            if(data._id === null || data._id === undefined){
+                let tempAddedList = [...addedList]
+                let updatedIndex = tempAddedList.findIndex(item => item.index === data.index)
+                tempAddedList[updatedIndex] = {...data}
+                setAddedList(tempAddedList)
+                let newBranchList = [...branchList]
+                newBranchList[data.index] = {...data}
+                
+                handleUpdate(newBranchList)
+            }else {
+                let tempUpdatedList = [...updatedList]
+                let updatedIndex = tempUpdatedList.findIndex(item => item._id === data._id || item.index === data.index)
+                if(updatedIndex === -1){
+                    tempUpdatedList.push(data)
+                }else {
+                    tempUpdatedList[updatedIndex] = {...data}
+                }
+                setUpdatedList(tempUpdatedList)
+    
+                let newBranchList = [...branchList]
+                newBranchList[data.index] = {...data}
+                
+                handleUpdate(newBranchList)
+            }
+           
         }else if(type === 'add'){
             let tempAddedList = [...addedList]
-            tempAddedList.push(data)
+     
+            tempAddedList.push({
+                ...data,
+                isActive: true,
+                index: branchList.length
+            })
             setAddedList(tempAddedList)
-            let newBranchList = [...branchList, data]
+            let newBranchList = [...branchList,{
+                ...data,
+                isActive: true,
+                index: branchList.length
+            }]
             handleUpdate(newBranchList)
         }
     }
@@ -34,7 +60,8 @@ const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate,
         let branchMajorId = data._id
         let updatedData = {
             name: data.name,
-            branchCode: data.branchCode
+            branchCode: data.branchCode,
+            isActive: data.isActive
         }
         await dispatch(updateBranchMajor({branchId: branchMajorId, data: updatedData}))
     }
@@ -59,7 +86,8 @@ const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate,
                 const newId = await handleCreateBranchMajor(addedBranch)
                 newBranchIds.push(newId)
             }
-            let oldBranchIds = branchList.map(branch => branch._id)
+            let oldBranchIds = branchList.filter(branch => branch._id).map(branch => branch._id)
+
             await dispatch(updateMajor({majorId: majorId, data: {branchMajor: [...oldBranchIds, ...newBranchIds]}}))
         }
         reloadTable()
@@ -73,9 +101,9 @@ const BranchMajorModal = ({ branchList, open, handleClose,majorId, handleUpdate,
     }, [open])
 
     return (
-        <Modal title="All Department's Specialization" open={open} onCancel={handleClose} width={1000} onOk={handleOk} okButtonProps={{loading:loading}}>
+        <Modal title="All Department's Specialization" open={open} onCancel={handleClose} width={1000} onOk={handleOk} okButtonProps={{loading:loading}} okText="Save">
             
-                <BranchMajorList branchList={branchList} handleChange={handleChange}/>
+                <BranchMajorList branchList={branchList} handleChange={handleChange} confirmModal={confirmModal}/>
           
         </Modal>
     )
