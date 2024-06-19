@@ -8,6 +8,7 @@ const draftRouter = require('./draftRouter');
 const branchRouter = require('./branchMajorRouter');
 const importRouter = require('./importRouter');
 const departmentRouter = require('./departmentRouter');
+const teacherRouter = require('./teacherRouter');
 
 const rootRouter = express.Router();
 
@@ -25,6 +26,7 @@ rootRouter.use('/draft', draftRouter);
 rootRouter.use('/branch', branchRouter);
 rootRouter.use('/import', importRouter);
 rootRouter.use('/department', departmentRouter);
+rootRouter.use('/teacher', teacherRouter);
 
 //
 module.exports = rootRouter;
