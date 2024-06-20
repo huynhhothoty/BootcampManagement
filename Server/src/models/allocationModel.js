@@ -54,7 +54,7 @@ const subjectSnapSchema = new mongoose.Schema({
     },
     teacher: {
         type: mongoose.Schema.ObjectId,
-        ref: 'teacher',
+        ref: 'Teacher',
     },
 });
 const electHolderSchema = new mongoose.Schema({
@@ -130,7 +130,9 @@ const mainSchema = new mongoose.Schema({
     detail: [sectionSchema],
 });
 // middleware
-
+mainSchema.pre('findOne', function () {
+    this.populate([{ path: 'detail.subjectList.teacher' }]);
+});
 //
 const Allocation = mongoose.model('Allocation', mainSchema);
 module.exports = Allocation;

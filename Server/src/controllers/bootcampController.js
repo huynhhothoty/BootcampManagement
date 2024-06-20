@@ -20,6 +20,10 @@ const getBC = async (req, res, next) => {
                 {
                     path: 'allocation',
                 },
+                {
+                    path: 'allocation',
+                    populate: { path: 'detail.subjectList.teacher' },
+                },
             ]);
 
         if (!doc) {
