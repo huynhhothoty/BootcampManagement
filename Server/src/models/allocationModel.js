@@ -52,6 +52,10 @@ const subjectSnapSchema = new mongoose.Schema({
     allocateChildId: {
         type: mongoose.Schema.ObjectId,
     },
+    teacher: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'teacher',
+    },
 });
 const electHolderSchema = new mongoose.Schema({
     credit: {
