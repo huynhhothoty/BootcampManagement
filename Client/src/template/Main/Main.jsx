@@ -58,14 +58,14 @@ const Main = () => {
       key: '0',
     },
     {
-      label: <span onClick={() => handleOpenDrawer('password')}><KeyOutlined  style={{ marginRight: 20 }} /> Change Password</span>,
+      label: <span onClick={() => handleOpenDrawer('password')}><KeyOutlined style={{ marginRight: 20 }} /> Change Password</span>,
       key: '1',
     },
     {
       label: <span onClick={handleLogout} style={{ color: "red" }}><LogoutOutlined style={{ marginRight: 20 }} /> Logout</span>,
       key: '2',
     },
-  
+
   ]
 
   const {
@@ -91,7 +91,7 @@ const Main = () => {
         navigate('/subject')
         setheaderTitle('All Subject')
         break;
-      
+
       case '5':
         navigate('/department')
         setheaderTitle('All Department')
@@ -104,6 +104,10 @@ const Main = () => {
         navigate('/user')
         setheaderTitle('All User Account')
         break;
+      case '8':
+        navigate('/teacher')
+        setheaderTitle('All Teacher')
+        break;
 
       default:
         break;
@@ -115,7 +119,7 @@ const Main = () => {
       const userToken = sessionStorage.getItem(USER_TOKEN)
 
       if (userToken) {
-   
+
         let userData = sessionStorage.getItem(USER_DATA)
         userData = JSON.parse(userData)
         dispatch(setFirstUserData(userData))
@@ -165,6 +169,11 @@ const Main = () => {
       icon: <UserOutlined />,
       label: 'Users',
     },
+    {
+      key: '8',
+      icon: <UserOutlined />,
+      label: 'Teachers',
+    },
   ]
   const teacherOptions = [
     {
@@ -186,22 +195,22 @@ const Main = () => {
 
   useEffect(() => {
     let userData = sessionStorage.getItem(USER_DATA)
-    if(userData){
+    if (userData) {
       userData = JSON.parse(userData)
-      if(userData.role !== "admin"){
-        if(location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp"){
+      if (userData.role !== "admin") {
+        if (location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp") {
           navigate('/unauthorized')
         }
       }
     }
-    
 
-  },[location])
+
+  }, [location])
 
   return (
 
     <Layout id="main-container">
-      <ProfileDrawer open={drawerOpen} onClose={handleCloseDrawer} drawerType={drawerType}/>
+      <ProfileDrawer open={drawerOpen} onClose={handleCloseDrawer} drawerType={drawerType} />
       <Sider trigger={null} collapsible collapsed={collapsed}>
         {/* <div className="demo-logo-vertical">
           <img src={require("./../assets/logo.png")}/>
@@ -243,7 +252,7 @@ const Main = () => {
             menu={{
               items,
             }}
-            
+
             trigger={['click']}
           >
             <div style={{ marginRight: 20, cursor: "pointer" }}>

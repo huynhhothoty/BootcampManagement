@@ -46,7 +46,6 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
         let semesterSubjectList = [];
         let semesterList = [[]];
         const tempAllowcateFields = await dispatch(getAllowcatById(data.allocation));
-
         allowcateFields = tempAllowcateFields.payload.data.detail.map((field, index) => {
             return {
                 compulsoryCredits: field.detail.reduce((accumulator, currentValue) => {
@@ -92,6 +91,8 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                             ? subject.departmentChild
                             : undefined,
                         allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
+                        teachers: subject.teachers,
+                        note: subject.note
                     };
                     if(index < tempAllowcateFields.payload.data.detail.length - 1){
                         if(subject.isCompulsory){
@@ -113,6 +114,7 @@ const AllBootcampTable = ({isModal,selectedRowKeys,setSelectedRowKeys,setSelecte
                 isElectiveNameBaseOnBigField: field.isElectiveNameBaseOnBigField,
             };
         });
+        console.log(allowcateFields)
         semesterList = data.detail.map((semester, index) => {
             return semester.subjectList.map((subject) => {
                 const semesterSubjectListIndex = semesterSubjectList.findIndex(

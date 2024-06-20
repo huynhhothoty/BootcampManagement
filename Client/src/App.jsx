@@ -17,6 +17,7 @@ import AllMajor from './page/Major/AllMajor'
 import UserList from './page/UserList/UserList'
 import NotFound from './page/ErrorPage/NotFound'
 import UnauthorizedPage from './page/ErrorPage/UnauthorizedPage'
+import AllTeacher from './page/Teacher/AllTeacher'
 
 
 const ReachableContext = createContext(null);
@@ -52,6 +53,7 @@ function App() {
           <Route path="/department" element={<AllDepartment  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/major" element={<AllMajor  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/user" element={<UserList  openNotification={openNotification} confirmModal={modal}/>} />
+          <Route path="/teacher" element={<AllTeacher  openNotification={openNotification} confirmModal={modal}/>} />
           <Route path="/userbootcamp" element={<UserBootcamp  openNotification={openNotification} confirmModal={modal}/>} >
             <Route path="" element={<AllBootcampTable/>}/>
             <Route path="viewbootcamp" element={<BootcampDetail openNotification={openNotification} confirmModal={modal}/>}/>

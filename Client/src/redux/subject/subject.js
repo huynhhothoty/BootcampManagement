@@ -261,6 +261,13 @@ export const subjectSlice = createSlice({
     },
     updateCheckElectiveSubjectList: (state,action)=> {
       state.checkElecttivSubjectList = action.payload
+    },
+    updateSubjectTeacherList: (state,action) => {
+      state.checkSubjectList[action.payload.subjectIndex].teachers = action.payload.teachers
+    },
+    updateSubjectNote: (state, action) => {
+      state.checkSubjectList[action.payload.subjectIndex].note = action.payload.note
+      console.log(state.checkSubjectList[action.payload.subjectIndex].note)
     }
   },
 });
@@ -282,6 +289,8 @@ export const {
   initCheckSubjectList,
   updateSubjectCheckStatus,
   initCheckElectiveSubjectList,
-  updateCheckElectiveSubjectList
+  updateCheckElectiveSubjectList,
+  updateSubjectTeacherList,
+  updateSubjectNote
 } = subjectSlice.actions;
 export default subjectSlice.reducer;

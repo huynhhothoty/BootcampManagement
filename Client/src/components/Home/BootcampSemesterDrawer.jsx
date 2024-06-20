@@ -4,19 +4,24 @@ import CheckingSemesterList from './CheckingSemesterList';
 import { ProCard } from '@ant-design/pro-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { initCheckElectiveSubjectList, initCheckSubjectList } from '../../redux/subject/subject';
-import { updateAllowcate } from '../../redux/allocate/allowcate';
+import allowcate, { updateAllowcate } from '../../redux/allocate/allowcate';
 import { getBootcampsForTrackingByUserID, updateBootcamp } from '../../redux/bootcamp/bootcamp';
 import { updateLoading } from '../../redux/loading/Loading';
 import CheckingSubjectModal from './CheckingSubjectModal';
+import TeacherListModal from './TeacherListModal';
+import NoteModal from './NoteModal';
 
-const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
+const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherList }) => {
     const { viewedMajor } = useSelector(store => store.major)
     const { checkSubjectList, checkElecttivSubjectList } = useSelector(store => store.subject)
     const [subjectData, setSubjectData] = useState([])
     const [loading,setLoading] = useState(false)
-
     const [openElectiveTrackingModal,setOpenElectiveTrackingModal] = useState(false)
     const [electiveTrackingModalData,setElectiveTrackingModalData] = useState(null)
+    const [openTeacherListModal, setOpenTeacherListModal] = useState(false)
+    const [teacherListModalData, setTeacherListModalData] = useState(null)
+    const [openNoteModal, setOpenNoteModal] = useState(false)
+    const [noteModaldata,setNoteModalData] = useState(null)
 
     const dispatch = useDispatch()
 
@@ -35,23 +40,45 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
         setOpenElectiveTrackingModal(false)
     }
 
+    const handleOpenTeacherListModal = (data) => {
+        setTeacherListModalData(data)
+        setOpenTeacherListModal(true)
+    }
+    const handleCloseTeacherListModal = () => {
+        setTeacherListModalData(null)
+        setOpenTeacherListModal(false)
+    }
+
+    const handleOpenNoteModal = (data) => {
+        setOpenNoteModal(true)
+        setNoteModalData(data)
+    }
+
+    const handleCloseNoteModal = () => {
+        setOpenNoteModal(false)
+        setNoteModalData(null)
+    }
+
     const generateData = () => {
         const { semesterList, allocation } = data
         let tempCheckSubjectList = []
-     
         const a =  semesterList.map((semester, index) => {
             let checkedKeyList = []
             let subjectList = []
             let checkedRowList = []
             let branchMajorList = []
-            branchMajorList = viewedMajor.branchMajor.map((branch, index) => {
-                return {
-                    ...branch,
-                    key: branch._id,
-                    isBranch: true,
-                    isGroup: false,
-                    children: []
+            branchMajorList = []
+            viewedMajor.branchMajor.forEach((branch, index) => {
+                if(branch.isActive){
+                    branchMajorList.push({
+                        ...branch,
+                        key: branch._id,
+                        isBranch: true,
+                        isGroup: false,
+                        children: []
+                    })
                 }
+                
             })
             semester.subjectList.forEach((subject, sindex) => {
                 let check = false
@@ -65,7 +92,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                     isBranch: false,
                     isGroup: false,
                     check,
-                    key: subject._id
+                    key: subject._id,
+                    teachers: subject.teachers !== undefined ? teacherList.filter(teacher => subject.teachers.includes(teacher._id)) : [],
+                    note: subject.note !== undefined ? subject.note : ''
                 }
                 if(newSubject.check){
                     checkedKeyList.push(subject._id)
@@ -146,7 +175,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
 
 
             return <ProCard title={<h2>{`Semester ${index + 1}`}</h2>} key={index} collapsible>
-                <CheckingSemesterList semester={index} subjectList={subjectList} checkedKeyList={checkedKeyList} checkedRowList={checkedRowList} handleOpenElectiveTrackingModal={handleOpenElectiveTrackingModal}/>
+                <CheckingSemesterList semester={index} subjectList={subjectList} checkedKeyList={checkedKeyList} checkedRowList={checkedRowList} handleOpenElectiveTrackingModal={handleOpenElectiveTrackingModal} handleOpenTeacherListModal={handleOpenTeacherListModal}  handleOpenNoteModal={handleOpenNoteModal}/>
             </ProCard>
         })
         // dispatch(initCheckSubjectList(tempCheckSubjectList))
@@ -203,7 +232,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                     isBranch: false,
                     isGroup: false,
                     check,
-                    key: subject._id
+                    key: subject._id,
+                    teachers: subject.teachers !== undefined ? teacherList.filter(teacher => subject.teachers.includes(teacher._id)) : [],
+                    note: subject.note !== undefined ? subject.note : ''
                 }
                 if(newSubject.check){
                     checkedKeyList.push(subject._id)
@@ -312,10 +343,20 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
                             newSemesterList[subject.semester].trackingList.splice(trackingSubjectIndex, 1)
                         }
                     }
+                    let subjectIndexArr = []
+                    for (let i = 0; i < newAllowcation.detail.length; i++) {
+                        const field = newAllowcation.detail[i];
+                        let subjectIndex = field.subjectList.findIndex(fSubject => fSubject._id === subject._id)
+                        if(subjectIndex !== -1){
+                            subjectIndexArr = [i,subjectIndex]
+                            break
+                        }
+                    }
+                    newAllowcation.detail[subjectIndexArr[0]].subjectList[subjectIndexArr[1]].teachers = subject.teachers.map(teacher => teacher._id)
+                    newAllowcation.detail[subjectIndexArr[0]].subjectList[subjectIndexArr[1]].note = subject.note
                 }
             }
         })
-
         checkElecttivSubjectList.forEach((field) => {
             field.forEach(subject => {
                 if(subject.oldSemester !== null){
@@ -362,7 +403,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData }) => {
               </Button>
             </Space>
           }>
+            <NoteModal open={openNoteModal} handleCancel={handleCloseNoteModal} modalData={noteModaldata}/>
             <CheckingSubjectModal open={openElectiveTrackingModal} modalData={electiveTrackingModalData} handleCancel={handleCloseElectiveTrackingModal}/>
+            <TeacherListModal open={openTeacherListModal} handleCancel={handleCloseTeacherListModal} modalData={teacherListModalData}/>
             {subjectData}
             {/* <CheckingSemesterList/> */}
         </Drawer>

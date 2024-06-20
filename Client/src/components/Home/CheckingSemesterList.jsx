@@ -8,7 +8,7 @@ import { updateSubjectCheckStatus } from '../../redux/subject/subject';
 // rowSelection objects indicates the need for row selection
 
 
-const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList, handleOpenElectiveTrackingModal, semester }) => {
+const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList, handleOpenElectiveTrackingModal, semester, handleOpenTeacherListModal,handleOpenNoteModal }) => {
     const dispatch = useDispatch()
 
     const [selectedSubjectRows, setSelectedSubjectRows] = useState([])
@@ -52,10 +52,25 @@ const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList, hand
         {
             title: '',
             width: '7%',
+            align: 'center',
             render: (_,row) => {
                 if(row.isGroup)
                 return <Button onClick={() => handleOpenElectiveTrackingModal(row.fieldIndex, semester, row.name)}>Checked Subjects</Button>
-                else return <></>
+                else return <Button onClick={() => {
+                    let checkListIndex = checkSubjectList.findIndex(subject => subject._id === row._id)
+                    handleOpenTeacherListModal(checkSubjectList[checkListIndex])
+                }}>Teacher List ({checkSubjectList.find(subject => subject._id === row._id)?.teachers.length})</Button>
+            }
+        },
+        {
+            title: '',
+            width: '7%',
+            align: 'center',
+            render: (_,row) => {
+                return <Button onClick={() => {
+                    let checkListIndex = checkSubjectList.findIndex(subject => subject._id === row._id)
+                    handleOpenNoteModal(checkSubjectList[checkListIndex])
+                }}>Note {checkSubjectList.find(subject => subject._id === row._id)?.note ? <span style={{color:'red'}}>*</span> : <></>}</Button>
             }
         },
     ];

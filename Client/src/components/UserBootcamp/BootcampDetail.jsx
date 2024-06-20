@@ -259,7 +259,9 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "shortFormName": viewedAllowcatedFields[i].subjectList[j].shortFormName ? viewedAllowcatedFields[i].subjectList[j].shortFormName : "",
                                 "isAutoCreateCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode : false,
                                 "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null,
-                                "allocateChildId": (viewedAllowcatedFields[i].subjectList[j].allocateChildId !== undefined && viewedAllowcatedFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[viewedAllowcatedFields[i].subjectList[j].allocateChildId]._id : null
+                                "allocateChildId": (viewedAllowcatedFields[i].subjectList[j].allocateChildId !== undefined && viewedAllowcatedFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[viewedAllowcatedFields[i].subjectList[j].allocateChildId]._id : null,
+                                "teachers": viewedAllowcatedFields[i].subjectList[j].teachers === undefined ? [] : viewedAllowcatedFields[i].subjectList[j].teachers.map(teacher => teacher._id),
+                                "note": viewedAllowcatedFields[i].subjectList[j].note === undefined ? '' : viewedAllowcatedFields[i].subjectList[j].note
                             }
                             newSubjectList.push(subjectData)
                         }
@@ -276,6 +278,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 "departmentChild": viewedAllowcatedFields[i].subjectList[j].departmentChild ? viewedAllowcatedFields[i].subjectList[j].departmentChild : null,
                                 "allocateChildId": (viewedAllowcatedFields[i].subjectList[j].allocateChildId !== undefined && viewedAllowcatedFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[viewedAllowcatedFields[i].subjectList[j].allocateChildId]._id : null,
                                 "type": "major",
+                                "teachers": viewedAllowcatedFields[i].subjectList[j].teachers === undefined ? [] : viewedAllowcatedFields[i].subjectList[j].teachers.map(teacher => teacher._id),
+                                "note": viewedAllowcatedFields[i].subjectList[j].note === undefined ? '' : viewedAllowcatedFields[i].subjectList[j].note,
                                 "_id": viewedAllowcatedFields[i].subjectList[j]._id
                             }
                             newSubjectList.push(updatedData)
@@ -382,6 +386,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                         isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
                         departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
                         allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
+                        teachers: subject.teachers,
+                        note: subject.note
                     }
 
                     return a

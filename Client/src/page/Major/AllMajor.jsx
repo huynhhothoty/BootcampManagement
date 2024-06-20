@@ -36,7 +36,6 @@ const AllMajor = ({confirmModal}) => {
             title: 'Active',
             dataIndex: 'isActive',
             ellipsis: true,
-            copyable: true,
             valueType: 'select',
             valueEnum: {
                 true: {

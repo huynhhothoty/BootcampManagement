@@ -9,11 +9,13 @@ import { updateLoading } from "../../redux/loading/Loading";
 import BootcampSemesterDrawer from "../../components/Home/BootcampSemesterDrawer";
 import TestComp from "../../components/TestComp";
 import { USER_DATA } from "../../util/constants/sectionStorageKey";
+import { queryAllTeacher } from "../../redux/teacher/teacher";
 const Home = () => {
   const dispatch = useDispatch()
   const {userTrackingBootcampList} = useSelector(store => store.bootcamp)
   const [openDrawer, setOpenDrawer] = useState(false);
   const [bootcampCardList,setBootcampCardList] = useState([])
+  const [teacherList, setTeacherList] = useState([])
   const onClose = () => {
     setOpenDrawer(false);
   };
@@ -60,6 +62,12 @@ const Home = () => {
       </Col>)
     })
   }
+
+  const getTeacherList = async () => {
+    let res = await dispatch(queryAllTeacher(''))
+    setTeacherList(res.payload.data)
+  }
+
   useEffect(() => {
     (async () => {
       let userData = sessionStorage.getItem(USER_DATA);
@@ -80,9 +88,13 @@ const Home = () => {
     
   },[userTrackingBootcampList])
 
+  useEffect(() => {
+    getTeacherList()
+  },[])
+
   return (
     <div className="bootcamp-progress">
-      <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData}/>
+      <BootcampSemesterDrawer open={openDrawer} onClose={onClose} data={drawerData} resetDrawerData={resetDrawerData} teacherList={teacherList}/>
       <Row gutter={[16, 16]}>
        {bootcampCardList}
       </Row>

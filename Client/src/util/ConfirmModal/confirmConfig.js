@@ -37,3 +37,8 @@ export const deactiveDepartmentConfirmConfig = {
     title: 'Deactivate Department',
     content: 'This action will deactivate this department and it cannot be used in any future curriculum. Any old curriculum that includes subjects from this department will remain unchanged, but you can update it later if you wish.'
 }
+
+export const deactiveTeacherConfirmConfig = {
+    title: 'Deactivate Teacher',
+    content: 'This action will deactivate this teacher. Any old subject selected this teacher will remain unchanged, but you can update it later if you wish.'
+}

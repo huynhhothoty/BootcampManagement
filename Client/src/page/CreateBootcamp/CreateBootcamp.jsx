@@ -194,7 +194,9 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               "shortFormName": allowcateFields[i].subjectList[j].shortFormName,
               "isAutoCreateCode": allowcateFields[i].subjectList[j].isAutoCreateCode,
               "departmentChild": allowcateFields[i].subjectList[j].departmentChild,
-              "allocateChildId": (allowcateFields[i].subjectList[j].allocateChildId !== undefined && allowcateFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[allowcateFields[i].subjectList[j].allocateChildId]._id : null
+              "allocateChildId": (allowcateFields[i].subjectList[j].allocateChildId !== undefined && allowcateFields[i].subjectList[j].allocateChildId !== null) ? createdAllowcate.detail[i].detail[allowcateFields[i].subjectList[j].allocateChildId]._id : null,
+              "teachers": manageStatus === 'create' ? [] : allowcateFields[i].subjectList[j].teachers === undefined ?  [] : allowcateFields[i].subjectList[j].teachers.map((teacher) => teacher._id) ,
+              "note": manageStatus === 'create' ? '' : allowcateFields[i].subjectList[j].note !== undefined ? allowcateFields[i].subjectList[j].note : ''
             }
             newSubjectList.push(subjectData)
 
@@ -431,6 +433,8 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
               isAutoCreateCode: subject.isAutoCreateCode ? subject.isAutoCreateCode : false,
               departmentChild: subject.departmentChild ? subject.departmentChild : undefined,
               allocateChildId: (subject.allocateChildId !== undefined && subject.allocateChildId !== null) ? field.detail.findIndex(sField => sField._id === subject.allocateChildId) : null,
+              teachers: subject.teachers,
+              note: subject.note,
               _id: subject._id
             }
             if (index < tempAllowcateFields.detail.length - 1) {
@@ -453,6 +457,7 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           _id: newTemplateBootcampData.allocation._id
         }
       })
+      console.log(allowcateFields)
       semesterList = newTemplateBootcampData.detail.map((semester) => {
         let semesterIndex = Number(semester.semester.split(" ")[1]) - 1
         return semester.subjectList.map((subject, index) => {
