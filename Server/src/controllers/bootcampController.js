@@ -22,7 +22,7 @@ const getBC = async (req, res, next) => {
                 },
                 {
                     path: 'allocation',
-                    populate: { path: 'detail.subjectList.teacher' },
+                    populate: { path: 'detail.subjectList.teachers' },
                 },
             ]);
 

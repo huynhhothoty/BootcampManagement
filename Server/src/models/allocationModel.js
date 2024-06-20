@@ -52,10 +52,13 @@ const subjectSnapSchema = new mongoose.Schema({
     allocateChildId: {
         type: mongoose.Schema.ObjectId,
     },
-    teacher: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Teacher',
-    },
+    teachers: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Teacher',
+        },
+    ],
+    note: String,
 });
 const electHolderSchema = new mongoose.Schema({
     credit: {
@@ -131,7 +134,7 @@ const mainSchema = new mongoose.Schema({
 });
 // middleware
 mainSchema.pre('findOne', function () {
-    this.populate([{ path: 'detail.subjectList.teacher' }]);
+    this.populate([{ path: 'detail.subjectList.teachers' }]);
 });
 //
 const Allocation = mongoose.model('Allocation', mainSchema);
