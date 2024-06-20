@@ -188,7 +188,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
         let tempAllElectiveSubject = []
         allocation.detail.forEach((field) => {
             let tempCheckElectiveSubjectList = []
-            tempCheckElectiveSubjectList = field.subjectList.filter(subject => subject.isCompulsory === false)
+            tempCheckElectiveSubjectList = field.subjectList.map((subject,sIndex) => ({...subject,subjectIndex: sIndex})).filter(subject => subject.isCompulsory === false)
             tempCheckElectiveSubjectList = tempCheckElectiveSubjectList.map((subject) => {
                 let semesterCheck = null
                 semesterList.forEach((semester,semesterIndex) => {
@@ -200,7 +200,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
                     ...subject,
                     key: subject._id,
                     semester: semesterCheck,
-                    oldSemester: semesterCheck
+                    oldSemester: semesterCheck,
+                    teachers: subject.teachers !== undefined ? teacherList.filter(teacher => subject.teachers.includes(teacher._id)) : [],
+                    note: subject.note !== undefined ? subject.note : ''
                 }
             })
             tempAllElectiveSubject.push(tempCheckElectiveSubjectList)
@@ -357,7 +359,7 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
                 }
             }
         })
-        checkElecttivSubjectList.forEach((field) => {
+        checkElecttivSubjectList.forEach((field,fIndex) => {
             field.forEach(subject => {
                 if(subject.oldSemester !== null){
                     if(subject.semester === null){
@@ -371,6 +373,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
                         newSemesterList[subject.semester].trackingList.push(subject._id)
                     }
                 }
+
+                newAllowcation.detail[fIndex].subjectList[subject.subjectIndex].teachers = subject.teachers
+                newAllowcation.detail[fIndex].subjectList[subject.subjectIndex].note = subject.note
             })
         })
 
@@ -404,8 +409,9 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
             </Space>
           }>
             <NoteModal open={openNoteModal} handleCancel={handleCloseNoteModal} modalData={noteModaldata}/>
-            <CheckingSubjectModal open={openElectiveTrackingModal} modalData={electiveTrackingModalData} handleCancel={handleCloseElectiveTrackingModal}/>
             <TeacherListModal open={openTeacherListModal} handleCancel={handleCloseTeacherListModal} modalData={teacherListModalData}/>
+            <CheckingSubjectModal open={openElectiveTrackingModal} modalData={electiveTrackingModalData} handleCancel={handleCloseElectiveTrackingModal} handleOpenTeacherListModal={handleOpenTeacherListModal} handleOpenNoteModal={handleOpenNoteModal}/>
+           
             {subjectData}
             {/* <CheckingSemesterList/> */}
         </Drawer>

@@ -1,10 +1,10 @@
 import { ProTable } from '@ant-design/pro-components'
-import { Modal } from 'antd'
+import { Button, Modal } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateCheckElectiveSubjectList } from '../../redux/subject/subject'
 
-const CheckingSubjectModal = ({ open, modalData, handleCancel }) => {
+const CheckingSubjectModal = ({ open, modalData, handleCancel, handleOpenTeacherListModal, handleOpenNoteModal }) => {
     const dispatch = useDispatch()
 
     const { checkElecttivSubjectList } = useSelector(store => store.subject)
@@ -17,7 +17,7 @@ const CheckingSubjectModal = ({ open, modalData, handleCancel }) => {
             title: 'Subject Code',
             dataIndex: 'subjectCode',
             key: 'subjectCode',
-            width: 20,
+            width: '10%',
 
         },
 
@@ -25,14 +25,13 @@ const CheckingSubjectModal = ({ open, modalData, handleCancel }) => {
             title: 'Subject Name',
             dataIndex: 'name',
             key: 'name',
-            width: 100,
 
         },
         {
             title: 'Checked Semester',
             dataIndex: 'semester',
             key: 'semester',
-            width: 50,
+            width: '10%',
              align:'center',
              render: (text,row) => {
                 if(row.semester === null){
@@ -44,14 +43,14 @@ const CheckingSubjectModal = ({ open, modalData, handleCancel }) => {
             title: 'Credits',
             dataIndex: 'credit',
             key: 'credits',
-            width: 50,
+            width: '10%',
             align:'center'
         },
         {
             title: 'Field Groups',
             dataIndex: 'allocateChildId',
             key: 'credits',
-            width: 100,
+            width: '20%',
             filters: modalData?.field.detail.map((field) => {
                 return {
                     text: field.name,
@@ -70,7 +69,28 @@ const CheckingSubjectModal = ({ open, modalData, handleCancel }) => {
             }
         },
 
-
+        {
+            title: '',
+            align: 'center',
+            width: '10%',
+            render: (_,row) => {
+                return <Button onClick={() => {
+                    let checkListIndex = checkElecttivSubjectList[modalData.fieldIndex].findIndex(subject => subject._id === row._id)
+                    handleOpenTeacherListModal({...checkElecttivSubjectList[modalData.fieldIndex][checkListIndex], fieldIndex: modalData.fieldIndex, checkListIndex})
+                }}>Teacher List ({checkElecttivSubjectList[modalData.fieldIndex].find(subject => subject._id === row._id)?.teachers.length})</Button>
+            }
+        },
+        {
+            title: '',
+            width: '10%',
+            align: 'center',
+            render: (_,row) => {
+                return <Button onClick={() => {
+                    let checkListIndex = checkElecttivSubjectList[modalData.fieldIndex].findIndex(subject => subject._id === row._id)
+                    handleOpenNoteModal({...checkElecttivSubjectList[modalData.fieldIndex][checkListIndex], fieldIndex: modalData.fieldIndex, checkListIndex})
+                }}>Note {checkElecttivSubjectList[modalData.fieldIndex].find(subject => subject._id === row._id)?.note ? <span style={{color:'red'}}>*</span> : <></>}</Button>
+            }
+        }
     ]
 
     const rowSelection = {

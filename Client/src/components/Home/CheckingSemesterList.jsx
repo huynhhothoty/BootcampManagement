@@ -67,10 +67,13 @@ const CheckingSemesterList = ({ subjectList, checkedKeyList,checkedRowList, hand
             width: '7%',
             align: 'center',
             render: (_,row) => {
-                return <Button onClick={() => {
-                    let checkListIndex = checkSubjectList.findIndex(subject => subject._id === row._id)
-                    handleOpenNoteModal(checkSubjectList[checkListIndex])
-                }}>Note {checkSubjectList.find(subject => subject._id === row._id)?.note ? <span style={{color:'red'}}>*</span> : <></>}</Button>
+                if(!row.isGroup){
+                    return <Button onClick={() => {
+                        let checkListIndex = checkSubjectList.findIndex(subject => subject._id === row._id)
+                        handleOpenNoteModal(checkSubjectList[checkListIndex])
+                    }}>Note {checkSubjectList.find(subject => subject._id === row._id)?.note ? <span style={{color:'red'}}>*</span> : <></>}</Button>
+                }else return <></>
+                
             }
         },
     ];

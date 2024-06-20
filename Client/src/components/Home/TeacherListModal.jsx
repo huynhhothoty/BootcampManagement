@@ -5,7 +5,7 @@ import { queryAllDepartment } from '../../redux/major/major'
 import { ProTable } from '@ant-design/pro-components'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import SelectTeacherModal from '../Teacher/SelectTeacherModal'
-import { updateSubjectTeacherList } from '../../redux/subject/subject'
+import { updateElectiveSubjectTeacherList, updateSubjectTeacherList } from '../../redux/subject/subject'
 
 const TeacherListModal = ({open, handleCancel, modalData}) => {
     const dispatch = useDispatch()
@@ -97,12 +97,22 @@ const TeacherListModal = ({open, handleCancel, modalData}) => {
     ]
 
     const handleOk = () => {
-        let checkListIndex = checkSubjectList.findIndex(subject => subject._id === modalData._id)
-        dispatch(updateSubjectTeacherList({
-            subjectIndex: checkListIndex,
-            teachers: data
-        }))
-        handleCancel()
+        if(modalData.isCompulsory){
+            let checkListIndex = checkSubjectList.findIndex(subject => subject._id === modalData._id)
+            dispatch(updateSubjectTeacherList({
+                subjectIndex: checkListIndex,
+                teachers: data
+            }))
+            handleCancel()
+        }else {
+            dispatch(updateElectiveSubjectTeacherList({
+                subjectIndex: modalData.checkListIndex,
+                fieldIndex: modalData.fieldIndex,
+                teachers: data
+            }))
+            handleCancel()
+        }
+        
     }
 
 

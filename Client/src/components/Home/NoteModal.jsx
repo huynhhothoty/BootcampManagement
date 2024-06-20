@@ -1,7 +1,7 @@
 import { Modal,Input } from 'antd'
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateSubjectNote } from '../../redux/subject/subject';
+import { updateElectiveSubjectNote, updateSubjectNote } from '../../redux/subject/subject';
 const { TextArea } = Input;
 
 const NoteModal = ({open, handleCancel, modalData}) => {
@@ -11,12 +11,22 @@ const NoteModal = ({open, handleCancel, modalData}) => {
     const [noteText,setNoteText] = useState('')
 
     const handleOk = () => {
-        let checkListIndex = checkSubjectList.findIndex(subject => subject._id === modalData._id)
-        dispatch(updateSubjectNote({
-            subjectIndex: checkListIndex,
-            note: noteText
-        }))
-        handleCancel()
+        if(modalData.isCompulsory){
+            let checkListIndex = checkSubjectList.findIndex(subject => subject._id === modalData._id)
+            dispatch(updateSubjectNote({
+                subjectIndex: checkListIndex,
+                note: noteText
+            }))
+            handleCancel()
+        }else {
+            dispatch(updateElectiveSubjectNote({
+                subjectIndex: modalData.checkListIndex,
+                fieldIndex: modalData.fieldIndex,
+                note: noteText
+            }))
+            handleCancel()
+        }
+        
     }
 
     useEffect(() => {
