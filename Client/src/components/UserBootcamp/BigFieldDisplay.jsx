@@ -9,7 +9,7 @@ import { removeSubjectFromRemovedField } from '../../redux/subject/subject'
 import { updateCompleteCreditsToViewedBootcamp } from '../../redux/bootcamp/bootcamp'
 import { MISSING_FIELD_NAME, MISSING_SMALL_FIELD } from '../../util/constants/errorMessage'
 
-const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddBigFieldIndex, setScrollX, setIsUpdated, error }) => {
+const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddBigFieldIndex, setScrollX, setIsUpdated, error, isLastField }) => {
     const actionRef = useRef();
     const positionRef = useRef()
     const dispatch = useDispatch()
@@ -61,7 +61,7 @@ const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddB
                 //     });
                 // }}
                 style={{ width: 300 }}
-                editable={{
+                editable={!isLastField &&{
                     onSave: (_, data) => {
                         dispatch(updateViewedBigFieldName({ index, fieldName: data.fieldName }))
                         setAddBigFieldIndex(null)
@@ -115,6 +115,7 @@ const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddB
                             dispatch(addSmallFieldToViewedFields(index))
                             setIsUpdated(true)
                         }}
+                        disabled={isLastField}
                     >Add Child Field</Button>
                     <Button
                         style={{ marginLeft: 20 }}
@@ -129,6 +130,7 @@ const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddB
                                 setIsUpdated(true)
                             }
                         }}
+                        disabled={isLastField}
                     >Delete Field</Button>
                 </div>
             }
@@ -137,7 +139,7 @@ const BigFieldDisplay = ({ field, index, confirmModal, addBigFieldIndex, setAddB
             collapsible
         >
             {error !== null ? error.missSmallField ? <span style={{ color: "red" }}>**{MISSING_SMALL_FIELD}</span> : <></> : <></>}
-            <AllowcateDisplay setIsUpdated={setIsUpdated} setAddedSmallFieldID={setAddedSmallFieldID} addedSmallFieldID={addedSmallFieldID} confirmModal={confirmModal} bigFieldIndex={index} field={createSmallField()} />
+            <AllowcateDisplay setIsUpdated={setIsUpdated} setAddedSmallFieldID={setAddedSmallFieldID} addedSmallFieldID={addedSmallFieldID} confirmModal={confirmModal} bigFieldIndex={index} field={createSmallField()} isLastField={isLastField}/>
         </ProCard>
     )
 }

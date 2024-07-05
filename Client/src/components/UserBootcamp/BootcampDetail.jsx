@@ -1,5 +1,5 @@
 import { ProCard, ProDescriptions } from '@ant-design/pro-components';
-import { Button, Divider, Input, Tooltip } from 'antd';
+import { Button, Divider, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { WarningOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,6 +22,8 @@ import DraggableSemesterTable from './DraggableSemesterTable';
 import { getDepartmentById, getMajorById, updateDepartmentList, updateViewedMajor } from '../../redux/major/major';
 import ViewBootcampOnly from './ViewBootcampOnly';
 import { AutogenAllSubjectCode, getFirstAutogenSubjectIndex } from '../../util/AutogenSubjectCode/autogenSubjectCode';
+
+const {Text} = Typography
 
 const BootcampDetail = ({ confirmModal, openNotification }) => {
     const actionRef = useRef();
@@ -63,14 +65,16 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
     const [isUpdated, setIsUpdated] = useState(false)
     const sumTotalAllowcatedCredits = () => {
         return viewedAllowcatedFields.reduce((accumulator, field, index) => {
-            if(index < viewedAllowcatedFields.length - 1){
+            if (index < viewedAllowcatedFields.length - 1) {
                 return accumulator + field.compulsoryCredits + field.electiveCredits
-            }else return accumulator
-            
+            } else return accumulator
+
         }, 0)
     }
     const renderAllowcate = () => {
-        return viewedAllowcatedFields.map((field, index) => {
+        let listComponent = viewedAllowcatedFields.map((field, index) => {
+            let isLastField = false
+            if (index === viewedAllowcatedFields.length - 1) isLastField = true
             // if(index === viewedAllowcatedFields.length - 1)
             let error = null
             if (errorMessage.allowcate.length > 0) {
@@ -82,13 +86,25 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             }
             return (<>
                 <Divider />
-                <BigFieldDisplay error={error} setIsUpdated={setIsUpdated} setScrollX={index === viewedAllowcatedFields.length - 1 ? setScrollX : null} addBigFieldIndex={addBigFieldIndex} setAddBigFieldIndex={setAddBigFieldIndex} field={field} key={index} index={index} confirmModal={confirmModal} />
+                <BigFieldDisplay error={error} setIsUpdated={setIsUpdated} setScrollX={index === viewedAllowcatedFields.length - 1 ? setScrollX : null} addBigFieldIndex={addBigFieldIndex} setAddBigFieldIndex={setAddBigFieldIndex} field={field} key={index} index={index} confirmModal={confirmModal} isLastField={isLastField} />
             </>)
         })
+        listComponent.push(<>
+            <Divider />
+            <ProCard
+                ghost
+                gutter={8}
+                title={<Text>Military Education (165 hours)</Text>}
+            >
+            </ProCard>
+        </>)
+        return listComponent
     }
     const renderFieldSubject = (type) => {
         let firstIndexSubjectCode = 0
         return viewedAllowcatedFields.map((field, index) => {
+            let isLastField = false
+            if (index === viewedAllowcatedFields.length - 1) isLastField = true
             if (type === "compulsory") {
                 const subjectList = []
                 let newFirstIndex = firstIndexSubjectCode
@@ -102,7 +118,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} />
+                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.compulsoryCredits} type={type} isLastField={isLastField} />
             } else if (type === "elective") {
                 const subjectList = []
                 let newFirstIndex = firstIndexSubjectCode
@@ -120,7 +136,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                     }
                 })
                 firstIndexSubjectCode += field.subjectList.length
-                return <SubjectDisplayTable field={field}  addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} />
+                return <SubjectDisplayTable field={field} addToDeletedList={addToDeletedList} firstIndex={newFirstIndex} groupError={groupError} electiveSubjectList={field.electiveSubjectList} error={error} setIsUpdated={setIsUpdated} confirmModal={confirmModal} key={index} fieldName={field?.fieldName} fieldIndex={index} subjectList={subjectList} totalCredits={field.electiveCredits} type={type} isLastField={isLastField} />
             }
         })
     }
@@ -130,12 +146,12 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
             let subjectList = []
             subjectList = semester.map((subject, sindex) => {
                 let isBranchNotActive = false
-                if(viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor){
+                if (viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor) {
                     let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === viewedAllowcatedFields[subject.fieldIndex].subjectList[subject.subjectIndex].branchMajor)
-                    if(belongBranchMajorIndex === -1){
+                    if (belongBranchMajorIndex === -1) {
                         isBranchNotActive = true
-                    }else {
-                        if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
+                    } else {
+                        if (viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
                     }
                 }
                 return {
@@ -153,25 +169,25 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 field.electiveSubjectList.forEach((group, gIndex) => {
                     if (group.semester === index) {
                         let isBranchNotActive = false
-                        if(group.branchMajor){
+                        if (group.branchMajor) {
                             let groupBranchId = ''
-                            if(group.branchMajor._id){
+                            if (group.branchMajor._id) {
                                 groupBranchId = group.branchMajor._id
-                            }else{
+                            } else {
                                 groupBranchId = group.branchMajor
                             }
                             let belongBranchMajorIndex = viewedMajor.branchMajor.findIndex(branch => branch._id === groupBranchId)
-                           
-                            if(belongBranchMajorIndex === -1){
+
+                            if (belongBranchMajorIndex === -1) {
                                 isBranchNotActive = true
-                            }else {
-                                if(viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
+                            } else {
+                                if (viewedMajor.branchMajor[belongBranchMajorIndex].isActive === false) isBranchNotActive = true
                             }
                         }
                         subjectList.unshift({
                             name: (() => {
-                                if(field.isElectiveNameBaseOnBigField){
-                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                if (field.isElectiveNameBaseOnBigField) {
+                                    let smallFieldGroupList = field.electiveSubjectList.map((ggroup, index) => {
                                         return {
                                             ...ggroup,
                                             index
@@ -192,20 +208,20 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             fieldIndex: fIndex,
                             groupIndex: gIndex,
                             isBranchNotActive,
-                            trueData:group
+                            trueData: group
                         })
                     }
                 })
             })
             if (index >= 4) {
                 viewedMajor.branchMajor?.forEach((branch, index) => {
-                    if(branch.isActive === true)
-                    subjectList.unshift({
-                        ...branch,
-                        key: branch._id,
-                        isBranch: true,
-                        isGroup: false,
-                    })
+                    if (branch.isActive === true)
+                        subjectList.unshift({
+                            ...branch,
+                            key: branch._id,
+                            isBranch: true,
+                            isGroup: false,
+                        })
                 })
             }
 
@@ -228,26 +244,26 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 let createdAllowcate = null
                 const newFieldData = {
                     "detail": viewedAllowcatedFields.map((field) => {
-                      return {
-                        "name": field?.fieldName,
-                        "detail": field.smallField.map((sfield) => {
-                          return {
-                            "name": sfield?.fieldName,
-                            "compulsoryCredit": sfield.compulsoryCredits,
-                            "OptionalCredit": sfield.electiveCredits
-                          }
-                        }),
-                        "isElectiveNameBaseOnBigField": field.isElectiveNameBaseOnBigField
-                      }
+                        return {
+                            "name": field?.fieldName,
+                            "detail": field.smallField.map((sfield) => {
+                                return {
+                                    "name": sfield?.fieldName,
+                                    "compulsoryCredit": sfield.compulsoryCredits,
+                                    "OptionalCredit": sfield.electiveCredits
+                                }
+                            }),
+                            "isElectiveNameBaseOnBigField": field.isElectiveNameBaseOnBigField
+                        }
                     })
-                  }
+                }
                 let allowcateRes = await dispatch(updateAllowcate({ allowcateId: viewedAllowcatedFieldsID, fieldData: newFieldData }))
                 createdAllowcate = allowcateRes.payload.data
                 for (let i = 0; i < viewedAllowcatedFields.length; i++) {
                     const newSubjectList = []
                     for (let j = 0; j < viewedAllowcatedFields[i].subjectList.length; j++) {
                         if (viewedAllowcatedFields[i].subjectList[j].status.includes(SUBJECT_ADDED_NORMAL)) {
-                  
+
                             let subjectData = {
                                 "name": viewedAllowcatedFields[i].subjectList[j].name,
                                 "subjectCode": viewedAllowcatedFields[i].subjectList[j].isAutoCreateCode ? AutogenAllSubjectCode({ ...viewedAllowcatedFields[i].subjectList[j], indexAutogenSubjectCode: subjectInListIndex }) : viewedAllowcatedFields[i].subjectList[j].subjectCode,
@@ -284,21 +300,21 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                             }
                             newSubjectList.push(updatedData)
                         }
-                        
-            
+
+
                         subjectInListIndex++
                     }
-                   
+
                     createdAllowcate.detail[i].subjectList = newSubjectList
-                    createdAllowcate.detail[i].electiveSubjectList= viewedAllowcatedFields[i].electiveSubjectList.map((group) => {
+                    createdAllowcate.detail[i].electiveSubjectList = viewedAllowcatedFields[i].electiveSubjectList.map((group) => {
                         let newGroupData = { ...group }
                         if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
-                          newGroupData.allocateChildId = createdAllowcate.detail[i].detail[newGroupData.allocateChildId]._id
+                            newGroupData.allocateChildId = createdAllowcate.detail[i].detail[newGroupData.allocateChildId]._id
                         }
                         return newGroupData
-                    })  
+                    })
                 }
-          
+
                 const fieldData = {
                     "detail": [...createdAllowcate.detail]
                 }
@@ -395,10 +411,10 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                 electiveSubjectList: field.electiveSubjectList.map((group) => {
                     let newGroupData = { ...group }
                     if (newGroupData.allocateChildId !== undefined && newGroupData.allocateChildId !== null) {
-                      newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
+                        newGroupData.allocateChildId = field.detail.findIndex(sField => sField._id === newGroupData.allocateChildId)
                     }
                     return newGroupData
-                  })
+                })
             }
         })
 
@@ -452,7 +468,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
 
     }, [viewedMajor])
     return (
-        <div style={{height:'100%', display:'flex', flexDirection:'column'}}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <AddSubjectToSemesterModal setIsUpdated={setIsUpdated} type={"view"} selectedSemester={selectedSemester} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <ProDescriptions
                 actionRef={actionRef}
@@ -588,6 +604,7 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                 }
                             >
                                 {renderAllowcate()}
+
                             </ProCard>
                             <ProCard subTitle={errorMessage.compulsory.length > 0 ? <WarningOutlined style={{ color: "red", marginLeft: 5 }} /> : ""} collapsible bodyStyle={{ paddingTop: 0, paddingBottom: 25 }} style={{ marginTop: 20 }} bordered hoverable title="Compulsory Subject">
                                 {renderFieldSubject("compulsory")}

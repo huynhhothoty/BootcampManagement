@@ -50,7 +50,8 @@ const SubjectDisplayTable = ({
     error,
     electiveSubjectList,
     firstIndex,
-    field
+    field,
+    isLastField
 }) => {
     const formRef = useRef();
     const dispatch = useDispatch();
@@ -255,7 +256,7 @@ const SubjectDisplayTable = ({
             title: '',
             valueType: 'option',
             width: '12%',
-            render: (_, row) => [
+            render: (_, row) => !isLastField && [
                 <a
                     key='edit'
                     onClick={() => {
@@ -580,6 +581,7 @@ const SubjectDisplayTable = ({
                                                     <Button
                                                         type='primary'
                                                         onClick={() => { handleOpenElectiveGroupModal(null) }}
+                                                        disabled={isLastField}
                                                     >
                                                         Add New Group
                                                     </Button>
@@ -662,6 +664,7 @@ const SubjectDisplayTable = ({
                                             >
                                                 <Button
                                                     type='primary'
+                                                    disabled={isLastField}
                                                     onClick={() => {
                                                         setSubjestModalData({
                                                             type: 'add',

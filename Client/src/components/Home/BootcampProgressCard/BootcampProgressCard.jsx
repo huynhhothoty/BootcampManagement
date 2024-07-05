@@ -3,6 +3,7 @@ const { Meta } = Card;
 import { Progress } from 'antd';
 import { CaculatePercent } from "../../../util/CaculatePercent/caculatePercent";
 import { useEffect, useState } from "react";
+import subject from "../../../redux/subject/subject";
 
 const BootcampProgressCard = ({bootcamp}) => {
     const [completeCompulsoryCredits, setCompleteCompulsoryCredits] = useState(0)
@@ -29,14 +30,18 @@ const BootcampProgressCard = ({bootcamp}) => {
                         completeTotalCompulsoryCredit += subject.credit
                     }
                 }
-                if(subject.isCompulsory){
-                    totalCompulsoryCredits += subject.credit
-                }
             })
            
         })
       
-        allocation?.detail.forEach(field => {
+        allocation?.detail.forEach((field,index) => {
+            if(index < allocation.detail.length - 1){
+                field.subjectList.forEach(subject => {
+                    if(subject.isCompulsory) {
+                        totalCompulsoryCredits += subject.credit
+                    }
+                })
+            }
             field?.electiveSubjectList.forEach((group) => {
 
                 if(group.semester !== null){

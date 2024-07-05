@@ -150,6 +150,10 @@ const Main = () => {
       label: 'My Curriculum',
     },
     {
+      type: 'divider',
+      
+    },
+    {
       key: '4',
       icon: <BookOutlined />,
       label: 'Subjects',
@@ -165,15 +169,16 @@ const Main = () => {
       label: 'Majors',
     },
     {
-      key: '7',
-      icon: <UserOutlined />,
-      label: 'Users',
-    },
-    {
       key: '8',
       icon: <UserOutlined />,
       label: 'Teachers',
     },
+    {
+      key: '7',
+      icon: <UserOutlined />,
+      label: 'Users',
+    },
+   
   ]
   const teacherOptions = [
     {
@@ -190,6 +195,29 @@ const Main = () => {
       key: '3',
       icon: <UnorderedListOutlined />,
       label: 'My Bootcamp',
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: '4',
+      icon: <BookOutlined />,
+      label: 'Subjects',
+    },
+    {
+      key: '5',
+      icon: <BlockOutlined />,
+      label: 'Departments',
+    },
+    {
+      key: '6',
+      icon: <CalendarOutlined />,
+      label: 'Majors',
+    },
+    {
+      key: '8',
+      icon: <UserOutlined />,
+      label: 'Teachers',
     },
   ]
 

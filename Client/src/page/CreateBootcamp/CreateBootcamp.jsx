@@ -457,7 +457,6 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
           _id: newTemplateBootcampData.allocation._id
         }
       })
-      console.log(allowcateFields)
       semesterList = newTemplateBootcampData.detail.map((semester) => {
         let semesterIndex = Number(semester.semester.split(" ")[1]) - 1
         return semester.subjectList.map((subject, index) => {
@@ -664,29 +663,30 @@ const CreateBootcamp = ({ openNotification, confirmModal }) => {
                   <Radio value="create">Create Curriculum</Radio>
                 </Radio.Group>
                 :
-                <Button style={{ marginLeft: 20 }} type='primary' onClick={() => {
-                  if (userData.major.templateBootcamp) {
-                    handleAddTemplate(userData.major.templateBootcamp)
-                  }
-
-                }}>Reload Template</Button>
+                <></>
             }
           </div>
         </Col>
         <Col span={12} style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button style={{ marginRight: 20 }} onClick={() => {
+          if (userData.major.templateBootcamp) {
+            handleAddTemplate(userData.major.templateBootcamp)
+          }
 
+        }}>Reload Template</Button>
+        <Button onClick={async () => {
+          const confirmed = await confirmModal.confirm(clearAllConfirmConfig)
+          if (confirmed) {
+            await dispatch(resetAll())
+
+          }
+
+        }} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true} danger>Clear All</Button>
           {
             manageStatus === 'create' ?
 
               <>
-                <Button onClick={async () => {
-                  const confirmed = await confirmModal.confirm(clearAllConfirmConfig)
-                  if (confirmed) {
-                    await dispatch(resetAll())
-
-                  }
-
-                }} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true} danger>Clear All</Button>
+                
                 {/* <Button onClick={handleOpenDraftModal} style={{ marginRight: 20 }} disabled={selectedMajor.length > 0 ? false : true}>You have ({draftList.length}) Draft</Button> */}
                 <Button type='primary' onClick={handleCreatebootcamp} htmlType='submit' disabled={selectedMajor.length > 0 ? false : true}>Create</Button>
               </>

@@ -10,7 +10,7 @@ import { MISSING_FIELD_NAME } from '../../util/constants/errorMessage';
 
 
 
-const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldID, setAddedSmallFieldID, setIsUpdated }) => {
+const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldID, setAddedSmallFieldID, setIsUpdated, isLastField }) => {
     const dispatch = useDispatch()
     const actionRef = useRef()
     const [fieldName, setFieldName] = useState('')
@@ -114,7 +114,7 @@ const AllowcateDisplay = ({ field, bigFieldIndex, confirmModal, addedSmallFieldI
 
                 actions: {
                     render: (text, row, index, action) => [
-                        <a
+                        !isLastField && <a
                             onClick={() => {
                                 setFieldName(row.fieldName)
                                 setCompulsoryCredits(row.compulsoryCredits)

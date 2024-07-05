@@ -17,7 +17,8 @@ const AllowcateTableViewOnly = ({compareData, isMain}) => {
         let allFieldElectiveCredits = 0
         let allFieldtotalName = ''
         customAllocate = dataRender.map((field,index) => {
-            allFieldCompulsoryCredits += field.compulsoryCredits
+            if(index < dataRender.length - 1)
+                allFieldCompulsoryCredits += field.compulsoryCredits
             allFieldElectiveCredits += field.electiveCredits
             return {
                 ...field,
@@ -32,17 +33,19 @@ const AllowcateTableViewOnly = ({compareData, isMain}) => {
             }
         })
         customAllocate.push({
+            fieldName:'Military Education',
+            children: [],
+            totalCredits: '165 Hours',
+            isMilitary: true,
+            colSpan: 3
+        })
+        customAllocate.push({
             fieldName:'Total Program Credits',
             compulsoryCredits: allFieldCompulsoryCredits,
             electiveCredits: allFieldElectiveCredits,
             totalCredits:  allFieldCompulsoryCredits + allFieldElectiveCredits
         })
-        // customAllocate.push({
-        //     fieldName:'Total Program Credits',
-        //     compulsoryCredits: allFieldCompulsoryCredits,
-        //     electiveCredits: allFieldElectiveCredits,
-        //     totalCredits:  allFieldCompulsoryCredits + allFieldElectiveCredits
-        // })
+        
         return customAllocate
     }
     return (

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, InputNumber, Progress, Radio, Row, } from 'antd';
+import { Button, Card, Col, Form, Input, Typography, Radio, Row, } from 'antd';
 import { useEffect, useState } from 'react';
 import { CaculatePercent } from '../../../util/CaculatePercent/caculatePercent';
 import Semester from '../Semester/Semester';
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addBigField, updateTotalCredits } from '../../../redux/CreateBootcamp/createBootCamp';
 import Field from './Field';
 import { NOT_CORRECT_CREDITS } from '../../../util/constants/errorMessage';
+const {Text} = Typography
 
 const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
 
@@ -19,17 +20,17 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
       if (errorMessage.length > 0) {
         if (errorMessage[0].data)
           if (errorMessage[0].data.errorFieldIndex.includes(index))
-            return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField}/>
+            return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} errorMess={errorMessage[0].message} errorData={errorMessage[0].data.errorField[index]} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField} />
       }
-      return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField}/>
+      return <Field fieldIndex={index} openContentModal={openContentModal} confirmModal={confirmModal} bigFieldIndex={index} key={index} fieldData={field} isLastField={isLastField} />
 
     })
   }
   const countTotalCompulsoryCredits = () => {
     let totalCompulsoryCredits = 0
-    allowcateFields.forEach((field,index) => {
-      if(index < allowcateFields.length - 1)
-      totalCompulsoryCredits += field.compulsoryCredits
+    allowcateFields.forEach((field, index) => {
+      if (index < allowcateFields.length - 1)
+        totalCompulsoryCredits += field.compulsoryCredits
 
     })
     return totalCompulsoryCredits
@@ -37,9 +38,9 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
   }
   const countTotalElectiveCredits = () => {
     let totalElectiveCredits = 0
-    allowcateFields.forEach((field,index) => {
-      if(index < allowcateFields.length - 1)
-      totalElectiveCredits += field.electiveCredits
+    allowcateFields.forEach((field, index) => {
+      if (index < allowcateFields.length - 1)
+        totalElectiveCredits += field.electiveCredits
     })
     return totalElectiveCredits
 
@@ -59,7 +60,7 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
           <Col span={24} style={{ display: "flex", justifyContent: "space-between" }}>
             <Button onClick={() => dispatch(addBigField())} type='primary'>+ Add Field</Button>
             <div>
-             
+
               <span style={{ marginRight: 50 }}>
                 Total Proram Credits:
                 <span style={{ color: (countTotalAll() > totalCredits || countTotalAll() < totalCredits) ? "red" : "#5cb85c" }}> {countTotalAll()} \ {totalCredits} </span>
@@ -72,7 +73,7 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
               </span>
             </div>
           </Col>
-          {errorMessage.length === 0 ? "" : errorMessage[0].data === null ? "" : errorMessage[0].data.isEqualTotalCredits ? "": <div style={{ color: "red", marginTop: 10 }}>**{NOT_CORRECT_CREDITS}</div>}
+          {errorMessage.length === 0 ? "" : errorMessage[0].data === null ? "" : errorMessage[0].data.isEqualTotalCredits ? "" : <div style={{ color: "red", marginTop: 10 }}>**{NOT_CORRECT_CREDITS}</div>}
           <Col span={24}>
             <Form.Item
 
@@ -80,9 +81,23 @@ const AllocateField = ({ openContentModal, errorMessage, confirmModal }) => {
               {renderAllowcateField()}
               {errorMessage.length === 0 ? "" : (errorMessage[0].data === null && allowcateFields.length === 0) ? <div style={{ color: "red", marginTop: 10, textAlign: "center" }}>{errorMessage[0].message}</div> : ""}
             </Form.Item>
-
+            <Card
+            hoverable
+            size="small"
+          >
+            <Row>
+              <Col span={6}>
+                <Input disabled value={'Military Education'}/>
+              </Col>
+              <Col span={18} style={{display:'flex', justifyContent:'space-evenly', alignItems:'center'}}>
+        
+                  <Text strong>165 hour</Text>
+                
+              </Col>
+            </Row>
+          </Card>
           </Col>
-
+          
         </Row>
 
 
