@@ -117,7 +117,7 @@ export const allowcateSlice = createSlice({
       })
     },
     addBigFieldToViewedFields: (state, action) => {
-      state.viewedAllowcatedFields.push({
+      state.viewedAllowcatedFields.splice(state.viewedAllowcatedFields.length - 1, 0,{
         compulsoryCredits: 0,
         electiveCredits: 0,
         fieldName: "",

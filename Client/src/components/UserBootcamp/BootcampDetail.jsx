@@ -8,7 +8,7 @@ import BigFieldDisplay from './BigFieldDisplay';
 import SubjectDisplayTable from './SubjectDisplayTable';
 import SemesterTableDisplay from './SemesterTableDisplay';
 import { addBigFieldToViewedFields, getAllowcatById, updateAllowcate, updateViewedAllocatedField } from '../../redux/allocate/allowcate';
-import { addSemesterToViewedSemesterList, updateSubject, updateViewedSemesterList, updateViewedSemesterSubjectLis, updateViewedSubjectList } from '../../redux/subject/subject';
+import { addSemesterToViewedSemesterList, updateAddNewFieldPosition, updateSubject, updateViewedSemesterList, updateViewedSemesterSubjectLis, updateViewedSubjectList } from '../../redux/subject/subject';
 import AddSubjectToSemesterModal from '../CreateBootcamp/SubjectModal/AddSubjectToSemesterModal';
 import { validateBootcampData } from '../../util/ValidateBootcamp/validateBootcampData';
 import { updateBootcamp, updateViewedBootcamp, updateViewedBootcampName, updateViewedBootcampTotalCredits } from '../../redux/bootcamp/bootcamp';
@@ -581,6 +581,8 @@ const BootcampDetail = ({ confirmModal, openNotification }) => {
                                         <Button
                                             type='primary'
                                             onClick={() => {
+                                                const tempMaxLength = viewedAllowcatedFields.length - 1
+                                                dispatch(updateAddNewFieldPosition(tempMaxLength))
                                                 dispatch(addBigFieldToViewedFields())
                                                 setAddBigFieldIndex(viewedAllowcatedFields.length)
                                                 if (scrollX > positionRef.current.offsetHeight) {

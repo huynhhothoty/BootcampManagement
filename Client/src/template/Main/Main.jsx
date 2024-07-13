@@ -226,7 +226,7 @@ const Main = () => {
     if (userData) {
       userData = JSON.parse(userData)
       if (userData.role !== "admin") {
-        if (location.pathname !== "/" && location.pathname !== "/createbootcamp" && location.pathname !== "/userbootcamp" && location.pathname !== "/userbootcamp/viewbootcamp") {
+        if (location.pathname == "/user") {
           navigate('/unauthorized')
         }
       }

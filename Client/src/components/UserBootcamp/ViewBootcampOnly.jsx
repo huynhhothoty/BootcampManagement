@@ -98,7 +98,7 @@ const ViewBootcampOnly = () => {
               setIsScrollTogether(e.target.checked)
             }} defaultChecked>Scroll Together</Checkbox>
           </div> :
-          <Button onClick={handleOpenModal} type='primary'>Compare Bootcamp</Button>
+          <Button onClick={handleOpenModal} type='primary'>Compare Curriculum</Button>
         }
       </div>
 

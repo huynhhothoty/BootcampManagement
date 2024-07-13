@@ -274,6 +274,21 @@ export const subjectSlice = createSlice({
     updateElectiveSubjectNote: (state, action) => {
       state.checkElecttivSubjectList[action.payload.fieldIndex][action.payload.subjectIndex].note = action.payload.note
     },
+    updateAddNewFieldPosition: (state,action) => {
+      state.viewedSemesterSubjectList = state.viewedSemesterSubjectList.map((subject,index) => {
+        if(subject.fieldIndex === action.payload){
+          if(subject.semester !== null){
+            let semesterSubjectIndex = state.viewedSemesterList[subject.semester].findIndex(s => s.fieldIndex === subject.fieldIndex && s.subjectIndex === subject.subjectIndex);
+            state.viewedSemesterList[subject.semester][semesterSubjectIndex].fieldIndex = state.viewedSemesterList[subject.semester][semesterSubjectIndex].fieldIndex + 1
+
+          }
+          return {
+            ...subject,
+            fieldIndex: subject.fieldIndex + 1
+          }
+        }else return subject
+      })
+    }
   },
 });
 export const {
@@ -298,6 +313,7 @@ export const {
   updateSubjectTeacherList,
   updateSubjectNote,
   updateElectiveSubjectTeacherList,
-  updateElectiveSubjectNote
+  updateElectiveSubjectNote,
+  updateAddNewFieldPosition
 } = subjectSlice.actions;
 export default subjectSlice.reducer;
