@@ -379,7 +379,7 @@ const SubjectDisplayTable = ({
                                     groupIndex: row.key,
                                 })
                             );
-                            dispatch(updateCompleteCreditsToViewedBootcamp(row.credit));
+                            dispatch(updateCompleteCreditsToViewedBootcamp(-row.credit));
                             setIsUpdated(true);
                         }
                     }}
