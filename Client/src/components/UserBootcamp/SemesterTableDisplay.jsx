@@ -247,7 +247,10 @@ const SemesterTableDisplay = ({
         ];
         const data = [];
         subjectList.forEach((subject) => {
-            if (subject.branchMajor === branch._id) {
+            if(subject.isGroup && subject.branchMajor){
+                data.push(subject);
+            }
+            else if (subject.branchMajor === branch._id) {
                 data.push(subject);
             }
         });

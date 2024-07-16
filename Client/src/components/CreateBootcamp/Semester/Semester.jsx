@@ -1,4 +1,4 @@
-import { SearchOutlined, DeleteOutlined, WarningOutlined,MenuOutlined } from '@ant-design/icons';
+import { SearchOutlined, DeleteOutlined, WarningOutlined,MenuOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { Button, Input, Space, Table, Card, Divider, Tag, Row, Col, Tooltip } from 'antd';
@@ -682,6 +682,40 @@ const Semester = ({
         return newSubjectArray;
     };
 
+    const renderTooltip = () => {
+        let itemMap = []
+        if (viewedMajor) {
+            viewedMajor?.branchMajor?.forEach((branch, index) => {
+                if(branch.isActive === true){
+                    let totalCredits = 0
+                    allowcateFields.forEach((field, fIndex) => {
+                        field.electiveSubjectList.forEach((group, gIndex) => {
+                            if (group.branchMajor !== undefined && group.branchMajor !== null) {   
+                                if (group.semester === semesterIndex) {
+                                    totalCredits += group.credit
+                                }
+                                
+                            }
+                        })
+                    })
+                    subjectList.forEach((subject, index) => {
+                        if (
+                            allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                                .branchMajor === branch._id
+                        ) {
+                            totalCredits += allowcateFields[subject.fieldIndex].subjectList[
+                                subject.subjectIndex
+                            ].credits
+                        }
+                    });
+                    itemMap.unshift(<div key={index}>{branch.name}: {totalCredits}</div>)
+                }
+                
+            })
+        }
+        return itemMap
+    }
+
     const countTotalCredits = () => {
         let totalCredits = 0;
         subjectList.forEach((subject, index) => {
@@ -729,6 +763,7 @@ const Semester = ({
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ display: 'flex', gap: 8 }}>
                     <h2>Semester {semesterIndex + 1} - Total Credit: </h2>
+                    
                     {countTotalCredits() <= 30 ? (
                         <h2 style={{ color: '#5cb85c' }}>{countTotalCredits()}</h2>
                     ) : (
@@ -738,6 +773,9 @@ const Semester = ({
                             </h2>
                         </Tooltip>
                     )}
+                    <Tooltip title={<div>{renderTooltip()}</div>}>
+                    <InfoCircleOutlined style={{fontSize:18}}/>
+                    </Tooltip>
                 </span>
 
                 <div>
