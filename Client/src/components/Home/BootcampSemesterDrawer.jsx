@@ -151,10 +151,18 @@ const BootcampSemesterDrawer = ({ open, onClose, data, resetDrawerData, teacherL
                         }
                         if (group.branchMajor !== undefined) {
                             if (group.branchMajor !== null) {
-        
+                                branchMajorList.map(branch => {
+                                    let alreadyInIndex = branch.children.findIndex(child => child.key === newGroup.key)
+                                    if(alreadyInIndex === - 1){
+                                        return {
+                                            ...branch,
+                                            children: branch.children.push(newGroup)
+                                        }
+                                    }else return branch
+                                    
+                                })
                                 const branchMajorIndex = branchMajorList.findIndex(branchMajor => branchMajor._id === group.branchMajor)
                                 if (branchMajorIndex !== -1) {
-                                    branchMajorList[branchMajorIndex].children.push(newGroup)
                                     tempCheckSubjectList.push(newGroup)
                                     return
                                 }

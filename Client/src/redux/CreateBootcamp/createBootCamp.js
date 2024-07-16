@@ -586,6 +586,11 @@ export const createBootcampSlice = createSlice({
       state.semesterSubjectList[
         action.payload.semesterSubjectListIndex
       ].semester = null;
+      state.allowcateFields[state.semesterSubjectList[
+        action.payload.semesterSubjectListIndex
+      ].fieldIndex].subjectList[state.semesterSubjectList[
+        action.payload.semesterSubjectListIndex
+      ].subjectIndex].branchMajor=null
     },
     addSemester: (state, action) => {
       state.semesterList.push([]);

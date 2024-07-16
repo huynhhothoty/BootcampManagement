@@ -220,11 +220,6 @@ const Semester = ({
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
-            render: (text) => (
-                <Tooltip title={text} placement="topLeft">
-                    {text}
-                </Tooltip>
-            )
         },
 
         {
@@ -273,6 +268,95 @@ const Semester = ({
         },
     ];
     const expandedRowRender = (branch) => {
+         const data = [];
+       
+        allowcateFields.forEach((field, fIndex) => {
+            field.electiveSubjectList.forEach((group, gIndex) => {
+              
+                if (group.branchMajor !== undefined && group.branchMajor !== null) {
+                    if (group.branchMajor._id) {
+                        
+                            if (group.semester === semesterIndex) {
+                               
+                                data.unshift({
+                                    name: (() => {
+                                        if(field.isElectiveNameBaseOnBigField){
+                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                return {
+                                                    ...ggroup,
+                                                    index
+                                                }
+                                            })
+                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                        }
+                                        return `${field?.fieldName} ${gIndex + 1}`
+                                    })(),
+                                    isCompulsory: false,
+                                    credits: group.credit,
+                                    isBranch: false,
+                                    isGroup: true,
+                                    branchMajor: group.branchMajor?._id
+                                        ? group.branchMajor._id
+                                        : group.branchMajor,
+                                    semester: group.semester,
+                                    fieldIndex: fIndex,
+                                    groupIndex: gIndex,
+                                    trueData: group
+                                });
+                            }
+                        
+                    } else {
+                            if (group.semester === semesterIndex) {
+                            
+                                data.unshift({
+                                    name: (() => {
+                                        if(field.isElectiveNameBaseOnBigField){
+                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
+                                                return {
+                                                    ...ggroup,
+                                                    index
+                                                }
+                                            })
+                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
+                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
+                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
+                                        }
+                                        return `${field?.fieldName} ${gIndex + 1}`
+                                    })(),
+                                    isCompulsory: false,
+                                    credits: group.credit,
+                                    isBranch: false,
+                                    isGroup: true,
+                                    branchMajor: group.branchMajor?._id
+                                        ? group.branchMajor._id
+                                        : group.branchMajor,
+                                    semester: group.semester,
+                                    fieldIndex: fIndex,
+                                    groupIndex: gIndex,
+                                    trueData: group
+                                });
+                            }
+                        
+                    }
+                }
+            });
+        });
+        subjectList.forEach((subject, index) => {
+            if (
+                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                    .branchMajor === branch._id
+            ) {
+                data.push({
+                    ...allowcateFields[subject.fieldIndex].subjectList[
+                        subject.subjectIndex
+                    ],
+                    semesterSubjectListIndex: subject.semesterSubjectListIndex,
+                    key: index,
+                });
+            }
+        });
         const columns = [
             {
                 title: 'STT',
@@ -380,97 +464,8 @@ const Semester = ({
                 },
             },
         ];
-        const data = [];
-        allowcateFields.forEach((field, fIndex) => {
-            field.electiveSubjectList.forEach((group, gIndex) => {
-             
-                if (group.branchMajor !== undefined && group.branchMajor !== null) {
-                    if (group.branchMajor._id) {
-                        if (group.branchMajor._id === branch._id) {
-                            
-                            if (group.semester === semesterIndex) {
-                               
-                                data.unshift({
-                                    name: (() => {
-                                        if(field.isElectiveNameBaseOnBigField){
-                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
-                                                return {
-                                                    ...ggroup,
-                                                    index
-                                                }
-                                            })
-                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
-                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
-                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
-                                        }
-                                        return `${field?.fieldName} ${gIndex + 1}`
-                                    })(),
-                                    isCompulsory: false,
-                                    credits: group.credit,
-                                    isBranch: false,
-                                    isGroup: true,
-                                    branchMajor: group.branchMajor?._id
-                                        ? group.branchMajor._id
-                                        : group.branchMajor,
-                                    semester: group.semester,
-                                    fieldIndex: fIndex,
-                                    groupIndex: gIndex,
-                                    trueData: group
-                                });
-                            }
-                        }
-                    } else {
-                        if (group.branchMajor === branch._id) {
-                            if (group.semester === semesterIndex) {
-                            
-                                data.unshift({
-                                    name: (() => {
-                                        if(field.isElectiveNameBaseOnBigField){
-                                            let smallFieldGroupList = field.electiveSubjectList.map((ggroup,index) => {
-                                                return {
-                                                    ...ggroup,
-                                                    index
-                                                }
-                                            })
-                                            smallFieldGroupList = smallFieldGroupList.filter(ggroup => ggroup.allocateChildId === group.allocateChildId)
-                                            let keyIndex = smallFieldGroupList.findIndex(ggroup => ggroup.index === gIndex)
-                                            return `${field.smallField[group.allocateChildId].fieldName} ${keyIndex + 1}`
-                                        }
-                                        return `${field?.fieldName} ${gIndex + 1}`
-                                    })(),
-                                    isCompulsory: false,
-                                    credits: group.credit,
-                                    isBranch: false,
-                                    isGroup: true,
-                                    branchMajor: group.branchMajor?._id
-                                        ? group.branchMajor._id
-                                        : group.branchMajor,
-                                    semester: group.semester,
-                                    fieldIndex: fIndex,
-                                    groupIndex: gIndex,
-                                    trueData: group
-                                });
-                            }
-                        }
-                    }
-                }
-            });
-        });
-        subjectList.forEach((subject, index) => {
-            if (
-                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
-                    .branchMajor === branch._id
-            ) {
-                data.push({
-                    ...allowcateFields[subject.fieldIndex].subjectList[
-                        subject.subjectIndex
-                    ],
-                    semesterSubjectListIndex: subject.semesterSubjectListIndex,
-                    key: index,
-                });
-            }
-        });
-      
+
+       
         return <Table columns={columns} dataSource={data} pagination={false} />;
     };
     const handleSemesterClick = () => {
@@ -652,12 +647,34 @@ const Semester = ({
         if (semesterIndex >= branchMajorSemester)
             if (viewedMajor) {
                 viewedMajor?.branchMajor?.forEach((branch, index) => {
+                    let totalCredits = 0;
+                    allowcateFields.forEach((field, fIndex) => {
+                        field.electiveSubjectList.forEach((group, gIndex) => {
+                            if (group.branchMajor !== undefined && group.branchMajor !== null) {   
+                                if (group.semester === semesterIndex) {
+                                    totalCredits += group.credit
+                                }
+                                
+                            }
+                        })
+                    })
+                    subjectList.forEach((subject, index) => {
+                        if (
+                            allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                                .branchMajor === branch._id
+                        ) {
+                            totalCredits += allowcateFields[subject.fieldIndex].subjectList[
+                                subject.subjectIndex
+                            ].credits
+                        }
+                    });
                     if(branch.isActive === true)
                         newSubjectArray.unshift({
                             ...branch,
                             key: branch._id,
                             isBranch: true,
                             isGroup: false,
+                            credits: totalCredits
                         });
                 });
             }
@@ -670,10 +687,11 @@ const Semester = ({
         subjectList.forEach((subject, index) => {
             
             if (
-                allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
+                (allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
                     .branchMajor === undefined ||
                 allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
-                    .branchMajor === null
+                    .branchMajor === null) &&
+                subject.fieldIndex !== allowcateFields.length - 1
             ) {
                 totalCredits +=
                     allowcateFields[subject.fieldIndex].subjectList[subject.subjectIndex]
