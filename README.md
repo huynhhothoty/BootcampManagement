@@ -3,7 +3,7 @@ A Site to manage bootcamp for student
 # Available Functions
 1. Login - Demo account:
 - email: admin@gmail.com
-- password: 123456
+- password: 123456789
 2. Create Bootcamp (Chương trình đào tạo)
 - Create new Bootcamp with imported bootcamp
 - Create new Bootcamp from scrapt
